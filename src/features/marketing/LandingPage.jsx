@@ -30,8 +30,8 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg text-ink/60 font-medium leading-relaxed">
-            Create stunning digital business cards powered by NFC.
-            Tap, connect, and leave a lasting impression — all from a single card.
+            Create stunning digital business cards powered by NFC. Tap, connect,
+            and leave a lasting impression — all from a single card.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <a
@@ -60,6 +60,35 @@ export default function LandingPage() {
             </a>
           </div>
         </section>
+        {/* Temporary content for scroll testing */}
+        <div>
+          <section className="min-h-screen px-6 py-20 text-center">
+            <h2 className="text-4xl font-bold text-ink mb-8">Section 1</h2>
+            <p className="text-lg text-ink/60 max-w-2xl mx-auto">
+              This is temporary content to test scrolling behavior. Lorem ipsum
+              dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+              incididunt ut labore et dolore magna aliqua.
+            </p>
+          </section>
+
+          <section className="min-h-screen px-6 py-20 text-center bg-navy/5">
+            <h2 className="text-4xl font-bold text-ink mb-8">Section 2</h2>
+            <p className="text-lg text-ink/60 max-w-2xl mx-auto">
+              More temporary content for scroll testing. Ut enim ad minim
+              veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+              ex ea commodo consequat.
+            </p>
+          </section>
+
+          <section className="min-h-screen px-6 py-20 text-center">
+            <h2 className="text-4xl font-bold text-ink mb-8">Section 3</h2>
+            <p className="text-lg text-ink/60 max-w-2xl mx-auto">
+              Final temporary section for scroll testing. Duis aute irure dolor
+              in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+              nulla pariatur.
+            </p>
+          </section>
+        </div>
       </main>
     </div>
   );
