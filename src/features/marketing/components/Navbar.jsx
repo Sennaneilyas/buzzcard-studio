@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 
 const NAV_LINKS = [
@@ -41,7 +41,8 @@ export default function Navbar() {
         <div
           className={`
             mx-auto flex items-center justify-between
-            transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+            will-change-[max-width,margin,padding,border-radius,background,box-shadow]
+            transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
             ${scrolled
               ? "max-w-3xl mt-4 px-3 py-2 rounded-full bg-white/70 backdrop-blur-2xl shadow-[0_2px_20px_rgba(0,35,102,0.08)] border border-ink/[0.06]"
               : "max-w-7xl mt-0 px-6 py-5 lg:px-10 bg-transparent"
@@ -55,17 +56,18 @@ export default function Navbar() {
               src="/logoHB.svg"
               alt="BuzzCard Studio"
               className={`
-                w-auto transition-all duration-500
+                w-auto transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
                 ${scrolled ? "h-6" : "h-8"}
               `}
             />
           </a>
 
           {/* ── Desktop links pill ── */}
+          <LayoutGroup>
           <div
             className={`
               hidden md:flex items-center
-              rounded-full transition-all duration-500
+              rounded-full transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
               ${scrolled
                 ? "gap-0.5 px-1 py-1 bg-ink/[0.04]"
                 : "gap-0.5 px-1.5 py-1.5 bg-ink/[0.05] backdrop-blur-md border border-ink/[0.06]"
@@ -86,22 +88,36 @@ export default function Navbar() {
                 }}
                 className={`
                   relative px-4 py-1.5 text-sm font-medium rounded-full
-                  transition-all duration-250
+                  transition-colors duration-200 z-[1]
                   ${activeLink === link.href
-                    ? "bg-mint text-ink"
+                    ? "text-ink"
                     : "text-ink/60 hover:text-ink hover:bg-ink/[0.04]"
                   }
                 `}
               >
+                {/* Sliding pill indicator */}
+                {activeLink === link.href && (
+                  <motion.span
+                    layoutId="nav-pill"
+                    className="absolute inset-0 rounded-full bg-mint"
+                    style={{ zIndex: -1 }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 380,
+                      damping: 30,
+                    }}
+                  />
+                )}
                 {link.label}
               </a>
             ))}
           </div>
+          </LayoutGroup>
 
           {/* ── Desktop CTAs ── */}
           <div
             className={`
-              hidden md:flex items-center transition-all duration-500
+              hidden md:flex items-center transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
               ${scrolled ? "gap-2" : "gap-3"}
             `}
             id="nav-cta-desktop"
@@ -198,6 +214,7 @@ export default function Navbar() {
               "
               id="nav-mobile-panel"
             >
+              <LayoutGroup id="mobile-nav">
               <ul className="flex flex-col gap-1">
                 {NAV_LINKS.map((link, i) => (
                   <motion.li
@@ -213,19 +230,32 @@ export default function Navbar() {
                         setMobileOpen(false);
                       }}
                       className={`
-                        block px-4 py-3 text-base font-medium
-                        rounded-xl transition-all duration-200
+                        relative block px-4 py-3 text-base font-medium
+                        rounded-xl transition-colors duration-200 overflow-hidden
                         ${activeLink === link.href
-                          ? "bg-mint text-ink"
+                          ? "text-ink"
                           : "text-ink/70 hover:text-ink hover:bg-ink/5"
                         }
                       `}
                     >
+                      {activeLink === link.href && (
+                        <motion.span
+                          layoutId="mobile-nav-pill"
+                          className="absolute inset-0 rounded-xl bg-mint"
+                          style={{ zIndex: -1 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 380,
+                            damping: 30,
+                          }}
+                        />
+                      )}
                       {link.label}
                     </a>
                   </motion.li>
                 ))}
               </ul>
+              </LayoutGroup>
 
               <div className="mt-auto flex flex-col gap-3">
                 <a
