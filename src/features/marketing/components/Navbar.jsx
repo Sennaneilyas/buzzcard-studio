@@ -135,8 +135,8 @@ export default function Navbar() {
             <a
               href="#get-started"
               className={`
-                font-semibold text-mint rounded-full
-                border border-mint/40
+                font-semibold text-ink rounded-full
+                border border-ink/40
                 transition-all duration-300
                 hover:bg-mint hover:text-ink hover:shadow-[0_0_20px_rgba(0,230,118,0.3)]
                 hover:scale-[1.03] active:scale-[0.97]
