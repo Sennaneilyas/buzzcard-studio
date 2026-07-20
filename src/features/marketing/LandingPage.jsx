@@ -19,9 +19,6 @@ export default function LandingPage() {
     <div className="relative min-h-screen bg-cloud" id="landing-page">
       <Navbar />
 
-      {/* Spacer to account for fixed navbar height */}
-      <div className="h-20" />
-
       <main>
         <HeroSection />
         <HowItWorks />
