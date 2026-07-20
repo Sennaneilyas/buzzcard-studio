@@ -1,4 +1,5 @@
 import Navbar from "./components/Navbar";
+import HeroSection from "./components/HeroSection";
 import HowItWorks from "./components/HowItWorks";
 import TemplatesShowcase from "./components/TemplatesShowcase";
 import Pricing from "./components/Pricing";
@@ -22,6 +23,7 @@ export default function LandingPage() {
       <div className="h-20" />
 
       <main>
+        <HeroSection />
         <HowItWorks />
         <TemplatesShowcase />
         <Pricing />
