@@ -33,7 +33,7 @@ const PROJECTS = [
  */
 export default function Work() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-white" id="work">
+    <section className="py-24 md:py-32 px-6 bg-transparent" id="work">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div

@@ -87,7 +87,7 @@ export default function Footer() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-ink/[0.06] bg-white" id="site-footer">
+      <footer className="border-t border-ink/[0.06] bg-transparent" id="site-footer">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-5 gap-12">
             {/* Brand column */}

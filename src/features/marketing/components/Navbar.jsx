@@ -44,8 +44,8 @@ export default function Navbar() {
             will-change-[max-width,margin,padding,border-radius,background,box-shadow]
             transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
             ${scrolled
-              ? "max-w-3xl mt-4 px-3 py-2 rounded-full bg-white/70 backdrop-blur-2xl shadow-[0_2px_20px_rgba(0,35,102,0.08)]"
-              : "max-w-7xl mt-0 px-6 py-5 lg:px-10 bg-transparent"
+              ? "max-w-3xl mt-4 px-3 py-2 rounded-full bg-white/75 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,35,102,0.12)] border border-white/50"
+              : "max-w-7xl mt-0 px-6 py-5 lg:px-10 bg-transparent border border-transparent"
             }
           `}
           id="main-nav"

@@ -46,7 +46,7 @@ const TEMPLATES = [
  */
 export default function TemplatesShowcase() {
   return (
-    <section className="py-24 md:py-32 px-6 bg-white" id="templates">
+    <section className="py-24 md:py-32 px-6 bg-transparent" id="templates">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <motion.div

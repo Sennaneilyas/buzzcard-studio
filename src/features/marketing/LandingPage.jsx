@@ -18,8 +18,8 @@ import HeroBackgroundWrapper from "@/components/ui/HeroBackgroundWrapper";
  */
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-white" id="landing-page">
-      <div className="px-3 pt-3 sm:px-5 sm:pt-5 lg:px-6 lg:pt-6">
+    <div className="relative min-h-screen bg-transparent" id="landing-page">
+      <div className="px-3 pt-3 sm:px-5 sm:pt-5 lg:px-6 lg:pt-6 relative z-50">
         <HeroBackgroundWrapper className="bg-cloud rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-sm border border-black/5">
           <Navbar />
           <HeroSection />
