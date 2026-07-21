@@ -21,113 +21,117 @@ export default function HeroPhoneMockup() {
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      // 1. Initial setups for purely GSAP-driven elements
-      // Card initial state ("left")
-      gsap.set(cardRef.current, { 
-        xPercent: -50, 
-        x: "-35vw", 
-        opacity: 1, 
-        rotationY: 30, 
-        rotationZ: -15, 
-        scale: 0.8,
-        transformPerspective: 800,
-        force3D: true
+      let mm = gsap.matchMedia();
+
+      mm.add("(min-width: 768px) and (min-height: 781px)", () => {
+        // 1. Initial setups for purely GSAP-driven elements
+        // Card initial state ("left")
+        gsap.set(cardRef.current, { 
+          xPercent: -50, 
+          x: "-35vw", 
+          opacity: 1, 
+          rotationY: 30, 
+          rotationZ: -15, 
+          scale: 0.8,
+          transformPerspective: 800,
+          force3D: true
+        });
+        // Card inner (front/back flip)
+        gsap.set(cardInnerRef.current, { rotationY: 180, force3D: true });
+        
+        // Notification initial state
+        gsap.set(notificationRef.current, { y: -120, opacity: 0, scale: 0.9, xPercent: -50, force3D: true });
+        
+        // Ripples initial state
+        gsap.set([ripple1Ref.current, ripple2Ref.current, ripple3Ref.current], { scale: 1, opacity: 0, force3D: true });
+
+        // NFC Ring initial state
+        gsap.set(nfcRingRef.current, { scale: 0.5, opacity: 0, force3D: true });
+
+        // 2. The Master Scrub Timeline
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: animationRef.current,
+            start: "center center",
+            end: "+=1200",
+            pin: true,
+            scrub: 1.5,
+          }
+        });
+
+        // Phase 1: Left -> Behind (0% to 25%)
+        tl.to(cardRef.current, {
+          x: "0vw",
+          rotationY: 0,
+          rotationZ: -5,
+          scale: 1,
+          duration: 25,
+          ease: "power2.inOut"
+        }, 0);
+
+        // Phase 2: Behind -> Tapping (25% to 55%)
+        tl.to(cardRef.current, {
+          rotationY: 15,
+          rotationZ: -8,
+          scale: 0.95,
+          duration: 30,
+          ease: "power1.inOut"
+        }, 25);
+        
+        // Flip card over during Tapping
+        tl.to(cardInnerRef.current, {
+          rotationY: 0,
+          duration: 20,
+          ease: "power2.inOut"
+        }, 30);
+
+        // Trigger ripples during Tapping
+        tl.to(ripple1Ref.current, { scale: 1.8, opacity: 0.4, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 35);
+        tl.to(ripple2Ref.current, { scale: 2.2, opacity: 0.3, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 40);
+        tl.to(ripple3Ref.current, { scale: 2.6, opacity: 0.2, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 45);
+
+        // Trigger NFC Ring during Tapping
+        tl.to(nfcRingRef.current, { scale: 2.5, opacity: 0.8, duration: 10, yoyo: true, repeat: 1, ease: "power1.out" }, 35);
+
+        // Notification drops down
+        tl.to(notificationRef.current, {
+          y: 46,
+          opacity: 1,
+          scale: 1,
+          duration: 15,
+          ease: "back.out(1.5)"
+        }, 45);
+
+        // Phase 3: Tapping -> Right (55% to 80%)
+        tl.to(cardRef.current, {
+          x: "35vw",
+          rotationY: -30,
+          rotationZ: 15,
+          scale: 0.8,
+          duration: 25,
+          ease: "power2.inOut"
+        }, 55);
+
+        // Notification goes back up
+        tl.to(notificationRef.current, {
+          y: -120,
+          opacity: 0,
+          scale: 0.9,
+          duration: 10,
+          ease: "power2.in"
+        }, 70);
+
+        // Phase 4: Right -> Exit (80% to 100%)
+        tl.to(cardRef.current, {
+          x: "50vw",
+          opacity: 0,
+          rotationY: -45,
+          rotationZ: 25,
+          scale: 0.5,
+          duration: 20,
+          ease: "power2.in"
+        }, 80);
       });
-      // Card inner (front/back flip)
-      gsap.set(cardInnerRef.current, { rotationY: 180, force3D: true });
-      
-      // Notification initial state
-      gsap.set(notificationRef.current, { y: -120, opacity: 0, scale: 0.9, xPercent: -50, force3D: true });
-      
-      // Ripples initial state
-      gsap.set([ripple1Ref.current, ripple2Ref.current, ripple3Ref.current], { scale: 1, opacity: 0, force3D: true });
-
-      // NFC Ring initial state
-      gsap.set(nfcRingRef.current, { scale: 0.5, opacity: 0, force3D: true });
-
-      // 2. The Master Scrub Timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: animationRef.current,
-          start: "center center",
-          end: "+=1200",
-          pin: true,
-          scrub: 1.5,
-        }
-      });
-
-      // Phase 1: Left -> Behind (0% to 25%)
-      tl.to(cardRef.current, {
-        x: "0vw",
-        rotationY: 0,
-        rotationZ: -5,
-        scale: 1,
-        duration: 25,
-        ease: "power2.inOut"
-      }, 0);
-
-      // Phase 2: Behind -> Tapping (25% to 55%)
-      tl.to(cardRef.current, {
-        rotationY: 15,
-        rotationZ: -8,
-        scale: 0.95,
-        duration: 30,
-        ease: "power1.inOut"
-      }, 25);
-      
-      // Flip card over during Tapping
-      tl.to(cardInnerRef.current, {
-        rotationY: 0,
-        duration: 20,
-        ease: "power2.inOut"
-      }, 30);
-
-      // Trigger ripples during Tapping
-      tl.to(ripple1Ref.current, { scale: 1.8, opacity: 0.4, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 35);
-      tl.to(ripple2Ref.current, { scale: 2.2, opacity: 0.3, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 40);
-      tl.to(ripple3Ref.current, { scale: 2.6, opacity: 0.2, duration: 15, yoyo: true, repeat: 1, ease: "sine.inOut" }, 45);
-
-      // Trigger NFC Ring during Tapping
-      tl.to(nfcRingRef.current, { scale: 2.5, opacity: 0.8, duration: 10, yoyo: true, repeat: 1, ease: "power1.out" }, 35);
-
-      // Notification drops down
-      tl.to(notificationRef.current, {
-        y: 46,
-        opacity: 1,
-        scale: 1,
-        duration: 15,
-        ease: "back.out(1.5)"
-      }, 45);
-
-      // Phase 3: Tapping -> Right (55% to 80%)
-      tl.to(cardRef.current, {
-        x: "35vw",
-        rotationY: -30,
-        rotationZ: 15,
-        scale: 0.8,
-        duration: 25,
-        ease: "power2.inOut"
-      }, 55);
-
-      // Notification goes back up
-      tl.to(notificationRef.current, {
-        y: -120,
-        opacity: 0,
-        scale: 0.9,
-        duration: 10,
-        ease: "power2.in"
-      }, 70);
-
-      // Phase 4: Right -> Exit (80% to 100%)
-      tl.to(cardRef.current, {
-        x: "50vw",
-        opacity: 0,
-        rotationY: -45,
-        rotationZ: 25,
-        scale: 0.5,
-        duration: 20,
-        ease: "power2.in"
-      }, 80);
 
       // Recalculate trigger positions after initial Framer Motion mount animations finish
       setTimeout(() => ScrollTrigger.refresh(), 100);
@@ -140,7 +144,7 @@ export default function HeroPhoneMockup() {
   return (
     <>
       {/* ── GSAP Pin Wrapper ── */}
-      <div ref={animationRef} className="w-full relative pt-12 sm:pt-16 pb-10">
+      <div ref={animationRef} className="w-full relative pt-8 sm:pt-10 pb-6">
         {/* ── Phone Mockup and Animation Sequence ── */}
         <motion.div
         initial={{ opacity: 0, y: 80, scale: 0.8 }}
@@ -354,8 +358,6 @@ export default function HeroPhoneMockup() {
           </div>
         </div>
 
-        {/* Bottom fade to blend into next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-cloud to-transparent pointer-events-none z-20" />
       </motion.div>
       </div>
     </>

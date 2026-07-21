@@ -3,7 +3,7 @@ import HeroPhoneMockup from "./Hero/HeroPhoneMockup";
 
 export default function HeroSection() {
   return (
-    <section className="relative isolate pt-32 sm:pt-36 lg:pt-40 pb-10" id="hero">
+    <section className="relative isolate pt-24 sm:pt-28 lg:pt-32 pb-6" id="hero">
       <HeroText />
       <HeroPhoneMockup />
     </section>
