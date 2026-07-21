@@ -6,6 +6,8 @@ import Pricing from "./components/Pricing";
 import Work from "./components/Work";
 import Footer from "./components/Footer";
 
+import HeroBackgroundWrapper from "@/components/ui/HeroBackgroundWrapper";
+
 /**
  * LandingPage — Root component for the `features/marketing` feature.
  *
@@ -16,11 +18,15 @@ import Footer from "./components/Footer";
  */
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen bg-cloud" id="landing-page">
-      <Navbar />
+    <div className="relative min-h-screen bg-white" id="landing-page">
+      <div className="px-3 pt-3 sm:px-5 sm:pt-5 lg:px-6 lg:pt-6">
+        <HeroBackgroundWrapper className="bg-cloud rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-sm border border-black/5">
+          <Navbar />
+          <HeroSection />
+        </HeroBackgroundWrapper>
+      </div>
 
       <main>
-        <HeroSection />
         <HowItWorks />
         <TemplatesShowcase />
         <Pricing />

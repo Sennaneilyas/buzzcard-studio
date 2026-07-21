@@ -35,16 +35,16 @@ export default function Navbar() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-0 inset-x-0 z-50"
+        className={`top-0 inset-x-0 z-50 pointer-events-none ${scrolled ? "fixed" : "absolute"}`}
       >
         {/* ── Outer wrapper — full-width → centered pill on scroll ── */}
         <div
           className={`
-            mx-auto flex items-center justify-between
+            mx-auto flex items-center justify-between pointer-events-auto
             will-change-[max-width,margin,padding,border-radius,background,box-shadow]
             transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
             ${scrolled
-              ? "max-w-3xl mt-4 px-3 py-2 rounded-full bg-white/70 backdrop-blur-2xl shadow-[0_2px_20px_rgba(0,35,102,0.08)] border border-ink/[0.06]"
+              ? "max-w-3xl mt-4 px-3 py-2 rounded-full bg-white/70 backdrop-blur-2xl shadow-[0_2px_20px_rgba(0,35,102,0.08)]"
               : "max-w-7xl mt-0 px-6 py-5 lg:px-10 bg-transparent"
             }
           `}
