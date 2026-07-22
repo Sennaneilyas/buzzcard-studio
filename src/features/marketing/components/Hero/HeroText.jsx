@@ -26,23 +26,27 @@ export default function HeroText() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="text-6xl sm:text-7xl md:text-8xl lg:text-[6.5rem] font-black tracking-tighter leading-[0.95] relative z-10"
+        className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black tracking-tighter leading-[1] relative z-10"
         style={{ perspective: 1200 }}
       >
         <div className="inline-block text-ink pb-4 px-4 transition-all duration-300">
-          <TextReveal 
-            text="Your Card." 
-            direction="up" 
-            hoverColor="#00e676" 
-            className="normal-case tracking-tighter block"
-          />
-          <TextReveal 
-            text="Your Brand." 
-            direction="up" 
-            hoverColor="#00e676" 
-            className="normal-case tracking-tighter block"
-            staggerDelay={35}
-          />
+          <div className="block">
+            <TextReveal 
+              text="Your Card." 
+              direction="up" 
+              hoverColor="#00e676" 
+              className="normal-case tracking-tighter"
+            />
+          </div>
+          <div className="block">
+            <TextReveal 
+              text="Your Brand." 
+              direction="up" 
+              hoverColor="#00e676" 
+              className="normal-case tracking-tighter"
+              staggerDelay={35}
+            />
+          </div>
         </div>
       </motion.h1>
 
