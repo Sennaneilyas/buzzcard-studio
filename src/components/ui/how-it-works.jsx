@@ -100,7 +100,7 @@ export default function HowItWorksComponent({ features, className }) {
                    initial={{ pathLength: 0 }}
                    whileInView={{ pathLength: 1 }}
                    viewport={{ once: true }}
-                   transition={{ duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+                   transition={{ duration: 0.8, ease: "easeInOut", delay: 0.2 }}
                  />
                  <circle cx="0" cy="0" r="5" fill="white" stroke="#00E5B5" strokeWidth="3" />
                  <circle cx="320" cy="20" r="5" fill="white" stroke="#00E5B5" strokeWidth="3" />
@@ -121,7 +121,7 @@ export default function HowItWorksComponent({ features, className }) {
                    initial={{ pathLength: 0 }}
                    whileInView={{ pathLength: 1 }}
                    viewport={{ once: true }}
-                   transition={{ duration: 1.5, ease: "easeInOut", delay: 1.2 }}
+                   transition={{ duration: 0.8, ease: "easeInOut", delay: 0.7 }}
                  />
                  <circle cx="0" cy="0" r="5" fill="white" stroke="#00E5B5" strokeWidth="3" />
                  <circle cx="320" cy="40" r="5" fill="white" stroke="#00E5B5" strokeWidth="3" />

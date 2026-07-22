@@ -68,8 +68,10 @@ void main() {
     // Enhanced noise with time
     float noise = snoise(uv * 1.5 + vec2(uTime * 0.05, uTime * 0.03)) * 0.25;
     
-    // Diagonal gradient from bottom-left to top-right
-    float diagonal = (uv.x + uv.y) * 0.5;
+    // Gradients from both left corners fading towards the right
+    float distBL = uv.x + uv.y;
+    float distTL = uv.x + (1.0 - uv.y);
+    float diagonal = min(distBL, distTL) * 0.65;
     
     // Combine for gradient - emphasize corners
     float gradient = diagonal * 1.2 + noise;
@@ -104,9 +106,10 @@ void main() {
         color = paleBlue;
     }
     
-    // Softer fade to white - only at extreme bottom-left
-    vec2 cornerDist = vec2(uv.x, uv.y);
-    float fadeMask = smoothstep(0.0, 0.25, length(cornerDist));
+    // Softer fade to white - at extreme left corners
+    float distToBL = length(vec2(uv.x, uv.y));
+    float distToTL = length(vec2(uv.x, 1.0 - uv.y));
+    float fadeMask = smoothstep(0.0, 0.25, min(distToBL, distToTL));
     color = mix(vec3(1.0), color, fadeMask);
     
     // Add subtle vignette to emphasize corners
