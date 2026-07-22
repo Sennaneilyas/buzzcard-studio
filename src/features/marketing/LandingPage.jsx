@@ -1,7 +1,7 @@
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import HowItWorks from "./components/HowItWorks";
-import TemplatesShowcase from "./components/TemplatesShowcase";
+import ProductsShowcase from "./components/ProductsShowcase";
 import Pricing from "./components/Pricing";
 import Work from "./components/Work";
 import Footer from "./components/Footer";
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
       <main>
         <HowItWorks />
-        <TemplatesShowcase />
+        <ProductsShowcase />
         <Pricing />
         <Work />
       </main>
