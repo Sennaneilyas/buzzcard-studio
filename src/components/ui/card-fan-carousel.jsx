@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 
 const MAX_VISIBLE = 7;
@@ -266,7 +267,7 @@ export default function SocialCards({ cards }) {
               </div>
             );
             return card.linkUrl ? (
-              <a key={index} href={card.linkUrl} target={card.linkUrl.startsWith("http") ? "_blank" : "_self"} rel="noopener noreferrer" className="fan-card group block cursor-pointer absolute origin-bottom">{image}</a>
+              <Link key={index} to={card.linkUrl} className="fan-card group block cursor-pointer absolute origin-bottom">{image}</Link>
             ) : (
               <div key={index} className="fan-card group absolute cursor-pointer origin-bottom">{image}</div>
             );

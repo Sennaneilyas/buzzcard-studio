@@ -39,6 +39,7 @@ changed deliberately:
   one side, rendered template updates in real time on the other) and a
   **guided first-setup wizard** rather than a blank settings page. This
   applies to `features/profile` and `features/templates`, not marketing.
+- **Products Showcase / Store UX:** When a user clicks on a specific product category card on the Landing Page, they must be redirected to a dedicated products page showcasing all categories. This page must use an **Accordion layout** where the specifically requested category is opened by default, and all other categories are rendered but closed.
 
 ## 4. Inspiration sources — what to take, what not to
 

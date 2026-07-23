@@ -24,7 +24,6 @@ export default function HeroPhoneMockup() {
   const ripple1Ref = useRef(null);
   const ripple2Ref = useRef(null);
   const ripple3Ref = useRef(null);
-  const nfcRingRef = useRef(null);
 
   // Scroll-driven animation sequence
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function HeroPhoneMockup() {
           force3D: true,
         });
         // Card inner (front/back flip)
-        gsap.set(cardInnerRef.current, { rotationY: 180, force3D: true });
+        gsap.set(cardInnerRef.current, { rotationY: 0, force3D: true });
 
         // Notification initial state
         gsap.set(notificationRef.current, {
@@ -65,9 +64,6 @@ export default function HeroPhoneMockup() {
           opacity: 0,
           force3D: true,
         });
-
-        // NFC Ring initial state
-        gsap.set(nfcRingRef.current, { scale: 0.5, opacity: 0, force3D: true });
 
         // 2. The Master Scrub Timeline
         const tl = gsap.timeline({
@@ -107,15 +103,15 @@ export default function HeroPhoneMockup() {
           25,
         );
 
-        // Flip card over during Tapping
+        // Flip card over completely hidden behind the phone (25 to 45)
         tl.to(
           cardInnerRef.current,
           {
-            rotationY: 0,
+            rotationY: 180,
             duration: 20,
             ease: "power2.inOut",
           },
-          30,
+          25,
         );
 
         // Trigger ripples during Tapping
@@ -154,20 +150,6 @@ export default function HeroPhoneMockup() {
             ease: "sine.inOut",
           },
           45,
-        );
-
-        // Trigger NFC Ring during Tapping
-        tl.to(
-          nfcRingRef.current,
-          {
-            scale: 2.5,
-            opacity: 0.8,
-            duration: 10,
-            yoyo: true,
-            repeat: 1,
-            ease: "power1.out",
-          },
-          35,
         );
 
         // Notification drops down
@@ -210,19 +192,19 @@ export default function HeroPhoneMockup() {
           70,
         );
 
-        // Phase 4: Right -> Exit (80% to 100%)
+        // Phase 4: Emerge to the Right (60% to 100%)
         tl.to(
           cardRef.current,
           {
-            x: "50vw",
-            opacity: 0,
-            rotationY: -45,
-            rotationZ: 25,
-            scale: 0.5,
-            duration: 20,
-            ease: "power2.in",
+            x: "35vw", // Move to the right side
+            opacity: 1,
+            rotationY: -25, // Angled toward the camera
+            rotationZ: 15,
+            scale: 1, // Return to normal scale
+            duration: 40,
+            ease: "power2.out",
           },
-          80,
+          60,
         );
       });
 
@@ -253,7 +235,7 @@ export default function HeroPhoneMockup() {
           {/* Animated NFC card — Passes behind the phone */}
           <div
             ref={cardRef}
-            className="absolute left-1/2 top-[10%] sm:top-[15%] w-[120px] sm:w-[150px] lg:w-[180px] h-[190px] sm:h-[235px] lg:h-[280px] z-[5] hidden sm:block origin-center will-change-transform"
+            className="absolute left-1/2 top-[10%] sm:top-[12%] w-[220px] sm:w-[300px] lg:w-[380px] h-[340px] sm:h-[460px] lg:h-[580px] z-[5] hidden sm:block origin-center will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
             <div
@@ -263,79 +245,80 @@ export default function HeroPhoneMockup() {
             >
               {/* Front */}
               <div
-                className="absolute inset-0 rounded-2xl overflow-hidden"
-                style={{ backfaceVisibility: "hidden" }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-navy via-[#003599] to-[#001844]" />
-                <div className="absolute inset-0 rounded-2xl border border-white/[0.12]" />
-                <div
-                  className="absolute inset-0 rounded-2xl"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 40%)",
-                  }}
-                />
-                <motion.div
-                  className="absolute inset-0 rounded-2xl"
-                  style={{
-                    background:
-                      "linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.2) 42%, rgba(255,255,255,0.08) 48%, transparent 55%)",
-                    backgroundSize: "200% 100%",
-                  }}
-                  animate={{ backgroundPosition: ["-100% 0", "200% 0"] }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    repeatDelay: 3,
-                    ease: "easeInOut",
-                  }}
-                />
-                <div className="absolute inset-0 p-3 sm:p-4 lg:p-5 flex flex-col justify-between z-10">
-                  <div className="flex justify-between items-start">
-                    <div className="relative">
-                      <Wifi className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-mint" />
-                      <div
-                        ref={nfcRingRef}
-                        className="absolute inset-0 rounded-full border-2 border-mint pointer-events-none will-change-transform"
-                      />
-                    </div>
-                    <img
-                      src="/logoHB.svg"
-                      alt="Logo"
-                      className="h-2.5 sm:h-3 invert opacity-40"
-                    />
-                  </div>
-                  <div>
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-mint/20 to-mint/5 border border-mint/20 mb-2 flex items-center justify-center">
-                      <span className="text-xs sm:text-sm lg:text-base font-bold text-mint">
-                        A
-                      </span>
-                    </div>
-                    <p className="text-white font-bold text-xs sm:text-sm lg:text-base tracking-wide">
-                      Alex Designer
-                    </p>
-                    <p className="text-white/50 text-[8px] sm:text-[10px] lg:text-xs font-medium">
-                      Creative Director
-                    </p>
-                  </div>
-                </div>
-                <div className="absolute inset-0 rounded-2xl shadow-[0_30px_60px_rgba(0,35,102,0.35),0_15px_25px_rgba(0,0,0,0.15)]" />
-              </div>
-              {/* Back */}
-              <div
-                className="absolute inset-0 rounded-2xl overflow-hidden"
+                className="absolute inset-0 drop-shadow-[0_25px_40px_rgba(0,0,0,0.3)]"
                 style={{
                   backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
+                }}
+              >
+                <img src="/Card front.svg" alt="BuzzCard Front" className="w-full h-full object-contain" />
+                {/* Light Glare Effect clipped to SVG */}
+                <div
+                  className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
+                  style={{
+                    maskImage: 'url("/Card front.svg")',
+                    maskSize: 'contain',
+                    maskRepeat: 'no-repeat',
+                    maskPosition: 'center',
+                    WebkitMaskImage: 'url("/Card front.svg")',
+                    WebkitMaskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                  }}
+                >
+                  <motion.div
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                      background: "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                    }}
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Back */}
+              <div
+                className="absolute inset-0 drop-shadow-[0_25px_40px_rgba(0,0,0,0.3)]"
+                style={{
+                  backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-tl from-[#0a0a0a] via-[#1a1a1a] to-[#111]" />
-                <div className="absolute inset-0 rounded-2xl border border-white/[0.06]" />
-                <div className="absolute top-[25%] left-0 right-0 h-8 sm:h-10 lg:h-12 bg-[#222] border-y border-white/[0.04]" />
-                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 text-[7px] sm:text-[8px] lg:text-[9px] text-white/20 tracking-[0.2em] font-mono uppercase">
-                  BuzzCard
+                <img src="/Card back.svg" alt="BuzzCard Back" className="w-full h-full object-contain" />
+                {/* Light Glare Effect clipped to SVG */}
+                <div
+                  className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
+                  style={{
+                    maskImage: 'url("/Card back.svg")',
+                    maskSize: 'contain',
+                    maskRepeat: 'no-repeat',
+                    maskPosition: 'center',
+                    WebkitMaskImage: 'url("/Card back.svg")',
+                    WebkitMaskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                  }}
+                >
+                  <motion.div
+                    className="absolute inset-0 w-full h-full"
+                    style={{
+                      background: "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                    }}
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 2, // Offset the back glare
+                    }}
+                  />
                 </div>
-                <div className="absolute inset-0 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.4)]" />
               </div>
             </div>
           </div>
