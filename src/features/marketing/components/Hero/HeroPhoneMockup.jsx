@@ -76,7 +76,7 @@ export default function HeroPhoneMockup() {
           },
         });
 
-        // Phase 1: Left -> Behind (0% to 25%)
+        // Phase 1: Left -> Behind (0% to 20%)
         tl.to(
           cardRef.current,
           {
@@ -84,26 +84,26 @@ export default function HeroPhoneMockup() {
             rotationY: 0,
             rotationZ: -5,
             scale: 1,
-            duration: 25,
-            ease: "power2.inOut",
+            duration: 20,
+            ease: "power2.out",
           },
           0,
         );
 
-        // Phase 2: Behind -> Tapping (25% to 55%)
+        // Phase 2: Behind -> Tapping (20% to 50%)
         tl.to(
           cardRef.current,
           {
-            rotationY: 15,
-            rotationZ: -8,
+            rotationY: -10, // Smooth continuous path to prevent V-turn scrub glitches
+            rotationZ: 5,
             scale: 0.95,
             duration: 30,
             ease: "power1.inOut",
           },
-          25,
+          20,
         );
 
-        // Flip card over completely hidden behind the phone (25 to 45)
+        // Flip card over completely hidden behind the phone (20 to 40)
         tl.to(
           cardInnerRef.current,
           {
@@ -111,16 +111,16 @@ export default function HeroPhoneMockup() {
             duration: 20,
             ease: "power2.inOut",
           },
-          25,
+          20,
         );
 
-        // Trigger ripples during Tapping
+        // Trigger ripples tightly during the Tapping phase ONLY (35 to 55)
         tl.to(
           ripple1Ref.current,
           {
             scale: 1.8,
             opacity: 0.4,
-            duration: 15,
+            duration: 7,
             yoyo: true,
             repeat: 1,
             ease: "sine.inOut",
@@ -132,54 +132,54 @@ export default function HeroPhoneMockup() {
           {
             scale: 2.2,
             opacity: 0.3,
-            duration: 15,
+            duration: 7,
             yoyo: true,
             repeat: 1,
             ease: "sine.inOut",
           },
-          40,
+          38,
         );
         tl.to(
           ripple3Ref.current,
           {
             scale: 2.6,
             opacity: 0.2,
-            duration: 15,
+            duration: 7,
             yoyo: true,
             repeat: 1,
             ease: "sine.inOut",
           },
-          45,
+          41,
         );
 
-        // Notification drops down
+        // Notification drops down right after flip (40 to 50)
         tl.to(
           notificationRef.current,
           {
             y: 46,
             opacity: 1,
             scale: 1,
-            duration: 15,
+            duration: 10,
             ease: "back.out(1.5)",
           },
-          45,
+          40,
         );
 
-        // Phase 3: Tapping -> Right (55% to 80%)
+        // Phase 3: Tapping -> Smooth Emerge Right (50% to 100%)
         tl.to(
           cardRef.current,
           {
             x: "35vw",
-            rotationY: -30,
+            rotationY: -25,
             rotationZ: 15,
-            scale: 0.8,
-            duration: 25,
-            ease: "power2.inOut",
+            scale: 1,
+            duration: 50, // 50 to 100
+            ease: "power1.inOut", // Flatter ease makes scrub feel instantly responsive
           },
-          55,
+          50,
         );
 
-        // Notification goes back up
+        // Notification goes back up near the end (85 to 95)
         tl.to(
           notificationRef.current,
           {
@@ -189,22 +189,7 @@ export default function HeroPhoneMockup() {
             duration: 10,
             ease: "power2.in",
           },
-          70,
-        );
-
-        // Phase 4: Emerge to the Right (60% to 100%)
-        tl.to(
-          cardRef.current,
-          {
-            x: "35vw", // Move to the right side
-            opacity: 1,
-            rotationY: -25, // Angled toward the camera
-            rotationZ: 15,
-            scale: 1, // Return to normal scale
-            duration: 40,
-            ease: "power2.out",
-          },
-          60,
+          85,
         );
       });
 
@@ -251,25 +236,30 @@ export default function HeroPhoneMockup() {
                   WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                <img src="/Card front.svg" alt="BuzzCard Front" className="w-full h-full object-contain" />
+                <img
+                  src="/Card front.svg"
+                  alt="BuzzCard Front"
+                  className="w-full h-full object-contain"
+                />
                 {/* Light Glare Effect clipped to SVG */}
                 <div
                   className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
                   style={{
                     maskImage: 'url("/Card front.svg")',
-                    maskSize: 'contain',
-                    maskRepeat: 'no-repeat',
-                    maskPosition: 'center',
+                    maskSize: "contain",
+                    maskRepeat: "no-repeat",
+                    maskPosition: "center",
                     WebkitMaskImage: 'url("/Card front.svg")',
-                    WebkitMaskSize: 'contain',
-                    WebkitMaskRepeat: 'no-repeat',
-                    WebkitMaskPosition: 'center',
+                    WebkitMaskSize: "contain",
+                    WebkitMaskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
                   }}
                 >
                   <motion.div
                     className="absolute inset-0 w-full h-full"
                     style={{
-                      background: "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                      background:
+                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
                     }}
                     animate={{ x: ["-100%", "100%"] }}
                     transition={{
@@ -290,25 +280,30 @@ export default function HeroPhoneMockup() {
                   transform: "rotateY(180deg)",
                 }}
               >
-                <img src="/Card back.svg" alt="BuzzCard Back" className="w-full h-full object-contain" />
+                <img
+                  src="/Card back.svg"
+                  alt="BuzzCard Back"
+                  className="w-full h-full object-contain"
+                />
                 {/* Light Glare Effect clipped to SVG */}
                 <div
                   className="absolute inset-0 z-10 pointer-events-none overflow-hidden"
                   style={{
                     maskImage: 'url("/Card back.svg")',
-                    maskSize: 'contain',
-                    maskRepeat: 'no-repeat',
-                    maskPosition: 'center',
+                    maskSize: "contain",
+                    maskRepeat: "no-repeat",
+                    maskPosition: "center",
                     WebkitMaskImage: 'url("/Card back.svg")',
-                    WebkitMaskSize: 'contain',
-                    WebkitMaskRepeat: 'no-repeat',
-                    WebkitMaskPosition: 'center',
+                    WebkitMaskSize: "contain",
+                    WebkitMaskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
                   }}
                 >
                   <motion.div
                     className="absolute inset-0 w-full h-full"
                     style={{
-                      background: "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                      background:
+                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
                     }}
                     animate={{ x: ["-100%", "100%"] }}
                     transition={{
