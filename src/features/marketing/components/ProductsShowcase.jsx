@@ -20,17 +20,21 @@ export default function ProductsShowcase() {
           transition={{ duration: 0.6 }}
           className="text-center mb-8"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-5 rounded-full bg-navy/5 text-navy text-xs font-semibold uppercase tracking-widest">
-            <Package className="w-3.5 h-3.5" />
-            Our Products
-          </span>
-          <h2 className="text-4xl md:text-5xl font-extrabold text-ink tracking-tight">
+          <div className="flex items-center justify-center gap-4 mb-4 opacity-80">
+            <div className="w-12 h-[1px] bg-ink/20"></div>
+            <span className="font-serif italic text-lg sm:text-xl tracking-wide text-ink/80 flex items-center gap-2">
+              <Package className="w-5 h-5 opacity-70" />
+              Our Products
+            </span>
+            <div className="w-12 h-[1px] bg-ink/20"></div>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-ink tracking-tight mb-2">
             More than just{" "}
             <span className="bg-gradient-to-r from-navy to-mint bg-clip-text text-transparent">
               Business Cards
             </span>
           </h2>
-          <p className="mt-4 max-w-lg mx-auto text-ink/50 text-lg">
+          <p className="mt-2 max-w-lg mx-auto text-ink/50 text-lg">
             Choose from our wide range of premium NFC-enabled products. Swipe or click to explore our collection.
           </p>
         </motion.div>

@@ -3,7 +3,7 @@ import HeroSection from "./components/HeroSection";
 import HowItWorks from "./components/HowItWorks";
 import ProductsShowcase from "./components/ProductsShowcase";
 import Pricing from "./components/Pricing";
-import Work from "./components/Work";
+import Testimonials from "./components/Testimonials";
 import Footer from "./components/Footer";
 
 import HeroBackgroundWrapper from "@/components/ui/HeroBackgroundWrapper";
@@ -30,7 +30,7 @@ export default function LandingPage() {
         <HowItWorks />
         <ProductsShowcase />
         <Pricing />
-        <Work />
+        <Testimonials />
       </main>
 
       <Footer />
