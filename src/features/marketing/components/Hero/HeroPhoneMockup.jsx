@@ -21,6 +21,7 @@ export default function HeroPhoneMockup() {
   const cardRef = useRef(null);
   const cardInnerRef = useRef(null);
   const notificationRef = useRef(null);
+  const homeScreenRef = useRef(null);
   const ripple1Ref = useRef(null);
   const ripple2Ref = useRef(null);
   const ripple3Ref = useRef(null);
@@ -54,9 +55,11 @@ export default function HeroPhoneMockup() {
           y: -120,
           opacity: 0,
           scale: 0.9,
-          xPercent: -50,
           force3D: true,
         });
+
+        // Home Screen initial state
+        gsap.set(homeScreenRef.current, { opacity: 1, force3D: true });
 
         // Ripples initial state
         gsap.set([ripple1Ref.current, ripple2Ref.current, ripple3Ref.current], {
@@ -152,17 +155,54 @@ export default function HeroPhoneMockup() {
           41,
         );
 
-        // Notification drops down right after flip (40 to 50)
+        // Notification drops down right after flip (40 to 45)
         tl.to(
           notificationRef.current,
           {
             y: 46,
             opacity: 1,
             scale: 1,
-            duration: 10,
+            duration: 5,
             ease: "back.out(1.5)",
           },
           40,
+        );
+
+        // Simulate "Click" on the notification (48 to 51)
+        tl.to(
+          notificationRef.current,
+          {
+            scale: 0.95,
+            opacity: 0.8,
+            duration: 3,
+            yoyo: true,
+            repeat: 1,
+            ease: "power1.inOut",
+          },
+          48,
+        );
+
+        // Notification slides away (is dismissed) AND Home Screen fades out to reveal Profile (55 to 65)
+        tl.to(
+          notificationRef.current,
+          {
+            y: -120,
+            opacity: 0,
+            scale: 0.9,
+            duration: 10,
+            ease: "power2.in",
+          },
+          55,
+        );
+
+        tl.to(
+          homeScreenRef.current,
+          {
+            opacity: 0,
+            duration: 10,
+            ease: "power2.inOut",
+          },
+          55,
         );
 
         // Phase 3: Tapping -> Smooth Emerge Right (50% to 100%)
@@ -340,18 +380,27 @@ export default function HeroPhoneMockup() {
           {/* Phone mockup — center (z-10) */}
           <div className="relative z-10 w-[300px] sm:w-[340px] md:w-[380px]">
             {/* Phone body */}
-            <div className="relative bg-[#1a1a1a] rounded-[2.8rem] sm:rounded-[3rem] border-[5px] sm:border-[6px] border-[#2a2a2a] shadow-[0_30px_80px_rgba(0,0,0,0.25),0_10px_30px_rgba(0,0,0,0.15),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden">
-              {/* Side buttons */}
-              <div className="absolute -right-[7px] sm:-right-[8px] top-[100px] sm:top-[120px] w-[3px] h-[50px] bg-[#333] rounded-r" />
-              <div className="absolute -left-[7px] sm:-left-[8px] top-[80px] sm:top-[90px] w-[3px] h-[26px] bg-[#333] rounded-l" />
-              <div className="absolute -left-[7px] sm:-left-[8px] top-[115px] sm:top-[130px] w-[3px] h-[26px] bg-[#333] rounded-l" />
+            {/* Phone SVG frame */}
+            <div className="relative drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)]">
+              <img 
+                src="/phone/iPhone 17 Pro.svg" 
+                alt="iPhone 17 Frame" 
+                className="relative w-full h-auto block pointer-events-none z-50" 
+              />
+              
+              {/* Screen Content Overlaid inside SVG Bezels */}
+              <div 
+                className="absolute z-0 bg-white overflow-hidden rounded-[2.2rem] sm:rounded-[2.6rem] md:rounded-[3rem]"
+                style={{ top: "2%", bottom: "2%", left: "4%", right: "4%" }}
+              >
+                {/* ── Initial Home Screen Overlay ── */}
+                <img
+                  ref={homeScreenRef}
+                  src="/phone/screen.png"
+                  alt="Home Screen"
+                  className="absolute inset-0 w-full h-full object-cover z-[25] will-change-opacity pointer-events-none opacity-0"
+                />
 
-              {/* Screen */}
-              <div className="relative bg-white overflow-hidden">
-                {/* Dynamic Island */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[100px] sm:w-[120px] h-[28px] sm:h-[32px] bg-[#1a1a1a] rounded-full z-40 flex items-center justify-center">
-                  <div className="w-[8px] h-[8px] rounded-full bg-[#0d0d0d] ring-1 ring-[#333]" />
-                </div>
 
                 {/* Status bar */}
                 <div className="flex items-end justify-between px-7 sm:px-8 pt-3 pb-1 z-20 relative">
@@ -366,28 +415,15 @@ export default function HeroPhoneMockup() {
                 </div>
 
                 {/* ── Notification Banner (Triggers on Tap) ── */}
-                <div
+                <div 
                   ref={notificationRef}
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] bg-white/95 backdrop-blur-2xl rounded-2xl p-3 sm:p-3.5 shadow-[0_12px_40px_rgba(0,35,102,0.12),0_4px_12px_rgba(0,0,0,0.06)] border border-black/[0.04] flex items-center gap-3 z-30 will-change-transform"
+                  className="absolute top-2 w-full flex justify-center z-30 will-change-transform opacity-0 -translate-y-[120px]"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-[10px] bg-gradient-to-br from-mint to-[#00c864] flex items-center justify-center shrink-0 shadow-[0_2px_8px_rgba(0,230,118,0.3)]">
-                    <img
-                      src="/logoHB.svg"
-                      alt="Icon"
-                      className="w-4 h-4 sm:w-5 sm:h-5 invert mix-blend-luminosity"
-                    />
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <p className="text-[11px] sm:text-xs font-bold text-ink leading-tight">
-                      BuzzCard Studio
-                    </p>
-                    <p className="text-[9px] sm:text-[10px] text-ink/50 font-medium mt-0.5 truncate">
-                      Alex shared their profile with you
-                    </p>
-                  </div>
-                  <span className="text-[8px] sm:text-[9px] text-ink/30 font-medium shrink-0">
-                    now
-                  </span>
+                  <img 
+                    src="/phone/notification.png"
+                    alt="Notification"
+                    className="w-[105%] max-w-none object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
+                  />
                 </div>
 
                 {/* ── Real BuzzCard Profile Screen ── */}
