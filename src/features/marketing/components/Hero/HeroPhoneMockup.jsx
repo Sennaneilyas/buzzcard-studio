@@ -382,14 +382,14 @@ export default function HeroPhoneMockup() {
             {/* Phone body */}
             {/* Phone SVG frame */}
             <div className="relative drop-shadow-[0_20px_40px_rgba(0,0,0,0.2)]">
-              <img 
-                src="/phone/iPhone 17 Pro.svg" 
-                alt="iPhone 17 Frame" 
-                className="relative w-full h-auto block pointer-events-none z-50" 
+              <img
+                src="/phone/iPhone 17 Pro.svg"
+                alt="iPhone 17 Frame"
+                className="relative w-full h-auto block pointer-events-none z-50"
               />
-              
+
               {/* Screen Content Overlaid inside SVG Bezels */}
-              <div 
+              <div
                 className="absolute z-0 bg-white overflow-hidden rounded-[2.2rem] sm:rounded-[2.6rem] md:rounded-[3rem]"
                 style={{ top: "2%", bottom: "2%", left: "4%", right: "4%" }}
               >
@@ -400,7 +400,6 @@ export default function HeroPhoneMockup() {
                   alt="Home Screen"
                   className="absolute inset-0 w-full h-full object-cover z-[25] will-change-opacity pointer-events-none opacity-0"
                 />
-
 
                 {/* Status bar */}
                 <div className="flex items-end justify-between px-7 sm:px-8 pt-3 pb-1 z-20 relative">
@@ -415,14 +414,14 @@ export default function HeroPhoneMockup() {
                 </div>
 
                 {/* ── Notification Banner (Triggers on Tap) ── */}
-                <div 
+                <div
                   ref={notificationRef}
                   className="absolute top-2 w-full flex justify-center z-30 will-change-transform opacity-0 -translate-y-[120px]"
                 >
-                  <img 
+                  <img
                     src="/phone/notification.png"
                     alt="Notification"
-                    className="w-[105%] max-w-none object-contain drop-shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
+                    className="w-[105%] max-w-none object-contain drop-shadow-[0_12px_40px_rgba(0,0,0,0.15)] brightness-[1.15] contrast-[1.1]"
                   />
                 </div>
 
