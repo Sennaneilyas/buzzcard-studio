@@ -259,7 +259,7 @@ export default function HeroPhoneMockup() {
                     className="absolute inset-0 w-full h-full"
                     style={{
                       background:
-                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.15) 42%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.15) 58%, rgba(255,255,255,0) 65%, rgba(255,255,255,0) 100%)",
                     }}
                     animate={{ x: ["-100%", "100%"] }}
                     transition={{
@@ -303,7 +303,7 @@ export default function HeroPhoneMockup() {
                     className="absolute inset-0 w-full h-full"
                     style={{
                       background:
-                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 45%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0) 55%, rgba(255,255,255,0) 100%)",
+                        "linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,0.15) 42%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.15) 58%, rgba(255,255,255,0) 65%, rgba(255,255,255,0) 100%)",
                     }}
                     animate={{ x: ["-100%", "100%"] }}
                     transition={{
