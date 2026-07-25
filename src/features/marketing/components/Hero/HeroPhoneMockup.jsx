@@ -159,7 +159,7 @@ export default function HeroPhoneMockup() {
         tl.to(
           notificationRef.current,
           {
-            y: 46,
+            y: 16,
             opacity: 1,
             scale: 1,
             duration: 5,
