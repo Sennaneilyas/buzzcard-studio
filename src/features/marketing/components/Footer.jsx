@@ -1,126 +1,133 @@
+import React from "react";
 import { motion } from "framer-motion";
-import { Mail, MapPin, ArrowUpRight } from "lucide-react";
 
-const FOOTER_LINKS = {
-  Product: [
-    { label: "Templates", href: "#templates" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "How It Works", href: "#how-it-works" },
-  ],
-  Company: [
-    { label: "About", href: "#about" },
-    { label: "Work", href: "#work" },
-    { label: "Careers", href: "#careers" },
-  ],
-  Support: [
-    { label: "Help Center", href: "#help" },
-    { label: "Contact", href: "#contact" },
-    { label: "Privacy", href: "#privacy" },
-  ],
-};
+const FOOTER_COLUMNS = [
+  {
+    title: "Navigate",
+    links: [
+      { label: "Home", href: "#landing-page" },
+      { label: "How It Works", href: "#how-it-works" },
+      { label: "Products", href: "#products" },
+      { label: "Pricing", href: "#pricing" },
+      { label: "Testimonials", href: "#work" },
+    ],
+  },
+  {
+    title: "Connect",
+    links: [
+      { label: "Book a Call", href: "mailto:hello@buzzcard.ma" },
+      { label: "Twitter / X", href: "#" },
+      { label: "Instagram", href: "#" },
+      { label: "LinkedIn", href: "#" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", href: "#privacy" },
+      { label: "Terms of Service", href: "#terms" },
+      { label: "Cookie Policy", href: "#cookies" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { label: "Templates", href: "#" },
+      { label: "Blog", href: "#" },
+      { label: "FAQ", href: "#" },
+      { label: "Support", href: "mailto:support@buzzcard.ma" },
+    ],
+  },
+];
 
 /**
- * Footer — Contact section + site-wide footer with links.
+ * Footer — Premium dark card layout inspired by studio aesthetic.
  */
 export default function Footer() {
   return (
-    <>
-      {/* ── Contact / CTA band ── */}
-      <section className="py-24 md:py-32 px-6" id="contact">
-        <div className="max-w-4xl mx-auto">
+    <div className="px-2 pb-2 sm:px-3 sm:pb-3 lg:px-4 lg:pb-4 relative z-20">
+      <footer
+        className="
+          bg-foreground rounded-[1.5rem] sm:rounded-[2rem] text-white
+          pt-20 sm:pt-28 pb-10 px-6 sm:px-12 md:px-16
+          overflow-hidden relative shadow-2xl border border-white/5
+        "
+        id="contact"
+      >
+        {/* Ambient subtle glow in background */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-white/[0.03] blur-[120px] pointer-events-none rounded-full" />
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          {/* Top Center Logo Icon */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="w-10 h-10 mx-auto mb-8 flex items-center justify-center"
+          >
+            <img
+              src="/justlogo.png"
+              alt="BuzzCard Logo"
+              className="w-full h-full object-contain brightness-0 invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+            />
+          </motion.div>
+
+          {/* Main Copy */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
-            className="
-              relative rounded-[2rem] overflow-hidden
-              bg-gradient-to-br from-navy via-navy/95 to-navy/90
-              p-10 md:p-16 text-center
-            "
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-center max-w-3xl mx-auto"
           >
-            {/* Ambient decorations */}
-            <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-mint/8 blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-mint/5 blur-[80px] pointer-events-none" />
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-medium tracking-tight text-white leading-[1.15]">
+              You deserve a card that{" "}
+              <span className="text-white/35 font-normal">works as hard</span>{" "}
+              as you do.
+            </h2>
+            <p className="mt-5 text-white/50 text-base sm:text-lg max-w-md mx-auto leading-relaxed">
+              Book a free intro call and let's talk about what your brand needs next.
+            </p>
 
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                Ready to make your{" "}
-                <span className="text-mint">first impression</span> count?
-              </h2>
-              <p className="mt-4 text-white/50 text-lg max-w-md mx-auto">
-                Join hundreds of professionals already using BuzzCard to grow
-                their network.
-              </p>
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-                <a
-                  href="#get-started"
-                  className="
-                    group inline-flex items-center gap-2
-                    px-8 py-4 text-base font-semibold text-ink bg-mint rounded-2xl
-                    transition-all duration-300
-                    hover:shadow-[0_0_40px_rgba(0,230,118,0.4)]
-                    hover:scale-[1.04] active:scale-[0.97]
-                  "
-                  id="footer-cta"
-                >
-                  Get Started Free
-                  <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                </a>
-                <a
-                  href="mailto:hello@buzzcard.ma"
-                  className="
-                    inline-flex items-center gap-2
-                    px-6 py-4 text-base font-medium text-white/60
-                    border border-white/10 rounded-2xl
-                    transition-all duration-300
-                    hover:border-white/20 hover:text-white/80
-                  "
-                >
-                  <Mail className="w-4 h-4" />
-                  Contact Us
-                </a>
-              </div>
+            <div className="mt-8">
+              <a
+                href="#get-started"
+                className="
+                  inline-flex items-center justify-center
+                  px-7 py-3.5 rounded-full
+                  bg-white/15 hover:bg-white/25 active:scale-[0.98]
+                  text-white text-sm font-medium
+                  transition-all duration-300
+                  backdrop-blur-md border border-white/10
+                  shadow-[0_4px_20px_rgba(0,0,0,0.3)]
+                "
+                id="footer-cta"
+              >
+                Start Your Project
+              </a>
             </div>
           </motion.div>
-        </div>
-      </section>
 
-      {/* ── Footer ── */}
-      <footer className="border-t border-ink/[0.06] bg-transparent" id="site-footer">
-        <div className="max-w-6xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-5 gap-12">
-            {/* Brand column */}
-            <div className="md:col-span-2">
-              <a href="/" className="inline-block mb-4">
-                <img
-                  src="/logoHB.svg"
-                  alt="BuzzCard Studio"
-                  className="h-8 w-auto"
-                />
-              </a>
-              <p className="text-ink/40 text-sm leading-relaxed max-w-xs mb-6">
-                Digital business cards powered by NFC technology. Designed and
-                built in Morocco 🇲🇦
-              </p>
-              <div className="flex items-center gap-2 text-ink/30 text-sm">
-                <MapPin className="w-3.5 h-3.5" />
-                Casablanca, Morocco
-              </div>
-            </div>
-
-            {/* Link columns */}
-            {Object.entries(FOOTER_LINKS).map(([group, links]) => (
-              <div key={group}>
-                <h4 className="text-xs font-semibold text-ink/30 uppercase tracking-widest mb-4">
-                  {group}
+          {/* 4-Column Links Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-24 sm:mt-32 text-left"
+          >
+            {FOOTER_COLUMNS.map((col) => (
+              <div key={col.title}>
+                <h4 className="text-sm sm:text-base font-semibold text-white mb-4 tracking-wide">
+                  {col.title}
                 </h4>
                 <ul className="space-y-3">
-                  {links.map((link) => (
+                  {col.links.map((link) => (
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="text-sm text-ink/50 hover:text-ink transition-colors duration-200"
+                        className="text-sm text-white/40 hover:text-white transition-colors duration-200"
                       >
                         {link.label}
                       </a>
@@ -129,36 +136,19 @@ export default function Footer() {
                 </ul>
               </div>
             ))}
-          </div>
+          </motion.div>
 
-          {/* Bottom bar */}
-          <div className="mt-16 pt-8 border-t border-ink/[0.06] flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-ink/30">
+          {/* Bottom Divider & Copyright */}
+          <div className="mt-20 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+            <div>
               © {new Date().getFullYear()} BuzzCard Studio. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              <a
-                href="#terms"
-                className="text-xs text-ink/30 hover:text-ink/50 transition-colors"
-              >
-                Terms
-              </a>
-              <a
-                href="#privacy"
-                className="text-xs text-ink/30 hover:text-ink/50 transition-colors"
-              >
-                Privacy
-              </a>
-              <a
-                href="#cookies"
-                className="text-xs text-ink/30 hover:text-ink/50 transition-colors"
-              >
-                Cookies
-              </a>
+            </div>
+            <div>
+              Designed and built in Morocco 🇲🇦
             </div>
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }
