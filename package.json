@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:infra": "vitest run tests/supabase-infra.test.js"
   },
   "dependencies": {
     "@react-three/fiber": "^9.6.1",
@@ -39,8 +40,5 @@
     "tailwindcss": "^4.3.3",
     "vite": "^8.1.1",
     "vitest": "^4.1.10"
-  },
-  "scripts": {
-    "test:infra": "vitest run tests/supabase-infra.test.js"
   }
 }
