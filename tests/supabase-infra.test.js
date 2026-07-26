@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.test.local" });
+import dotenv from "dotenv"; // import dotenv object to specify custom file paths
+// load environment variables from local test and development config files:
+dotenv.config({ path: [".env.test.local", ".env.local", ".env"] });
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -124,6 +125,128 @@ describe("Supabase infrastructure smoke tests", () => {
         .eq("id", userB.id)
         .single();
       expect(check.bio).not.toBe("Should not apply");
+    });
+  });
+
+  describe("RLS — social_links", () => {
+    let createdLinkId;
+
+    afterAll(async () => {
+      if (createdLinkId) {
+        await admin.from("social_links").delete().eq("id", createdLinkId);
+      }
+    });
+
+    it("anon can read social links", async () => {
+      const { data, error } = await anon
+        .from("social_links")
+        .select("*")
+        .limit(1);
+      expect(error).toBeNull();
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    it("a user can insert a social link for their own profile", async () => {
+      const { data, error } = await clientA
+        .from("social_links")
+        .insert({
+          profile_id: userA.id,
+          platform: "linkedin",
+          url: "https://linkedin.com/in/test",
+        })
+        .select()
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.profile_id).toBe(userA.id);
+      createdLinkId = data.id;
+    });
+
+    it("a user cannot insert a social link for someone else's profile", async () => {
+      const { error } = await clientA.from("social_links").insert({
+        profile_id: userB.id,
+        platform: "twitter",
+        url: "https://twitter.com/hijacked",
+      });
+
+      expect(error).not.toBeNull();
+    });
+
+    it("a user cannot delete someone else's social link", async () => {
+      // seed a link owned by userB directly via admin (bypasses RLS on purpose, this is setup not assertion)
+      const { data: seeded } = await admin
+        .from("social_links")
+        .insert({
+          profile_id: userB.id,
+          platform: "instagram",
+          url: "https://instagram.com/userb",
+        })
+        .select()
+        .single();
+
+      const { data, error } = await clientA
+        .from("social_links")
+        .delete()
+        .eq("id", seeded.id)
+        .select();
+
+      expect(error).toBeNull();
+      expect(data.length).toBe(0); // RLS silently blocked it, 0 rows affected
+
+      await admin.from("social_links").delete().eq("id", seeded.id); // manual cleanup since userA's attempt didn't touch it
+    });
+  });
+
+  describe("RLS — orders", () => {
+    let createdOrderId;
+
+    afterAll(async () => {
+      if (createdOrderId) {
+        await admin.from("orders").delete().eq("id", createdOrderId);
+      }
+    });
+
+    it("a user can create their own order", async () => {
+      const { data, error } = await clientA
+        .from("orders")
+        .insert({
+          user_id: userA.id,
+          shipping_address: { city: "Beni Mellal", country: "MA" },
+          total_amount: 149.99,
+        })
+        .select()
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.user_id).toBe(userA.id);
+      createdOrderId = data.id;
+    });
+
+    it("a user cannot create an order for someone else", async () => {
+      const { error } = await clientA.from("orders").insert({
+        user_id: userB.id,
+        shipping_address: { city: "Casablanca", country: "MA" },
+        total_amount: 99.99,
+      });
+
+      expect(error).not.toBeNull();
+    });
+
+    it("a user can view their own orders but not someone else's", async () => {
+      const { data, error } = await clientA.from("orders").select("*");
+      expect(error).toBeNull();
+      expect(data.every((order) => order.user_id === userA.id)).toBe(true);
+    });
+
+    it("there is no UPDATE policy — a user cannot edit an existing order", async () => {
+      const { data, error } = await clientA
+        .from("orders")
+        .update({ status: "delivered" })
+        .eq("id", createdOrderId)
+        .select();
+
+      expect(error).toBeNull();
+      expect(data.length).toBe(0); // no UPDATE policy exists, so RLS blocks it entirely
     });
   });
 
