@@ -50,7 +50,7 @@ changed deliberately:
 | **bipop**                                                        | Real Moroccan vCard/QR platform (bipop.packservice.ma) — template-selection UX and local market-fit reference                                                                                             | Don't assume feature parity is the goal; verify their pattern is actually good UX before copying it, not just "what exists locally" |
 | **Refero**                                                       | Design research only (75k+ real product screens) — _not_ a code source                                                                                                                                    | Never pull code from here — see `TECH_STACK.md` §3                                                                                  |
 
-## 5. Open questions (carried forward, not yet resolved)
+## 5. Open questions (carried forward)
 
 - **"Popcard" vs "Popl"** — research turned up detailed, well-documented
   info on Popl; nothing under the exact name "Popcard." Likely the same
@@ -61,14 +61,18 @@ changed deliberately:
   is real and explicitly deferred, not dismissed. Revisit before real
   traffic, not after — this was flagged as the single biggest risk to
   "website perfectness" in the optimization review.
-- **React Router version** — no strong reason to pick v6 vs v7 yet;
-  defaulting to latest stable unless there's a preference.
+- **React Router version** — resolved, using v7 (latest stable).
 - **Admin auth boundary** — current plan is same Supabase project with
   role-based RLS, not a separate auth flow. Holds unless something
   changes that.
 
 ## 6. Companion docs
 
+- `docs/ARCHITECTURE.md` — UX journey, TanStack/Zustand integration,
+  React component optimization strategy
+- `docs/SUPABASE_BACKEND.md` — **single source of truth** for all
+  Supabase state: schema, RLS, auth providers, storage, triggers,
+  security, testing, and deferred work
 - `docs/FRONTEND_ARCHITECTURE.md` — app shape, folder structure, QR
   generation architecture
 - `docs/TECH_STACK.md` — full stack table, optimization posture, design
@@ -79,9 +83,8 @@ changed deliberately:
 
 ## Next concrete steps
 
-- Confirm or correct the Popcard/Popl question
-- Decide the `/c/:code` rendering-strategy timeline explicitly (a date
-  or a trigger condition, not just "later")
-- Once `features/marketing` scoping starts, this doc's §3 is the
-  reference for what's fair game creatively vs what carries a specific
-  UX pattern to follow
+1. **Auth layer** — build `AuthProvider` context + switchable
+   Login/Signup `AuthForm` component (see `SUPABASE_BACKEND.md` §12)
+2. Finish Facebook OAuth (paste credentials into Supabase)
+3. Extend `supabase-infra.test.js` to cover remaining tables/buckets
+4. Once auth is wired, proceed to the Profile Wizard and dashboard
