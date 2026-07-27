@@ -1,26 +1,39 @@
 import { useState } from "react";
-import { Eye, EyeOff, Mail, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "../store/useAuthStore";
 
 /**
- * Unified Login / Register form.
- * Switches between modes via internal state — OAuth buttons render identically
- * in both modes because Supabase resolves signup vs login internally.
+ * Split-screen auth component.
+ *
+ * Sign up mode (default):
+ *   Left  → Marketing panel (card image + copy + "Log in" button)
+ *   Right → Sign up form
+ *
+ * Log in mode:
+ *   Left  → Log in form
+ *   Right → Marketing panel (card image + copy + "Sign up" button)
  */
 export default function AuthForm() {
-  const [mode, setMode] = useState("login"); // "login" | "signup"
+  const [mode, setMode] = useState("signup"); // "login" | "signup"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null); // { type: "success" | "error", text }
+  const [message, setMessage] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const setError = useAuthStore((s) => s.setError);
-
   const isSignup = mode === "signup";
 
   // ── OAuth ──
@@ -70,7 +83,6 @@ export default function AuthForm() {
       setMessage({ type: "error", text: "Email and password are required." });
       return;
     }
-
     if (isSignup) {
       if (password !== confirmPassword) {
         setMessage({ type: "error", text: "Passwords do not match." });
@@ -118,87 +130,206 @@ export default function AuthForm() {
         setError(error.message);
       }
     }
-
     setLoading(false);
   };
 
-  return (
-    <section className="flex min-h-screen items-center justify-center bg-cloud px-4 py-12">
-      <div className="w-full max-w-[460px] rounded-2xl border border-ink/8 bg-white p-8 shadow-sm sm:p-10">
-        {/* ── Header ── */}
-        <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl">
-          {isSignup ? "Create an account" : "Welcome back"}
-        </h1>
-        <p className="mt-1.5 text-sm text-ink/50">
-          {isSignup
-            ? "Start your 7-day free trial today."
-            : "Sign in to your BuzzCard dashboard."}
-        </p>
+  const switchMode = () => {
+    setMode(isSignup ? "login" : "signup");
+    setMessage(null);
+  };
 
-        {/* ── Status Message ── */}
-        {message && (
-          <div
-            className={`mt-5 rounded-lg px-4 py-3 text-sm ${
-              message.type === "error"
-                ? "bg-red-50 text-red-700"
-                : "bg-emerald-50 text-emerald-700"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+  // ─────────── Marketing Panel ───────────
+  const marketingPanel = (
+    <div className="relative flex h-full flex-col items-center justify-between overflow-hidden bg-ink px-8 py-12 text-cloud sm:px-12 lg:py-16">
+      
+      {/* Cinematic Spotlight (Lamp effect) */}
+      <div className="absolute left-1/2 top-[30%] h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-mint/25 opacity-80 blur-[100px] pointer-events-none" />
 
-        {/* ── OAuth Buttons ── */}
-        <div className="mt-7 grid gap-3 sm:grid-cols-2">
-          <button
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+        }}
+        className="flex h-full w-full flex-col items-center justify-between"
+      >
+        {/* Card images (Fanned out, Static) */}
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+          }}
+          className="relative flex w-full flex-1 items-center justify-center min-h-[300px]"
+        >
+          {/* Back Card (Tilted Left, Behind) */}
+          <img
+            src="/Card back.svg"
+            alt="BuzzCard NFC Back"
+            className="absolute w-[220px] -translate-x-6 -rotate-6 drop-shadow-xl sm:w-[260px] sm:-translate-x-8"
+          />
+          {/* Front Card (Tilted Right, Foreground) */}
+          <img
+            src="/Card front.svg"
+            alt="BuzzCard NFC Front"
+            className="absolute z-10 w-[220px] translate-x-4 translate-y-4 rotate-3 drop-shadow-2xl sm:w-[260px] sm:translate-x-6"
+          />
+        </motion.div>
+
+        {/* Copy */}
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+          }}
+          className="mt-8 text-center"
+        >
+          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Your digital identity,
+            <br />
+            one tap away.
+          </h2>
+          <p className="mx-auto mt-3 max-w-[320px] text-sm leading-relaxed text-cloud/60">
+            Design your NFC card, share your profile instantly, and update your
+            info anytime — no reprinting needed.
+          </p>
+        </motion.div>
+
+        {/* Switch button — arrow flips direction based on mode */}
+        <motion.button
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+          }}
+          type="button"
+          onClick={switchMode}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="mt-8 flex h-11 items-center gap-2 rounded-lg border border-cloud/20 px-6 text-sm font-medium text-cloud transition-colors hover:bg-cloud/10"
+        >
+          {isSignup ? (
+            <>
+              Log in instead
+              <ArrowRight className="size-4" />
+            </>
+          ) : (
+            <>
+              <ArrowLeft className="size-4" />
+              Create an account
+            </>
+          )}
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+
+  // ─────────── Form Panel ───────────
+  const formPanel = (
+    <div className="flex h-full items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-14">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
+        }}
+        className="w-full max-w-[420px]"
+      >
+        {/* Title */}
+        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+          <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl">
+            {isSignup ? "Create an account" : "Welcome back"}
+          </h1>
+          <p className="mt-1.5 text-sm text-ink/50">
+            {isSignup
+              ? "Start your 7-day free trial today."
+              : "Sign in to your BuzzCard dashboard."}
+          </p>
+        </motion.div>
+
+        {/* Status Message */}
+        <AnimatePresence>
+          {message && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: "auto", marginTop: 20 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              className={`overflow-hidden rounded-lg px-4 py-3 text-sm ${
+                message.type === "error"
+                  ? "bg-red-50 text-red-700"
+                  : "bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {message.text}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* OAuth Buttons */}
+        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="mt-7 grid gap-3 sm:grid-cols-2">
+          <motion.button
             type="button"
             onClick={() => handleOAuth("google")}
             disabled={loading}
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
             className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
           >
             <GoogleIcon />
-            <span className="whitespace-nowrap">Google</span>
-          </button>
-          <button
+            <span>Google</span>
+          </motion.button>
+          <motion.button
             type="button"
             onClick={() => handleOAuth("facebook")}
             disabled={loading}
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
             className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
           >
             <FacebookIcon />
-            <span className="whitespace-nowrap">Facebook</span>
-          </button>
-        </div>
+            <span>Facebook</span>
+          </motion.button>
+        </motion.div>
 
-        {/* ── Magic Link ── */}
-        <button
-          type="button"
-          onClick={handleMagicLink}
-          disabled={loading}
-          className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
-        >
-          <Mail className="size-4 shrink-0 text-ink/50" />
-          <span className="whitespace-nowrap">Magic link</span>
-        </button>
+        {/* Magic Link */}
+        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+          <motion.button
+            type="button"
+            onClick={handleMagicLink}
+            disabled={loading}
+            whileHover={{ scale: 1.02, y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
+          >
+            <Mail className="size-4 shrink-0 text-ink/50" />
+            <span>Magic link</span>
+          </motion.button>
+        </motion.div>
 
-        {/* ── Divider ── */}
-        <div className="my-6 flex items-center gap-4 text-xs font-medium text-ink/30">
+        {/* Divider */}
+        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="my-6 flex items-center gap-4 text-xs font-medium text-ink/30">
           <div className="h-px flex-1 bg-ink/8" />
           or continue with email
           <div className="h-px flex-1 bg-ink/8" />
-        </div>
+        </motion.div>
 
-        {/* ── Form ── */}
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <InputField
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={setEmail}
-          />
+          <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+            <InputField
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={setEmail}
+            />
+          </motion.div>
 
-          <div className="relative">
+          <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="relative">
             <InputField
               label="Password"
               type={showPassword ? "text" : "password"}
@@ -206,116 +337,148 @@ export default function AuthForm() {
               value={password}
               onChange={setPassword}
             />
-            <button
+            <motion.button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-[38px] text-ink/35 hover:text-ink"
+              whileTap={{ scale: 0.85 }}
+              className="absolute right-3.5 top-[38px] text-ink/35 hover:text-ink transition-colors"
             >
               {showPassword ? (
                 <EyeOff className="size-4" />
               ) : (
                 <Eye className="size-4" />
               )}
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
 
-          {isSignup && (
-            <div className="relative">
-              <InputField
-                label="Confirm password"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Re-enter password"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3.5 top-[38px] text-ink/35 hover:text-ink"
+          <AnimatePresence>
+            {isSignup && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="relative overflow-hidden pt-1" // pt-1 prevents border clipping during animation
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="size-4" />
-                ) : (
-                  <Eye className="size-4" />
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* ── Terms (signup only) ── */}
-          {isSignup && (
-            <label className="flex items-start gap-3 pt-1 text-xs leading-5 text-ink/45 cursor-pointer">
-              <span className="relative mt-0.5 size-4 shrink-0">
-                <input
-                  type="checkbox"
-                  checked={agreedToTerms}
-                  onChange={(e) => setAgreedToTerms(e.target.checked)}
-                  className="peer size-full cursor-pointer appearance-none rounded border border-ink/20 bg-white checked:border-navy checked:bg-navy"
+                <InputField
+                  label="Confirm password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  value={confirmPassword}
+                  onChange={setConfirmPassword}
                 />
-                <svg
-                  viewBox="0 0 12 12"
-                  className="pointer-events-none absolute inset-0 hidden size-full p-0.5 text-white peer-checked:block"
-                  fill="none"
-                  aria-hidden="true"
+                <motion.button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  whileTap={{ scale: 0.85 }}
+                  className="absolute right-3.5 top-[42px] text-ink/35 hover:text-ink transition-colors"
                 >
-                  <path
-                    d="M3 6.2 5 8.1 9 3.9"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <span>
-                I agree to the{" "}
-                <a
-                  href="#"
-                  className="font-medium text-navy/70 underline underline-offset-2"
-                >
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="#"
-                  className="font-medium text-navy/70 underline underline-offset-2"
-                >
-                  Privacy Policy
-                </a>
-              </span>
-            </label>
-          )}
-
-          {/* ── Submit ── */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 flex h-11 w-full items-center justify-center rounded-lg bg-navy text-sm font-medium text-white transition-colors hover:bg-navy/90 disabled:opacity-60"
-          >
-            {loading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : isSignup ? (
-              "Create account"
-            ) : (
-              "Sign in"
+                  {showConfirmPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </motion.button>
+              </motion.div>
             )}
-          </button>
-        </form>
+          </AnimatePresence>
 
-        {/* ── Mode Toggle ── */}
-        <p className="mt-6 text-center text-sm text-ink/45">
-          {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setMode(isSignup ? "login" : "signup");
-              setMessage(null);
-            }}
-            className="font-medium text-navy hover:underline"
-          >
-            {isSignup ? "Sign in" : "Create one"}
-          </button>
-        </p>
+          {/* Terms (signup only) */}
+          <AnimatePresence>
+            {isSignup && (
+              <motion.label 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex items-start gap-3 overflow-hidden pt-2 text-xs leading-5 text-ink/45 cursor-pointer"
+              >
+                <span className="relative mt-0.5 size-4 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="peer size-full cursor-pointer appearance-none rounded border border-ink/20 bg-white checked:border-navy checked:bg-navy"
+                  />
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="pointer-events-none absolute inset-0 hidden size-full p-0.5 text-white peer-checked:block"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 6.2 5 8.1 9 3.9"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
+                <span>
+                  I agree to the{" "}
+                  <a
+                    href="#"
+                    className="font-medium text-navy/70 underline underline-offset-2"
+                  >
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a
+                    href="#"
+                    className="font-medium text-navy/70 underline underline-offset-2"
+                  >
+                    Privacy Policy
+                  </a>
+                </span>
+              </motion.label>
+            )}
+          </AnimatePresence>
+
+          {/* Submit */}
+          <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="mt-3 flex h-11 w-full items-center justify-center rounded-lg bg-navy text-sm font-medium text-white transition-colors hover:bg-navy/90 disabled:opacity-60"
+            >
+              {loading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : isSignup ? (
+                "Create account"
+              ) : (
+                "Sign in"
+              )}
+            </motion.button>
+          </motion.div>
+        </form>
+      </motion.div>
+    </div>
+  );
+
+  // ─────────── Layout ───────────
+  return (
+    <section className="flex min-h-screen items-center justify-center p-4 lg:p-6 overflow-hidden">
+      <div 
+        className={`flex w-full max-w-[1120px] flex-col lg:min-h-[640px] overflow-hidden rounded-2xl shadow-xl lg:flex-row ${
+          isSignup ? "" : "lg:flex-row-reverse"
+        }`}
+      >
+        <motion.div 
+          layout 
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="flex-1 bg-ink overflow-hidden"
+        >
+          {marketingPanel}
+        </motion.div>
+        <motion.div 
+          layout 
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="flex-1 bg-white"
+        >
+          {formPanel}
+        </motion.div>
       </div>
     </section>
   );
