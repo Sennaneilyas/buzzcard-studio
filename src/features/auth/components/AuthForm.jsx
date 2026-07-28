@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Eye,
@@ -23,7 +24,10 @@ import { useAuthStore } from "../store/useAuthStore";
  *   Right → Marketing panel (card image + copy + "Sign up" button)
  */
 export default function AuthForm() {
-  const [mode, setMode] = useState("signup"); // "login" | "signup"
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
+  const [mode, setMode] = useState(initialMode); // "login" | "signup"
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,8 +37,25 @@ export default function AuthForm() {
   const [message, setMessage] = useState(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+  const user = useAuthStore((s) => s.user);
   const setError = useAuthStore((s) => s.setError);
+  const navigate = useNavigate();
   const isSignup = mode === "signup";
+
+  // ── Sync mode when URL parameter changes ──
+  useEffect(() => {
+    const urlMode = searchParams.get("mode");
+    if (urlMode === "login" || urlMode === "signup") {
+      setMode(urlMode);
+    }
+  }, [searchParams]);
+
+  // ── Redirect to /onboarding when authenticated ──
+  useEffect(() => {
+    if (user) {
+      navigate("/onboarding", { replace: true });
+    }
+  }, [user, navigate]);
 
   // ── OAuth ──
   const handleOAuth = async (provider) => {
@@ -42,7 +63,7 @@ export default function AuthForm() {
     setMessage(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/onboarding` },
     });
     if (error) {
       setMessage({ type: "error", text: error.message });

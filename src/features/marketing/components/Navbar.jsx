@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 
@@ -122,8 +123,8 @@ export default function Navbar() {
             `}
             id="nav-cta-desktop"
           >
-            <a
-              href="#login"
+            <Link
+              to="/auth?mode=login"
               className={`
                 font-medium text-ink/60 rounded-full
                 transition-all duration-300 hover:text-ink
@@ -131,9 +132,9 @@ export default function Navbar() {
               `}
             >
               Log in
-            </a>
-            <a
-              href="#get-started"
+            </Link>
+            <Link
+              to="/auth?mode=signup"
               className={`
                 font-semibold text-ink rounded-full
                 border border-ink/40
@@ -145,7 +146,7 @@ export default function Navbar() {
               id="nav-cta-button"
             >
               Get started
-            </a>
+            </Link>
           </div>
 
           {/* ── Mobile hamburger ── */}
@@ -258,8 +259,8 @@ export default function Navbar() {
               </LayoutGroup>
 
               <div className="mt-auto flex flex-col gap-3">
-                <a
-                  href="#login"
+                <Link
+                  to="/auth?mode=login"
                   onClick={() => setMobileOpen(false)}
                   className="
                     block text-center px-4 py-3 text-sm font-medium text-ink/70
@@ -269,9 +270,9 @@ export default function Navbar() {
                   "
                 >
                   Log in
-                </a>
-                <a
-                  href="#get-started"
+                </Link>
+                <Link
+                  to="/auth?mode=signup"
                   onClick={() => setMobileOpen(false)}
                   className="
                     block text-center px-5 py-3 text-sm font-semibold
@@ -283,7 +284,7 @@ export default function Navbar() {
                   id="nav-mobile-cta"
                 >
                   Get started
-                </a>
+                </Link>
               </div>
             </motion.div>
           </>
