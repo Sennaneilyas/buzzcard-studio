@@ -17,9 +17,14 @@ const AnimatedTabs = ({ tabs = [], defaultTab, className }) => {
   if (!tabs?.length) return null;
 
   return (
-    <div className={cn("w-full max-w-3xl flex flex-col gap-y-1", className)}>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={cn("w-full flex flex-col gap-y-3", className)}
+    >
       {/* Tab pills row */}
-      <div className="flex gap-2 flex-wrap bg-navy/90 backdrop-blur-sm p-1.5 rounded-xl">
+      <div className="flex gap-2 flex-wrap bg-navy/90 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-white/5">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -41,8 +46,13 @@ const AnimatedTabs = ({ tabs = [], defaultTab, className }) => {
       </div>
 
       {/* Tab content area */}
-      <div className="p-5 sm:p-6 bg-navy/90 shadow-[0_0_30px_rgba(0,35,102,0.15)] text-white backdrop-blur-sm rounded-xl border border-white/5 min-h-60 h-full">
-        {tabs.map(
+      <div className="relative overflow-hidden p-6 sm:p-8 lg:p-10 min-h-[65vh] bg-navy/95 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] text-white backdrop-blur-md rounded-3xl border border-white/10 ring-1 ring-white/5">
+        {/* Subtle background glow effect inside the card */}
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-mint/10 blur-[100px] rounded-full pointer-events-none" />
+        
+        <div className="relative z-10 w-full h-full flex flex-col">
+          {tabs.map(
           (tab) =>
             activeTab === tab.id && (
               <motion.div
@@ -65,8 +75,9 @@ const AnimatedTabs = ({ tabs = [], defaultTab, className }) => {
               </motion.div>
             )
         )}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,11 +1,16 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore, useProfile } from "@/features/auth";
 import { supabase } from "@/lib/supabase";
-import { LogOut, Layout, UserCircle, Image, Share2, Rocket } from "lucide-react";
+import { LogOut, Layout, UserCircle, Image, Share2, Rocket, X, Sparkles, ShoppingCart } from "lucide-react";
 import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import StepTemplate from "./steps/StepTemplate";
+import { TEMPLATES } from "@/config/templates";
 
 export default function OnboardingPage() {
   const user = useAuthStore((s) => s.user);
   const { data: profile } = useProfile();
+  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -17,36 +22,23 @@ export default function OnboardingPage() {
     user?.user_metadata?.picture ||
     profile?.avatar_url;
 
-  const displayName =
-    profile?.full_name ||
+  const rawDisplayName =
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
-    user?.email;
+    profile?.full_name ||
+    (user?.email ? user.email.split("@")[0] : "User");
+
+  const displayName = rawDisplayName.split(" ")[0];
 
   const onboardingTabs = [
     {
       id: "template",
       label: "Template",
       content: (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full h-full">
-          <img
-            src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?q=80&w=800&auto=format&fit=crop"
-            alt="Choose your card template"
-            className="rounded-lg w-full h-52 object-cover !m-0 shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none"
-          />
-          <div className="flex flex-col gap-y-2 justify-center">
-            <div className="flex items-center gap-2 text-mint">
-              <Layout className="size-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">Step 1</span>
-            </div>
-            <h2 className="text-xl font-bold !m-0 text-white">
-              Choose Your Card Style
-            </h2>
-            <p className="text-sm text-gray-300 mt-0 leading-relaxed">
-              Select from Personal Profile, Review Card, or Smart Bracelet. Each template is designed for a specific use-case — pick the one that fits your brand.
-            </p>
-          </div>
-        </div>
+        <StepTemplate
+          selectedId={selectedTemplateId}
+          onSelect={setSelectedTemplateId}
+        />
       ),
     },
     {
@@ -170,8 +162,10 @@ export default function OnboardingPage() {
             />
           </a>
 
-          {/* ── Right: User Icon + Logout ── */}
-          <div className="flex items-center gap-2">
+          {/* ── Right: User Icon + Logout + Cart ── */}
+          <div className="flex items-center gap-3">
+            
+            {/* User Profile & Logout Pill */}
             <div
               className="
                 flex items-center gap-0.5 rounded-full
@@ -188,10 +182,10 @@ export default function OnboardingPage() {
                   />
                 ) : (
                   <div className="flex size-7 items-center justify-center rounded-full bg-navy text-[11px] font-bold text-white">
-                    {(displayName || "U").charAt(0).toUpperCase()}
+                    {displayName.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <span className="text-sm font-medium text-ink/60 hidden sm:inline truncate max-w-[120px]">
+                <span className="text-sm font-medium text-ink/60 hidden sm:inline truncate max-w-[120px] capitalize">
                   {displayName}
                 </span>
               </div>
@@ -209,13 +203,66 @@ export default function OnboardingPage() {
                 <LogOut className="size-4" />
               </button>
             </div>
+
+            {/* ── Navbar Cart for Selected Template (Now on the right) ── */}
+            <button
+              onClick={() => {
+                if (selectedTemplateId) setSelectedTemplateId(null);
+              }}
+              className="group relative h-9 w-[120px] bg-[#1a1a1a] text-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-white/5"
+            >
+              <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-9">
+                {/* Default State (Before Hover) */}
+                <div className="h-9 shrink-0 flex items-center justify-between px-3">
+                  <span className="text-[11px] font-semibold tracking-wide text-white/90">
+                    Cart
+                  </span>
+                  <div className="w-[1px] h-3 bg-white/15" />
+                  <div className="relative">
+                    <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
+                    <AnimatePresence>
+                      {selectedTemplateId && (
+                        <motion.span
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00e676] text-[#0a192f] rounded-full flex items-center justify-center text-[8px] font-bold"
+                        >
+                          1
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Hover State (After Hover) */}
+                <div className="h-9 shrink-0 flex items-center justify-between px-3">
+                  <div className="relative flex items-center justify-center">
+                    <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
+                    <span
+                      className={`absolute -top-1.5 -right-1.5 w-3 h-3 rounded-full flex items-center justify-center text-[8px] font-bold transition-colors ${
+                        selectedTemplateId
+                          ? "bg-[#00e676] text-[#0a192f]"
+                          : "bg-white/20 text-white"
+                      }`}
+                    >
+                      {selectedTemplateId ? "1" : "0"}
+                    </span>
+                  </div>
+                  <div className="w-[1px] h-3 bg-white/15" />
+                  <span className="text-[11px] font-semibold tracking-wide text-white/90">
+                    {selectedTemplateId ? "Clear" : "Cart"}
+                  </span>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </header>
 
       {/* ── Main Onboarding Content ── */}
       <main className="flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl flex flex-col items-center">
+        <div className="mx-auto max-w-5xl flex flex-col items-center">
           {/* Welcome heading */}
           <div className="text-center mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-navy">
@@ -230,7 +277,7 @@ export default function OnboardingPage() {
           <AnimatedTabs
             tabs={onboardingTabs}
             defaultTab="template"
-            className="w-full max-w-3xl"
+            className="w-full"
           />
         </div>
       </main>
