@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { LogOut, ChevronDown, Mail, Search, Sparkles, UserCircle, Share2, Rocket, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import StepTemplate from "./steps/StepTemplate";
+import StepBasicInfo from "./steps/StepBasicInfo";
+import StepSocials from "./steps/StepSocials";
 
 const ONBOARDING_STEPS = [
   { id: "template", label: "Template", icon: Sparkles },
@@ -20,6 +22,17 @@ export default function OnboardingPage() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  
+  const [profileData, setProfileData] = useState({
+    name: "",
+    role: "",
+    bio: "",
+    email: "",
+    phone: "",
+    avatarUrl: "",
+    bannerUrl: "",
+  });
+
   const profileRef = useRef(null);
 
   // Close dropdown on click outside
@@ -233,61 +246,28 @@ export default function OnboardingPage() {
             </div>
           </div>
         ) : (
-          /* PHASE 2: The Studio Editor (Split-Card) */
-          <div className="w-full h-[calc(100vh-250px)] min-h-[600px] max-h-[850px] bg-[#e0e5ec] rounded-[2.5rem] relative border border-white/50 p-6 sm:p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)]">
+          /* PHASE 2: The Studio Editor (Wizard) */
+          <div className="w-full max-w-4xl mx-auto h-auto bg-[#e0e5ec] rounded-[2rem] relative border border-white/50 p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)] mt-10">
             
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
-              
-              {/* Left Side: Visualization (Live Preview) */}
-              <div className="h-full bg-[#e0e5ec] rounded-3xl p-6 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),_inset_-6px_-6px_10px_rgba(255,255,255,0.8)] flex flex-col items-center justify-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-3xl" />
-                
-                <div className="text-center space-y-4 relative z-10">
-                  <div className="size-20 mx-auto bg-[#e0e5ec] rounded-full flex items-center justify-center shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
-                    {(() => {
-                      const CurrentIcon = ONBOARDING_STEPS[activeTabIndex].icon;
-                      return <CurrentIcon className="size-8 text-mint" />;
-                    })()}
-                  </div>
-                  <div>
-                    <h3 className="text-navy font-semibold text-lg">Live Visualization</h3>
-                    <p className="text-navy/50 text-sm mt-1 max-w-[250px] mx-auto">
-                      Your changes will instantly appear here as you configure your profile.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side: Interaction (Wizard Content) */}
-              <div className="h-full flex flex-col min-h-0">
-                
-                {/* Search Bar (Now inside interaction column) */}
-                <div className="relative w-full mb-6 shrink-0">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Search className="h-4 w-4 text-navy/30" />
-                  </div>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search settings..."
-                    className="w-full pl-10 pr-4 py-3 bg-[#e0e5ec] text-sm text-navy placeholder-navy/40 rounded-2xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all"
-                  />
-                </div>
-
-                <div className="flex-1 overflow-y-auto custom-scrollbar pr-4">
-                  <div className="space-y-6">
-                    {/* Neomorphic Content Placeholders */}
-                    <div className="p-6 rounded-2xl bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
-                      <h4 className="text-navy/80 font-bold mb-4">Configure {ONBOARDING_STEPS[activeTabIndex].label}</h4>
-                      <div className="space-y-4">
-                        <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                        <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                        <div className="h-32 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                      </div>
+            <div className="px-2 pb-8">
+              {activeTabIndex === 1 ? (
+                <StepBasicInfo data={profileData} onChange={setProfileData} />
+              ) : activeTabIndex === 2 ? (
+                <StepSocials data={profileData} onChange={setProfileData} />
+              ) : (
+                <div className="space-y-6">
+                  {/* Neomorphic Content Placeholders */}
+                  <div className="p-6 rounded-2xl bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
+                    <h4 className="text-navy/80 font-bold mb-4">Configure {ONBOARDING_STEPS[activeTabIndex].label}</h4>
+                    <div className="space-y-4">
+                      <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
+                      <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
+                      <div className="h-32 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
                 {/* Action Buttons */}
                 <div className="shrink-0 pt-6 mt-6 border-t border-navy/5 flex items-center justify-between">
@@ -306,8 +286,6 @@ export default function OnboardingPage() {
                     Next Step
                   </button>
                 </div>
-              </div>
-            </div>
           </div>
         )}
       </main>

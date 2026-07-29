@@ -2,50 +2,48 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getTemplatesByCategory } from "@/config/templates";
-import { Check, MousePointerClick, Search, Eye, X } from "lucide-react";
+import { Check, MousePointerClick, Filter, Eye, X } from "lucide-react";
 
 export default function StepTemplate({ selectedId, onSelect }) {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState(null);
 
   const [page, setPage] = useState(0);
   const itemsPerPage = 8; // Full gallery view
 
   const filteredTemplates = useMemo(() => {
-    let list = getTemplatesByCategory(activeCategory);
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (t) =>
-          t.name.toLowerCase().includes(q) ||
-          t.category.toLowerCase().includes(q) ||
-          t.layoutType.toLowerCase().includes(q)
-      );
-    }
-    return list;
-  }, [activeCategory, searchQuery]);
+    return getTemplatesByCategory(activeCategory);
+  }, [activeCategory]);
 
   const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
   const paginatedTemplates = filteredTemplates.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
   return (
     <div className="w-full space-y-8 flex flex-col h-full">
-      {/* ── Internal Search & Filter ── */}
-      <div className="relative w-full max-w-md mx-auto shrink-0">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-navy/40" />
+      {/* ── Category Filter Dropdown ── */}
+      <div className="relative w-full max-w-sm mx-auto shrink-0 flex items-center">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+          <Filter className="h-4 w-4 text-navy/50" />
         </div>
-        <input
-          type="text"
-          value={searchQuery}
+        <select
+          value={activeCategory}
           onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setPage(0); // Reset page on search
+            setActiveCategory(e.target.value);
+            setPage(0); // Reset page on filter change
           }}
-          placeholder="Search templates..."
-          className="w-full pl-10 pr-4 py-3 bg-[#e0e5ec] text-sm text-navy placeholder-navy/40 rounded-2xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all"
-        />
+          className="w-full pl-11 pr-10 py-3 bg-[#e0e5ec] text-sm font-bold text-navy rounded-2xl appearance-none focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all cursor-pointer"
+        >
+          <option value="all">All Templates</option>
+          <option value="professional">Professional</option>
+          <option value="creative">Creative</option>
+          <option value="minimal">Minimal</option>
+          <option value="specialty">Specialty</option>
+        </select>
+        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
+          <svg className="h-4 w-4 text-navy/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
 
       {/* ── Template Gallery Grid ── */}
