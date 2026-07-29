@@ -1,16 +1,37 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore, useProfile } from "@/features/auth";
 import { supabase } from "@/lib/supabase";
-import { LogOut, Layout, UserCircle, Image, Share2, Rocket, X, Sparkles, ShoppingCart } from "lucide-react";
-import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import { LogOut, ChevronDown, Mail, Search, Sparkles, UserCircle, Share2, Rocket, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import StepTemplate from "./steps/StepTemplate";
-import { TEMPLATES } from "@/config/templates";
+
+const ONBOARDING_STEPS = [
+  { id: "template", label: "Template", icon: Sparkles },
+  { id: "info", label: "Basic Info", icon: UserCircle },
+  { id: "socials", label: "Social Links", icon: Share2 },
+  { id: "launch", label: "Launch", icon: Rocket },
+];
 
 export default function OnboardingPage() {
   const user = useAuthStore((s) => s.user);
   const { data: profile } = useProfile();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
+  const profileRef = useRef(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -30,127 +51,14 @@ export default function OnboardingPage() {
 
   const displayName = rawDisplayName.split(" ")[0];
 
-  const onboardingTabs = [
-    {
-      id: "template",
-      label: "Template",
-      content: (
-        <StepTemplate
-          selectedId={selectedTemplateId}
-          onSelect={setSelectedTemplateId}
-        />
-      ),
-    },
-    {
-      id: "info",
-      label: "Basic Info",
-      content: (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full h-full">
-          <img
-            src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=800&auto=format&fit=crop"
-            alt="Enter your basic info"
-            className="rounded-lg w-full h-52 object-cover !m-0 shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none"
-          />
-          <div className="flex flex-col gap-y-2 justify-center">
-            <div className="flex items-center gap-2 text-mint">
-              <UserCircle className="size-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">Step 2</span>
-            </div>
-            <h2 className="text-xl font-bold !m-0 text-white">
-              Personal & Business Details
-            </h2>
-            <p className="text-sm text-gray-300 mt-0 leading-relaxed">
-              Enter your first name, last name, job title, company, bio, and choose a brand accent color. This information appears front-and-center on your digital card.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "media",
-      label: "Media",
-      content: (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full h-full">
-          <img
-            src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format&fit=crop"
-            alt="Upload your profile photo"
-            className="rounded-lg w-full h-52 object-cover !m-0 shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none"
-          />
-          <div className="flex flex-col gap-y-2 justify-center">
-            <div className="flex items-center gap-2 text-mint">
-              <Image className="size-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">Step 3</span>
-            </div>
-            <h2 className="text-xl font-bold !m-0 text-white">
-              Avatar & Hero Banner
-            </h2>
-            <p className="text-sm text-gray-300 mt-0 leading-relaxed">
-              Upload a crisp profile photo and hero banner image. These visuals personalize your NFC card and make a lasting first impression on anyone who taps it.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "contacts",
-      label: "Contacts",
-      content: (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full h-full">
-          <img
-            src="https://images.unsplash.com/photo-1557200134-90327ee9fafa?q=80&w=800&auto=format&fit=crop"
-            alt="Add your contact info"
-            className="rounded-lg w-full h-52 object-cover !m-0 shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none"
-          />
-          <div className="flex flex-col gap-y-2 justify-center">
-            <div className="flex items-center gap-2 text-mint">
-              <Share2 className="size-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">Step 4</span>
-            </div>
-            <h2 className="text-xl font-bold !m-0 text-white">
-              Contacts & Socials
-            </h2>
-            <p className="text-sm text-gray-300 mt-0 leading-relaxed">
-              Add your phone numbers, emails, and social media links — LinkedIn, WhatsApp, Instagram, and more. Anyone who taps your card can connect with you instantly.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "launch",
-      label: "Launch",
-      content: (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 w-full h-full">
-          <img
-            src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop"
-            alt="Preview and launch your card"
-            className="rounded-lg w-full h-52 object-cover !m-0 shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none"
-          />
-          <div className="flex flex-col gap-y-2 justify-center">
-            <div className="flex items-center gap-2 text-mint">
-              <Rocket className="size-5" />
-              <span className="text-xs font-bold uppercase tracking-wider">Step 5</span>
-            </div>
-            <h2 className="text-xl font-bold !m-0 text-white">
-              Preview & Launch
-            </h2>
-            <p className="text-sm text-gray-300 mt-0 leading-relaxed">
-              See a live preview of your completed digital profile card. Once you're happy, hit launch — your NFC BuzzCard goes live and is ready to share with the world.
-            </p>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-cloud flex flex-col justify-between">
-      {/* ── Navbar — Same style as LandingPage Navbar ── */}
+      {/* ── Navbar ── */}
       <header className="top-0 inset-x-0 z-50">
         <div
           className="
-            mx-auto flex items-center justify-between
-            max-w-7xl px-6 py-5 lg:px-10 bg-transparent
+            w-full flex items-center justify-between
+            px-6 py-5 lg:px-10 bg-transparent
           "
         >
           {/* ── Logo ── */}
@@ -162,124 +70,246 @@ export default function OnboardingPage() {
             />
           </a>
 
-          {/* ── Right: User Icon + Logout + Cart ── */}
-          <div className="flex items-center gap-3">
-            
-            {/* User Profile & Logout Pill */}
-            <div
+          {/* ── Right: User Profile ── */}
+          <div className="flex items-center gap-3 relative" ref={profileRef}>
+            {/* User Profile Pill */}
+            <button
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="
-                flex items-center gap-0.5 rounded-full
-                px-1.5 py-1.5 bg-ink/[0.05] backdrop-blur-md border border-ink/[0.06]
+                flex items-center gap-2 rounded-full
+                px-2 py-1 bg-ink/[0.05] hover:bg-ink/[0.08] backdrop-blur-md border border-ink/[0.06] transition-colors
               "
             >
-              {/* User avatar / initials pill */}
-              <div className="flex items-center gap-2 px-2 py-0.5 rounded-full">
-                {userPhotoUrl ? (
-                  <img
-                    src={userPhotoUrl}
-                    alt="Account"
-                    className="size-7 rounded-full object-cover ring-1 ring-white/50"
-                  />
-                ) : (
-                  <div className="flex size-7 items-center justify-center rounded-full bg-navy text-[11px] font-bold text-white">
-                    {displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <span className="text-sm font-medium text-ink/60 hidden sm:inline truncate max-w-[120px] capitalize">
-                  {displayName}
-                </span>
-              </div>
-
-              {/* Logout button inside the pill */}
-              <button
-                onClick={handleLogout}
-                className="
-                  relative px-3 py-1.5 text-sm font-medium rounded-full
-                  text-ink/60 transition-colors duration-200
-                  hover:text-ink hover:bg-ink/[0.04]
-                "
-                title="Sign Out"
-              >
-                <LogOut className="size-4" />
-              </button>
-            </div>
-
-            {/* ── Navbar Cart for Selected Template (Now on the right) ── */}
-            <button
-              onClick={() => {
-                if (selectedTemplateId) setSelectedTemplateId(null);
-              }}
-              className="group relative h-9 w-[120px] bg-[#1a1a1a] text-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-white/5"
-            >
-              <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-9">
-                {/* Default State (Before Hover) */}
-                <div className="h-9 shrink-0 flex items-center justify-between px-3">
-                  <span className="text-[11px] font-semibold tracking-wide text-white/90">
-                    Cart
-                  </span>
-                  <div className="w-[1px] h-3 bg-white/15" />
-                  <div className="relative">
-                    <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
-                    <AnimatePresence>
-                      {selectedTemplateId && (
-                        <motion.span
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00e676] text-[#0a192f] rounded-full flex items-center justify-center text-[8px] font-bold"
-                        >
-                          1
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </div>
+              {userPhotoUrl ? (
+                <img
+                  src={userPhotoUrl}
+                  alt="Account"
+                  className="size-7 rounded-full object-cover ring-1 ring-white/50"
+                />
+              ) : (
+                <div className="flex size-7 items-center justify-center rounded-full bg-navy text-[11px] font-bold text-white">
+                  {displayName.charAt(0).toUpperCase()}
                 </div>
-
-                {/* Hover State (After Hover) */}
-                <div className="h-9 shrink-0 flex items-center justify-between px-3">
-                  <div className="relative flex items-center justify-center">
-                    <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
-                    <span
-                      className={`absolute -top-1.5 -right-1.5 w-3 h-3 rounded-full flex items-center justify-center text-[8px] font-bold transition-colors ${
-                        selectedTemplateId
-                          ? "bg-[#00e676] text-[#0a192f]"
-                          : "bg-white/20 text-white"
-                      }`}
-                    >
-                      {selectedTemplateId ? "1" : "0"}
-                    </span>
-                  </div>
-                  <div className="w-[1px] h-3 bg-white/15" />
-                  <span className="text-[11px] font-semibold tracking-wide text-white/90">
-                    {selectedTemplateId ? "Clear" : "Cart"}
-                  </span>
-                </div>
-              </div>
+              )}
+              <span className="text-sm font-medium text-ink/80 hidden sm:inline truncate max-w-[120px] capitalize">
+                {displayName}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-ink/50 mr-1" />
             </button>
+
+            {/* Dropdown Menu */}
+            <AnimatePresence>
+              {isProfileOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-ink/5 overflow-hidden z-50"
+                >
+                  <div className="p-4 border-b border-ink/5 bg-ink/[0.02]">
+                    <div className="flex items-center gap-3 mb-2">
+                      {userPhotoUrl ? (
+                        <img
+                          src={userPhotoUrl}
+                          alt="Account"
+                          className="size-10 rounded-full object-cover ring-2 ring-mint/50"
+                        />
+                      ) : (
+                        <div className="flex size-10 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                          {displayName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-bold text-navy truncate">
+                          {rawDisplayName}
+                        </span>
+                        <span className="text-xs text-ink/50 flex items-center gap-1 mt-0.5 truncate">
+                          <Mail className="w-3 h-3 shrink-0" />
+                          <span className="truncate">{user?.email}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-2">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </header>
 
-      {/* ── Main Onboarding Content ── */}
-      <main className="flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl flex flex-col items-center">
-          {/* Welcome heading */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-navy">
-              Let's set up your digital profile
-            </h1>
-            <p className="mt-2 text-sm text-ink/55 max-w-md mx-auto">
-              Follow these five steps to create, customize, and launch your NFC BuzzCard. Tap a step below to see what's ahead.
-            </p>
-          </div>
-
-          {/* Animated Tabs — Onboarding Steps */}
-          <AnimatedTabs
-            tabs={onboardingTabs}
-            defaultTab="template"
-            className="w-full"
-          />
+      {/* ── Main Content Area ── */}
+      <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8 w-full flex flex-col items-center justify-center max-w-[1600px] mx-auto">
+        
+        {/* Title */}
+        <div className="text-center mb-10 shrink-0 mt-4">
+          <h1 
+            className="text-3xl sm:text-4xl tracking-tight text-ink italic"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            Welcome, {displayName}! Let's set up your digital profile.
+          </h1>
         </div>
+
+        {/* Global Stepper Navigation */}
+        <div className="w-full max-w-5xl mx-auto mb-10">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto custom-scrollbar pb-2">
+            {ONBOARDING_STEPS.map((step, index) => {
+              const isActive = activeTabIndex === index;
+              const isPassed = index < activeTabIndex;
+              return (
+                <div key={step.id} className="flex items-center">
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap",
+                      isActive
+                        ? "bg-[#e0e5ec] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-mint/20"
+                        : isPassed
+                        ? "bg-[#e0e5ec] shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] opacity-70"
+                        : "opacity-40"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "text-sm font-bold",
+                        isActive || isPassed ? "text-mint" : "text-navy"
+                      )}
+                    >
+                      0{index + 1}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-sm font-medium",
+                        isActive ? "text-navy" : "text-navy/70"
+                      )}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                  {/* Separator line between steps */}
+                  {index < ONBOARDING_STEPS.length - 1 && (
+                    <div className="w-4 sm:w-8 h-[2px] mx-2 bg-navy/10 rounded-full" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── Dynamic Content Area ── */}
+        {activeTabIndex === 0 ? (
+          /* PHASE 1: The Full-Screen Template Gallery */
+          <div className="w-full max-w-7xl mx-auto bg-[#e0e5ec] rounded-[2.5rem] relative border border-white/50 p-6 sm:p-10 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)]">
+            <div className="mb-8 text-center">
+              <h2 className="text-2xl font-bold text-navy">Select a Foundation</h2>
+              <p className="text-navy/60 mt-1">Choose a template to start building your digital profile.</p>
+            </div>
+            
+            <StepTemplate
+              selectedId={selectedTemplateId}
+              onSelect={setSelectedTemplateId}
+            />
+
+            {/* Floating Action Bar for Step 1 */}
+            <div className="mt-10 flex justify-center sticky bottom-8 z-20">
+              <button
+                onClick={() => setActiveTabIndex(1)}
+                disabled={!selectedTemplateId}
+                className="px-10 py-4 text-base font-bold text-white bg-ink hover:bg-black rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:hover:scale-100 flex items-center gap-3"
+              >
+                Continue to Editor
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* PHASE 2: The Studio Editor (Split-Card) */
+          <div className="w-full h-[calc(100vh-250px)] min-h-[600px] max-h-[850px] bg-[#e0e5ec] rounded-[2.5rem] relative border border-white/50 p-6 sm:p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)]">
+            
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-0">
+              
+              {/* Left Side: Visualization (Live Preview) */}
+              <div className="h-full bg-[#e0e5ec] rounded-3xl p-6 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),_inset_-6px_-6px_10px_rgba(255,255,255,0.8)] flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-t-3xl" />
+                
+                <div className="text-center space-y-4 relative z-10">
+                  <div className="size-20 mx-auto bg-[#e0e5ec] rounded-full flex items-center justify-center shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
+                    {(() => {
+                      const CurrentIcon = ONBOARDING_STEPS[activeTabIndex].icon;
+                      return <CurrentIcon className="size-8 text-mint" />;
+                    })()}
+                  </div>
+                  <div>
+                    <h3 className="text-navy font-semibold text-lg">Live Visualization</h3>
+                    <p className="text-navy/50 text-sm mt-1 max-w-[250px] mx-auto">
+                      Your changes will instantly appear here as you configure your profile.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side: Interaction (Wizard Content) */}
+              <div className="h-full flex flex-col min-h-0">
+                
+                {/* Search Bar (Now inside interaction column) */}
+                <div className="relative w-full mb-6 shrink-0">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-navy/30" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search settings..."
+                    className="w-full pl-10 pr-4 py-3 bg-[#e0e5ec] text-sm text-navy placeholder-navy/40 rounded-2xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all"
+                  />
+                </div>
+
+                <div className="flex-1 overflow-y-auto custom-scrollbar pr-4">
+                  <div className="space-y-6">
+                    {/* Neomorphic Content Placeholders */}
+                    <div className="p-6 rounded-2xl bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
+                      <h4 className="text-navy/80 font-bold mb-4">Configure {ONBOARDING_STEPS[activeTabIndex].label}</h4>
+                      <div className="space-y-4">
+                        <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
+                        <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
+                        <div className="h-32 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="shrink-0 pt-6 mt-6 border-t border-navy/5 flex items-center justify-between">
+                  <button
+                    onClick={() => setActiveTabIndex(Math.max(0, activeTabIndex - 1))}
+                    disabled={activeTabIndex === 0}
+                    className="px-6 py-3 text-sm font-semibold text-navy/50 hover:text-navy transition-colors disabled:opacity-30"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setActiveTabIndex(Math.min(ONBOARDING_STEPS.length - 1, activeTabIndex + 1))}
+                    disabled={activeTabIndex === ONBOARDING_STEPS.length - 1}
+                    className="px-8 py-3 text-sm font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
+                  >
+                    Next Step
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Footer */}
@@ -289,4 +319,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

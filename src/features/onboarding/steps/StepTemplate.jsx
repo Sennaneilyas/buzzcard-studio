@@ -1,415 +1,222 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { TEMPLATE_CATEGORIES } from "@/config/categories";
-import { TEMPLATES, getTemplatesByCategory } from "@/config/templates";
-import TemplateRenderer from "@/components/templates/TemplateRenderer";
-import {
-  Check,
-  Eye,
-  X,
-  Sparkles,
-  MousePointerClick,
-  ChevronLeft,
-  ChevronRight,
-  Palette,
-  ShoppingCart,
-} from "lucide-react";
+import { getTemplatesByCategory } from "@/config/templates";
+import { Check, MousePointerClick, Search, Eye, X } from "lucide-react";
 
-function AddToCartButton({ isSelected, onClick }) {
-  if (isSelected) {
-    return (
-      <button
-        onClick={onClick}
-        className="group relative h-9 w-[120px] bg-mint text-navy rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300"
-      >
-        <div className="h-full flex items-center justify-between px-3">
-          <span className="text-[11px] font-bold tracking-wide">Selected</span>
-          <div className="w-[1px] h-3 bg-navy/20" />
-          <Check className="w-3.5 h-3.5" />
-        </div>
-      </button>
-    );
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className="group relative h-9 w-[120px] bg-[#1a1a1a] text-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-white/5"
-    >
-      <div className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-9">
-        {/* Default State */}
-        <div className="h-9 shrink-0 flex items-center justify-between px-3">
-          <span className="text-[11px] font-semibold tracking-wide text-white/90">Add to Cart</span>
-          <div className="w-[1px] h-3 bg-white/15" />
-          <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
-        </div>
-
-        {/* Hover State */}
-        <div className="h-9 shrink-0 flex items-center justify-between px-3">
-          <div className="relative flex items-center justify-center">
-            <ShoppingCart className="w-3.5 h-3.5 text-white/90" />
-            <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#00e676] text-[#0a192f] rounded-full flex items-center justify-center text-[8px] font-bold">
-              1
-            </span>
-          </div>
-          <div className="w-[1px] h-3 bg-white/15" />
-          <span className="text-[11px] font-semibold tracking-wide text-white/90">Add to Cart</span>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-/**
- * StepTemplate — Step 1 of the onboarding wizard.
- *
- * Features:
- *   - Category filter pills with animated active state
- *   - Responsive template grid with accent-colored cards
- *   - Click to select, click again to deselect
- *   - Dedicated "Preview" button opens a full-screen modal with scrollable PNG
- *   - Preview modal includes prev/next navigation between templates
- *   - Selection summary with accent color swatch
- */
 export default function StepTemplate({ selectedId, onSelect }) {
   const [activeCategory, setActiveCategory] = useState("all");
-  const [previewId, setPreviewId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [previewTemplate, setPreviewTemplate] = useState(null);
 
-  const filteredTemplates = useMemo(
-    () => getTemplatesByCategory(activeCategory),
-    [activeCategory]
-  );
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 8; // Full gallery view
 
-  // Toggle select: click same = deselect, click different = select
-  const handleSelect = useCallback(
-    (id) => {
-      onSelect(selectedId === id ? null : id);
-    },
-    [selectedId, onSelect]
-  );
+  const filteredTemplates = useMemo(() => {
+    let list = getTemplatesByCategory(activeCategory);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (t) =>
+          t.name.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q) ||
+          t.layoutType.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [activeCategory, searchQuery]);
 
-  // Navigate preview prev/next within filtered list
-  const previewTemplate = previewId
-    ? TEMPLATES.find((t) => t.id === previewId)
-    : null;
-
-  const navigatePreview = useCallback(
-    (dir) => {
-      const list = filteredTemplates;
-      const idx = list.findIndex((t) => t.id === previewId);
-      if (idx === -1) return;
-      const nextIdx =
-        dir === "next"
-          ? (idx + 1) % list.length
-          : (idx - 1 + list.length) % list.length;
-      setPreviewId(list[nextIdx].id);
-    },
-    [filteredTemplates, previewId]
-  );
-
-  // Handle Escape key to close preview modal
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape" && previewId) {
-        setPreviewId(null);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [previewId]);
+  const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
+  const paginatedTemplates = filteredTemplates.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
 
   return (
-    <>
-      <div className="w-full space-y-4">
-        {/* ── Header row: Category pills + count ── */}
-        <div className="flex w-full bg-white/[0.03] p-1.5 rounded-2xl border border-white/[0.05] overflow-x-auto custom-scrollbar">
-          <div className="flex w-full gap-1.5 min-w-max sm:min-w-0">
-            {TEMPLATE_CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.id;
-              const count =
-                cat.id === "all"
-                  ? TEMPLATES.length
-                  : TEMPLATES.filter((t) => t.category === cat.id).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={cn(
-                    "relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] font-semibold rounded-xl transition-all duration-200 whitespace-nowrap",
-                    isActive
-                      ? "text-navy"
-                      : "text-white/50 hover:text-white hover:bg-white/[0.04]"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="category-pill-bg"
-                      className="absolute inset-0 rounded-xl bg-white shadow-[0_2px_10px_rgba(255,255,255,0.15)]"
-                      transition={{ type: "spring", duration: 0.45, bounce: 0.2 }}
-                    />
-                  )}
-                  <Icon className="w-3.5 h-3.5 relative z-10" />
-                  <span className="relative z-10">{cat.label}</span>
-                  <span
-                    className={cn(
-                      "relative z-10 text-[9px] px-1.5 py-0.5 rounded-full font-bold ml-0.5",
-                      isActive
-                        ? "bg-navy/10 text-navy"
-                        : "bg-white/10 text-white/50"
-                    )}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+    <div className="w-full space-y-8 flex flex-col h-full">
+      {/* ── Internal Search & Filter ── */}
+      <div className="relative w-full max-w-md mx-auto shrink-0">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-4 w-4 text-navy/40" />
         </div>
-
-        {/* ── Template Grid ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[580px] overflow-y-auto pr-1 custom-scrollbar">
-          <AnimatePresence mode="popLayout">
-            {filteredTemplates.map((template, index) => {
-              const isSelected = selectedId === template.id;
-
-              return (
-                <motion.div
-                  key={template.id}
-                  layout
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
-                  className="relative group"
-                >
-                  {/* Card container */}
-                  <div
-                    className={cn(
-                      "relative rounded-2xl overflow-hidden transition-all duration-300 cursor-pointer",
-                      "border-2",
-                      isSelected
-                        ? "border-mint shadow-[0_0_20px_rgba(0,230,118,0.15)] scale-[1.02]"
-                        : "border-white/[0.06] hover:border-white/[0.15] hover:shadow-lg"
-                    )}
-                  >
-                    {/* Thumbnail */}
-                    <div
-                      className="relative aspect-[3/4.5] overflow-hidden"
-                      onClick={() => handleSelect(template.id)}
-                    >
-                      <img
-                        src={template.thumbnail}
-                        alt={template.name}
-                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.04]"
-                        loading="lazy"
-                      />
-
-                      {/* Gradient overlay — always visible at bottom for text */}
-                      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
-
-                      {/* Hover overlay with actions */}
-                      <div
-                        className={cn(
-                          "absolute inset-0 bg-black/30 backdrop-blur-[1px] flex items-center justify-center gap-2 transition-opacity duration-200",
-                          "opacity-0 group-hover:opacity-100"
-                        )}
-                      >
-                        {/* Preview button */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewId(template.id);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/20 backdrop-blur-md text-white text-[11px] font-semibold hover:bg-white/30 transition-colors border border-white/10"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          Preview
-                        </button>
-
-                        {/* Select/Deselect button */}
-                        <AddToCartButton
-                          isSelected={isSelected}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelect(template.id);
-                          }}
-                        />
-                      </div>
-
-                      {/* Selected checkmark badge */}
-                      <AnimatePresence>
-                        {isSelected && (
-                          <motion.div
-                            initial={{ scale: 0, rotate: -90 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            exit={{ scale: 0, rotate: 90 }}
-                            className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-mint flex items-center justify-center shadow-lg ring-2 ring-white/20"
-                          >
-                            <Check
-                              className="w-4 h-4 text-navy"
-                              strokeWidth={3}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* Bottom info bar */}
-                    <div
-                      className={cn(
-                        "px-3 py-2.5 flex items-center gap-2 transition-colors duration-200",
-                        isSelected ? "bg-mint/[0.08]" : "bg-white/[0.03]"
-                      )}
-                    >
-                      {/* Accent color swatch */}
-                      <div
-                        className="w-3 h-3 rounded-full shrink-0 ring-1 ring-white/10"
-                        style={{ backgroundColor: template.theme.accent }}
-                      />
-
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={cn(
-                            "text-[11px] font-bold truncate leading-tight",
-                            isSelected ? "text-mint" : "text-white/70"
-                          )}
-                        >
-                          {template.name}
-                        </p>
-                        <p className="text-[9px] text-white/30 capitalize leading-tight">
-                          {template.category} • {template.layoutType.replace("-", " ")}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(0); // Reset page on search
+          }}
+          placeholder="Search templates..."
+          className="w-full pl-10 pr-4 py-3 bg-[#e0e5ec] text-sm text-navy placeholder-navy/40 rounded-2xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all"
+        />
       </div>
 
-      {/* ═══════════════════════════════════════════════
-          PREVIEW MODAL — Full-screen scrollable template
-         ═══════════════════════════════════════════════ */}
+      {/* ── Template Gallery Grid ── */}
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+        {paginatedTemplates.map((template, index) => {
+          const isSelected = selectedId === template.id;
+
+          return (
+            <motion.div
+              key={template.id}
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => onSelect(isSelected ? null : template.id)}
+              className={cn(
+                "relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 flex flex-col group",
+                isSelected
+                  ? "bg-[#e0e5ec] shadow-[inset_4px_4px_8px_rgba(163,177,198,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)] border-2 border-mint ring-2 ring-mint/20"
+                  : "bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)] border-2 border-transparent hover:border-mint/30"
+              )}
+            >
+              {/* High Quality Thumbnail Image (Large) */}
+              <div className="w-full h-64 relative overflow-hidden rounded-t-xl bg-[#e0e5ec]">
+                <img
+                  src={template.thumbnail}
+                  alt={template.name}
+                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                
+                {/* Hover Overlay */}
+                <div
+                  className={cn(
+                    "absolute inset-0 bg-white/40 backdrop-blur-sm flex items-center justify-center gap-4 transition-opacity duration-300",
+                    isSelected ? "opacity-0" : "opacity-0 group-hover:opacity-100"
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent parent onClick
+                      setPreviewTemplate(template);
+                    }}
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-[#e0e5ec] text-navy shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all"
+                  >
+                    <Eye className="w-6 h-6" />
+                  </button>
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-ink text-white shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)]">
+                    <MousePointerClick className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Neomorphic Info Bar */}
+              <div className="p-5 flex flex-col gap-2 bg-[#e0e5ec] relative z-10 rounded-b-2xl">
+                <p className="text-lg font-bold text-navy truncate leading-tight">
+                  {template.name}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-md bg-[#e0e5ec] text-xs font-bold text-navy/70 uppercase tracking-wider shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)]">
+                    {template.category}
+                  </span>
+                </div>
+
+                {/* Selected checkmark badge */}
+                <AnimatePresence>
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -90 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", bounce: 0.5 }}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-ink flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.3)] ring-4 ring-white/50"
+                    >
+                      <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* ── Pagination Controls ── */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-6 mt-4 shrink-0">
+          <button
+            onClick={() => setPage(Math.max(0, page - 1))}
+            disabled={page === 0}
+            className="px-4 py-2 rounded-xl font-bold text-sm text-navy disabled:opacity-30 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all active:scale-95"
+          >
+            Previous
+          </button>
+          
+          <span className="text-sm font-bold text-navy/60">
+            {page + 1} / {totalPages}
+          </span>
+          
+          <button
+            onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+            disabled={page === totalPages - 1}
+            className="px-4 py-2 rounded-xl font-bold text-sm text-navy disabled:opacity-30 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all active:scale-95"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {/* ── Full Screen Preview Modal ── */}
       <AnimatePresence>
-        {previewId && previewTemplate && (
+        {previewTemplate && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
-            onClick={() => setPreviewId(null)}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-slate-900/40 backdrop-blur-md"
+            onClick={() => setPreviewTemplate(null)}
           >
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 bg-black/50" 
-            />
-
-            {/* Modal container */}
             <motion.div
-              initial={{ scale: 0.92, y: 30, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.92, y: 30, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.6, bounce: 0.15 }}
-              className="relative z-10 flex flex-col h-[95vh] w-full max-w-[460px] shadow-[0_0_60px_rgba(0,0,0,0.6)] ring-1 ring-white/10 rounded-[2rem] overflow-hidden bg-navy"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-5xl bg-[#e0e5ec] rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Modal header */}
-              <div className="flex items-center justify-between px-6 py-4 bg-navy/90 backdrop-blur-md border-b border-white/5 relative z-20">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className="w-3.5 h-3.5 rounded-full ring-1 ring-white/10 shrink-0"
-                    style={{
-                      backgroundColor: previewTemplate.theme.accent,
-                    }}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-white truncate">
-                      {previewTemplate.name}
-                    </p>
-                    <p className="text-[10px] text-white/40 capitalize">
-                      {previewTemplate.category} •{" "}
-                      {previewTemplate.layoutType.replace("-", " ")}
-                    </p>
-                  </div>
+              {/* Modal Header */}
+              <div className="shrink-0 p-3 px-5 flex items-center justify-between border-b border-navy/10">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-lg font-bold text-navy">{previewTemplate.name}</h2>
+                  <span className="inline-block px-2 py-0.5 rounded bg-[#e0e5ec] text-[10px] font-bold text-navy/70 uppercase tracking-wider shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)]">
+                    {previewTemplate.category}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  {/* Select in preview */}
-                  <AddToCartButton
-                    isSelected={selectedId === previewId}
-                    onClick={() => handleSelect(previewId)}
-                  />
-                  {/* Close */}
-                  <button
-                    onClick={() => setPreviewId(null)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Scrollable preview component instead of image */}
-              <div className="flex-1 overflow-y-auto bg-gray-100 custom-scrollbar relative py-8 px-4 flex justify-center">
-                <TemplateRenderer templateId={previewId} compact={false} />
-              </div>
-
-              {/* Modal footer with nav */}
-              <div className="flex items-center justify-between px-6 py-4 bg-navy/90 backdrop-blur-md border-t border-white/5 relative z-20">
                 <button
-                  onClick={() => navigatePreview("prev")}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  onClick={() => setPreviewTemplate(null)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-[#e0e5ec] text-navy shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
+                  <X className="w-4 h-4" />
                 </button>
+              </div>
 
-                {/* Color palette preview */}
-                <div className="flex items-center gap-1.5">
-                  <Palette className="w-3 h-3 text-white/30" />
-                  <div
-                    className="w-4 h-4 rounded-full ring-1 ring-white/20"
-                    style={{
-                      backgroundColor: previewTemplate.theme.bgPrimary,
-                    }}
-                    title="Background"
-                  />
-                  <div
-                    className="w-4 h-4 rounded-full ring-1 ring-white/20"
-                    style={{
-                      backgroundColor: previewTemplate.theme.accent,
-                    }}
-                    title="Accent"
-                  />
-                  <div
-                    className="w-4 h-4 rounded-full ring-1 ring-white/20"
-                    style={{
-                      backgroundColor: previewTemplate.theme.textPrimary,
-                    }}
-                    title="Text"
-                  />
-                </div>
+              {/* Modal Body: Exact Template Image */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 shadow-inner py-8 px-4">
+                <img
+                  src={previewTemplate.thumbnail}
+                  alt={previewTemplate.name}
+                  className="w-full max-w-[450px] mx-auto h-auto block rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
+                />
+              </div>
 
+              {/* Modal Footer */}
+              <div className="shrink-0 p-3 px-5 flex items-center justify-end bg-[#e0e5ec]">
                 <button
-                  onClick={() => navigatePreview("next")}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  onClick={() => {
+                    onSelect(previewTemplate.id);
+                    setPreviewTemplate(null);
+                  }}
+                  className="px-6 py-2.5 text-sm font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_0_15px_rgba(0,0,0,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
                 >
-                  Next
-                  <ChevronRight className="w-4 h-4" />
+                  <Check className="w-4 h-4" />
+                  Select this template
                 </button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

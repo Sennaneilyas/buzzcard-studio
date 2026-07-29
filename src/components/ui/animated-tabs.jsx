@@ -46,10 +46,7 @@ const AnimatedTabs = ({ tabs = [], defaultTab, className }) => {
       </div>
 
       {/* Tab content area */}
-      <div className="relative overflow-hidden p-6 sm:p-8 lg:p-10 min-h-[65vh] bg-navy/95 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] text-white backdrop-blur-md rounded-3xl border border-white/10 ring-1 ring-white/5">
-        {/* Subtle background glow effect inside the card */}
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-mint/10 blur-[100px] rounded-full pointer-events-none" />
+      <div className="relative flex-1 w-full text-white flex flex-col mt-4">
         
         <div className="relative z-10 w-full h-full flex flex-col">
           {tabs.map(
@@ -75,6 +72,31 @@ const AnimatedTabs = ({ tabs = [], defaultTab, className }) => {
               </motion.div>
             )
         )}
+        </div>
+
+        {/* Global Onboarding Navigation Buttons */}
+        <div className="relative z-10 w-full flex items-center justify-between mt-6 pt-6 border-t border-white/10">
+          <button
+            onClick={() => {
+              const idx = tabs.findIndex(t => t.id === activeTab);
+              if (idx > 0) setActiveTab(tabs[idx - 1].id);
+            }}
+            disabled={tabs.findIndex(t => t.id === activeTab) === 0}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Précédent
+          </button>
+          
+          <button
+            onClick={() => {
+              const idx = tabs.findIndex(t => t.id === activeTab);
+              if (idx < tabs.length - 1) setActiveTab(tabs[idx + 1].id);
+            }}
+            disabled={tabs.findIndex(t => t.id === activeTab) === tabs.length - 1}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-mint text-navy font-bold text-sm hover:bg-[#00c968] transition-colors shadow-[0_0_15px_rgba(0,230,118,0.3)] disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            Suivant
+          </button>
         </div>
       </div>
     </motion.div>
