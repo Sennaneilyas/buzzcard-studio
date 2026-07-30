@@ -480,7 +480,7 @@ export default function AuthForm() {
 
   // ─────────── Layout ───────────
   return (
-    <section className="flex min-h-screen items-center justify-center p-4 lg:p-6 overflow-hidden">
+    <section className="flex min-h-screen items-center justify-center p-4 lg:p-6 overflow-hidden relative pb-24">
       <div 
         className={`flex w-full max-w-[1120px] flex-col lg:min-h-[640px] overflow-hidden rounded-2xl shadow-xl lg:flex-row ${
           isSignup ? "" : "lg:flex-row-reverse"
@@ -501,6 +501,22 @@ export default function AuthForm() {
           {formPanel}
         </motion.div>
       </div>
+
+      {/* Minimal Stunning Footer */}
+      <footer className="absolute bottom-0 inset-x-0 border-t border-ink/5 bg-white/40 py-5 backdrop-blur-sm z-20">
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-mint/30 to-transparent"></div>
+        <div className="w-full max-w-[1120px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold tracking-wide text-navy/40 uppercase">
+          <div className="flex items-center gap-2">
+            <img src="/logoHB.svg" alt="BuzzCard" className="h-4 w-auto opacity-70 grayscale" />
+            <span>BuzzCard Studio © {new Date().getFullYear()}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Privacy</a>
+            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Terms</a>
+            <a href="mailto:support@buzzcard.ma" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Support</a>
+          </div>
+        </div>
+      </footer>
     </section>
   );
 }

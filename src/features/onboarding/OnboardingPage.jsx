@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import StepTemplate from "./steps/StepTemplate";
 import StepBasicInfo from "./steps/StepBasicInfo";
 import StepSocials from "./steps/StepSocials";
+import StepLaunch from "./steps/StepLaunch";
 
 const ONBOARDING_STEPS = [
   { id: "template", label: "Template", icon: Sparkles },
@@ -186,9 +187,9 @@ export default function OnboardingPage() {
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap",
                       isActive
-                        ? "bg-[#e0e5ec] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-mint/20"
+                        ? "bg-[#e0e5ec] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-mint/30"
                         : isPassed
-                        ? "bg-[#e0e5ec] shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] opacity-70"
+                        ? "bg-[#e0e5ec] shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-white/50"
                         : "opacity-40"
                     )}
                   >
@@ -203,7 +204,7 @@ export default function OnboardingPage() {
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        isActive ? "text-navy" : "text-navy/70"
+                        isActive ? "text-navy font-bold" : isPassed ? "text-navy/80" : "text-navy/60"
                       )}
                     >
                       {step.label}
@@ -247,30 +248,21 @@ export default function OnboardingPage() {
           </div>
         ) : (
           /* PHASE 2: The Studio Editor (Wizard) */
-          <div className="w-full max-w-4xl mx-auto h-auto bg-[#e0e5ec] rounded-[2rem] relative border border-white/50 p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)] mt-10">
+          <div className="w-full max-w-4xl mx-auto bg-[#e0e5ec] rounded-[2rem] relative border border-white/50 p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)] mt-10 max-h-[70vh] lg:max-h-[65vh]">
             
-            <div className="px-2 pb-8">
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
               {activeTabIndex === 1 ? (
                 <StepBasicInfo data={profileData} onChange={setProfileData} />
               ) : activeTabIndex === 2 ? (
                 <StepSocials data={profileData} onChange={setProfileData} />
               ) : (
-                <div className="space-y-6">
-                  {/* Neomorphic Content Placeholders */}
-                  <div className="p-6 rounded-2xl bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)]">
-                    <h4 className="text-navy/80 font-bold mb-4">Configure {ONBOARDING_STEPS[activeTabIndex].label}</h4>
-                    <div className="space-y-4">
-                      <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                      <div className="h-12 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                      <div className="h-32 w-full bg-[#e0e5ec] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)]" />
-                    </div>
-                  </div>
-                </div>
+                <StepLaunch data={profileData} selectedTemplateId={selectedTemplateId} />
               )}
             </div>
 
-                {/* Action Buttons */}
-                <div className="shrink-0 pt-6 mt-6 border-t border-navy/5 flex items-center justify-between">
+                {/* Action Buttons — pinned at the bottom */}
+                <div className="shrink-0 pt-6 mt-2 border-t border-navy/5 flex items-center justify-between">
                   <button
                     onClick={() => setActiveTabIndex(Math.max(0, activeTabIndex - 1))}
                     disabled={activeTabIndex === 0}
@@ -279,11 +271,18 @@ export default function OnboardingPage() {
                     Back
                   </button>
                   <button
-                    onClick={() => setActiveTabIndex(Math.min(ONBOARDING_STEPS.length - 1, activeTabIndex + 1))}
-                    disabled={activeTabIndex === ONBOARDING_STEPS.length - 1}
+                    onClick={() => {
+                      if (activeTabIndex === ONBOARDING_STEPS.length - 1) {
+                        // TODO: Implement actual save to Supabase here
+                        console.log("Publishing profile...", { profileData, selectedTemplateId });
+                        alert("Profile ready! (Supabase saving is not yet implemented)");
+                      } else {
+                        setActiveTabIndex(Math.min(ONBOARDING_STEPS.length - 1, activeTabIndex + 1));
+                      }
+                    }}
                     className="px-8 py-3 text-sm font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
                   >
-                    Next Step
+                    {activeTabIndex === ONBOARDING_STEPS.length - 1 ? "Publish Profile" : "Next Step"}
                   </button>
                 </div>
           </div>
@@ -291,8 +290,19 @@ export default function OnboardingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-ink/5 bg-white/40 py-4 text-center text-xs text-ink/40">
-        BuzzCard Studio • Digital NFC Profile Creation
+      <footer className="relative border-t border-ink/5 bg-white/40 py-5 backdrop-blur-sm z-10 shrink-0">
+        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-mint/30 to-transparent"></div>
+        <div className="w-full max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold tracking-wide text-navy/40 uppercase">
+          <div className="flex items-center gap-2">
+            <img src="/logoHB.svg" alt="BuzzCard" className="h-4 w-auto opacity-70 grayscale" />
+            <span>BuzzCard Studio © {new Date().getFullYear()}</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Privacy</a>
+            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Terms</a>
+            <a href="mailto:support@buzzcard.ma" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Support</a>
+          </div>
+        </div>
       </footer>
     </div>
   );
