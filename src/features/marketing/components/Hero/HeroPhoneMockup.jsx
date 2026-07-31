@@ -2,17 +2,6 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  Wifi,
-  Phone,
-  Mail,
-  Globe,
-  Briefcase,
-  Camera,
-  ExternalLink,
-  MapPin,
-  Share2,
-} from "lucide-react";
 
 export default function HeroPhoneMockup() {
   const animationRef = useRef(null);
@@ -426,152 +415,15 @@ export default function HeroPhoneMockup() {
                 </div>
 
                 {/* ── Real BuzzCard Profile Screen ── */}
-                <div className="px-5 sm:px-6 pt-6 pb-8 sm:pb-10 space-y-4">
-                  {/* Profile header */}
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-navy to-[#003599] flex items-center justify-center mb-3 shadow-[0_4px_16px_rgba(0,35,102,0.3)]">
-                      <span className="text-2xl sm:text-3xl font-bold text-white">
-                        A
-                      </span>
-                    </div>
-                    <h3 className="text-base sm:text-lg font-bold text-ink">
-                      Alex Designer
-                    </h3>
-                    <p className="text-xs sm:text-sm text-ink/50 font-medium">
-                      Creative Director
-                    </p>
-                    <div className="flex items-center gap-1 mt-1 text-ink/40">
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-[10px] sm:text-xs">
-                        San Francisco, CA
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Quick actions */}
-                  <div className="flex gap-2.5 justify-center pt-2">
-                    {[
-                      {
-                        icon: Phone,
-                        label: "Call",
-                        color: "bg-mint/10 text-mint",
-                      },
-                      {
-                        icon: Mail,
-                        label: "Email",
-                        color: "bg-navy/10 text-navy",
-                      },
-                      {
-                        icon: Share2,
-                        label: "Share",
-                        color: "bg-ink/[0.06] text-ink/60",
-                      },
-                    ].map((action) => (
-                      <div
-                        key={action.label}
-                        className={`flex flex-col items-center gap-1 px-4 sm:px-5 py-2.5 rounded-xl ${action.color}`}
-                      >
-                        <action.icon className="w-4 h-4" />
-                        <span className="text-[9px] sm:text-[10px] font-semibold">
-                          {action.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Contact info card */}
-                  <div className="bg-cloud/80 rounded-2xl p-3.5 sm:p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                        <Phone className="w-3.5 h-3.5 text-navy" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[9px] sm:text-[10px] text-ink/40 font-medium">
-                          Phone
-                        </p>
-                        <p className="text-xs sm:text-sm font-semibold text-ink truncate">
-                          +1 (415) 555-0132
-                        </p>
-                      </div>
-                    </div>
-                    <div className="h-px bg-ink/[0.06]" />
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                        <Mail className="w-3.5 h-3.5 text-navy" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[9px] sm:text-[10px] text-ink/40 font-medium">
-                          Email
-                        </p>
-                        <p className="text-xs sm:text-sm font-semibold text-ink truncate">
-                          alex@designstudio.co
-                        </p>
-                      </div>
-                    </div>
-                    <div className="h-px bg-ink/[0.06]" />
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm">
-                        <Globe className="w-3.5 h-3.5 text-navy" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[9px] sm:text-[10px] text-ink/40 font-medium">
-                          Website
-                        </p>
-                        <p className="text-xs sm:text-sm font-semibold text-ink truncate">
-                          alexdesigner.com
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Social links */}
-                  <div className="space-y-2">
-                    <p className="text-[10px] sm:text-xs font-semibold text-ink/40 uppercase tracking-wider">
-                      Socials
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        {
-                          icon: Briefcase,
-                          label: "LinkedIn",
-                          handle: "@alexdesigner",
-                          bg: "bg-[#0A66C2]/10 text-[#0A66C2]",
-                        },
-                        {
-                          icon: Camera,
-                          label: "Instagram",
-                          handle: "@alex.design",
-                          bg: "bg-[#E4405F]/10 text-[#E4405F]",
-                        },
-                      ].map((social) => (
-                        <div
-                          key={social.label}
-                          className={`flex items-center gap-2 px-3 py-2.5 rounded-xl ${social.bg}`}
-                        >
-                          <social.icon className="w-4 h-4 shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-[10px] sm:text-xs font-semibold truncate">
-                              {social.label}
-                            </p>
-                            <p className="text-[8px] sm:text-[9px] opacity-60 truncate">
-                              {social.handle}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Save contact button */}
-                  <button className="w-full py-3 sm:py-3.5 bg-ink rounded-2xl text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(17,24,39,0.15)]">
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Save Contact
-                  </button>
-                </div>
+                <img
+                  src="/public/phone/profile-template.jpg"
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-fill z-0 block"
+                />
 
                 {/* Screen reflection */}
                 <div
-                  className="absolute inset-0 pointer-events-none z-[5]"
+                  className="absolute inset-0 pointer-events-none z-5"
                   style={{
                     background:
                       "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%)",

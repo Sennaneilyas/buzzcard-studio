@@ -36,7 +36,7 @@ export default function Navbar() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className={`top-0 inset-x-0 z-50 pointer-events-none ${scrolled ? "fixed" : "absolute"}`}
+        className={`top-0 inset-x-0 z-[120] pointer-events-none ${scrolled ? "fixed" : "absolute"}`}
       >
         {/* ── Outer wrapper — full-width → centered pill on scroll ── */}
         <div
@@ -65,54 +65,54 @@ export default function Navbar() {
 
           {/* ── Desktop links pill ── */}
           <LayoutGroup>
-          <div
-            className={`
+            <div
+              className={`
               hidden md:flex items-center
               rounded-full transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
               ${scrolled
-                ? "gap-0.5 px-1 py-1 bg-ink/[0.04]"
-                : "gap-0.5 px-1.5 py-1.5 bg-ink/[0.05] backdrop-blur-md border border-ink/[0.06]"
-              }
+                  ? "gap-0.5 px-1 py-1 bg-ink/[0.04]"
+                  : "gap-0.5 px-1.5 py-1.5 bg-ink/[0.05] backdrop-blur-md border border-ink/[0.06]"
+                }
             `}
-            id="nav-links-desktop"
-          >
-            {NAV_LINKS.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveLink(link.href);
-                  document
-                    .querySelector(link.href)
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`
+              id="nav-links-desktop"
+            >
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveLink(link.href);
+                    document
+                      .querySelector(link.href)
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className={`
                   relative px-4 py-1.5 text-sm font-medium rounded-full
                   transition-colors duration-200 z-[1]
                   ${activeLink === link.href
-                    ? "text-ink"
-                    : "text-ink/60 hover:text-ink hover:bg-ink/[0.04]"
-                  }
+                      ? "text-ink"
+                      : "text-ink/60 hover:text-ink hover:bg-ink/[0.04]"
+                    }
                 `}
-              >
-                {/* Sliding pill indicator */}
-                {activeLink === link.href && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    className="absolute inset-0 rounded-full bg-mint"
-                    style={{ zIndex: -1 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 380,
-                      damping: 30,
-                    }}
-                  />
-                )}
-                {link.label}
-              </a>
-            ))}
-          </div>
+                >
+                  {/* Sliding pill indicator */}
+                  {activeLink === link.href && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-mint"
+                      style={{ zIndex: -1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                  {link.label}
+                </a>
+              ))}
+            </div>
           </LayoutGroup>
 
           {/* ── Desktop CTAs ── */}
@@ -216,46 +216,46 @@ export default function Navbar() {
               id="nav-mobile-panel"
             >
               <LayoutGroup id="mobile-nav">
-              <ul className="flex flex-col gap-1">
-                {NAV_LINKS.map((link, i) => (
-                  <motion.li
-                    key={link.href}
-                    initial={{ opacity: 0, x: 24 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.06 * i, duration: 0.35 }}
-                  >
-                    <a
-                      href={link.href}
-                      onClick={() => {
-                        setActiveLink(link.href);
-                        setMobileOpen(false);
-                      }}
-                      className={`
+                <ul className="flex flex-col gap-1">
+                  {NAV_LINKS.map((link, i) => (
+                    <motion.li
+                      key={link.href}
+                      initial={{ opacity: 0, x: 24 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.06 * i, duration: 0.35 }}
+                    >
+                      <a
+                        href={link.href}
+                        onClick={() => {
+                          setActiveLink(link.href);
+                          setMobileOpen(false);
+                        }}
+                        className={`
                         relative block px-4 py-3 text-base font-medium
                         rounded-xl transition-colors duration-200 overflow-hidden
                         ${activeLink === link.href
-                          ? "text-ink"
-                          : "text-ink/70 hover:text-ink hover:bg-ink/5"
-                        }
+                            ? "text-ink"
+                            : "text-ink/70 hover:text-ink hover:bg-ink/5"
+                          }
                       `}
-                    >
-                      {activeLink === link.href && (
-                        <motion.span
-                          layoutId="mobile-nav-pill"
-                          className="absolute inset-0 rounded-xl bg-mint"
-                          style={{ zIndex: -1 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 380,
-                            damping: 30,
-                          }}
-                        />
-                      )}
-                      {link.label}
-                    </a>
-                  </motion.li>
-                ))}
-              </ul>
+                      >
+                        {activeLink === link.href && (
+                          <motion.span
+                            layoutId="mobile-nav-pill"
+                            className="absolute inset-0 rounded-xl bg-mint"
+                            style={{ zIndex: -1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 380,
+                              damping: 30,
+                            }}
+                          />
+                        )}
+                        {link.label}
+                      </a>
+                    </motion.li>
+                  ))}
+                </ul>
               </LayoutGroup>
 
               <div className="mt-auto flex flex-col gap-3">
