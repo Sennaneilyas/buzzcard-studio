@@ -2,6 +2,10 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+<<<<<<< HEAD
+=======
+
+>>>>>>> bf48594 (feat: replace hardcoded profile UI in HeroPhoneMockup with SVG asset)
 
 export default function HeroPhoneMockup() {
   const animationRef = useRef(null);
@@ -389,19 +393,6 @@ export default function HeroPhoneMockup() {
                   alt="Home Screen"
                   className="absolute inset-0 w-full h-full object-cover z-[25] will-change-opacity pointer-events-none opacity-0"
                 />
-
-                {/* Status bar */}
-                <div className="flex items-end justify-between px-7 sm:px-8 pt-3 pb-1 z-20 relative">
-                  <span className="text-[10px] font-semibold text-ink/70">
-                    9:41
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[9px] font-semibold text-ink/50">
-                      5G
-                    </span>
-                  </div>
-                </div>
-
                 {/* ── Notification Banner (Triggers on Tap) ── */}
                 <div
                   ref={notificationRef}
@@ -416,9 +407,15 @@ export default function HeroPhoneMockup() {
 
                 {/* ── Real BuzzCard Profile Screen ── */}
                 <img
+<<<<<<< HEAD
                   src="/public/phone/profile-template.jpg"
                   alt=""
                   className="absolute inset-0 w-full h-full object-fill z-0 block"
+=======
+                  src="/phone/Profile.svg"
+                  alt="BuzzCard Profile"
+                  className="w-full h-full object-contain object-top"
+>>>>>>> bf48594 (feat: replace hardcoded profile UI in HeroPhoneMockup with SVG asset)
                 />
 
                 {/* Screen reflection */}
