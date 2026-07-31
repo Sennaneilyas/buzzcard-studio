@@ -2,10 +2,6 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-<<<<<<< HEAD
-=======
-
->>>>>>> bf48594 (feat: replace hardcoded profile UI in HeroPhoneMockup with SVG asset)
 
 export default function HeroPhoneMockup() {
   const animationRef = useRef(null);
@@ -407,17 +403,10 @@ export default function HeroPhoneMockup() {
 
                 {/* ── Real BuzzCard Profile Screen ── */}
                 <img
-<<<<<<< HEAD
-                  src="/public/phone/profile-template.jpg"
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-fill z-0 block"
-=======
                   src="/phone/Profile.svg"
                   alt="BuzzCard Profile"
                   className="w-full h-full object-contain object-top"
->>>>>>> bf48594 (feat: replace hardcoded profile UI in HeroPhoneMockup with SVG asset)
                 />
-
                 {/* Screen reflection */}
                 <div
                   className="absolute inset-0 pointer-events-none z-5"
