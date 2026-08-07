@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { UserRoundPlus, QrCode, LayoutGrid, Phone, Mail, Link } from "lucide-react";
+import { UserRoundPlus, QrCode, MessageSquare, Phone, Mail, Link } from "lucide-react";
 
 const GLASS_SHADOW =
   "shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]";
@@ -26,7 +26,7 @@ export default function BuzzTemplate({
   gallery = [],
   onSave,
   onQrCode,
-  onNavigate,
+  onReview,
 }) {
   return (
     <div className="relative w-full max-w-[390px] mx-auto h-[100dvh] overflow-hidden bg-[#f4f5f7] flex flex-col">
@@ -45,7 +45,7 @@ export default function BuzzTemplate({
         </div>
       </div>
 
-      <BottomNav onSave={onSave} onQrCode={onQrCode} onNavigate={onNavigate} />
+      <BottomNav onSave={onSave} onQrCode={onQrCode} onReview={onReview} />
     </div>
   );
 }
@@ -245,6 +245,11 @@ function GallerySection({ gallery }) {
   const handleNext = useCallback(() => setActive((p) => (p + 1) % images.length), [images.length]);
   const handlePrev = useCallback(() => setActive((p) => (p - 1 + images.length) % images.length), [images.length]);
 
+  const handleDragEnd = useCallback((e, { offset }) => {
+    if (offset.x < -50) handleNext();
+    else if (offset.x > 50) handlePrev();
+  }, [handleNext, handlePrev]);
+
   if (!images.length) return null;
 
   return (
@@ -255,7 +260,7 @@ function GallerySection({ gallery }) {
             {images.map((src, index) => (
               <motion.div
                 key={src}
-                className="absolute inset-0 origin-bottom"
+                className={`absolute inset-0 origin-bottom ${index === active ? "cursor-grab active:cursor-grabbing" : ""}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{
                   opacity: index === active ? 1 : 0.55,
@@ -266,6 +271,10 @@ function GallerySection({ gallery }) {
                 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
+                drag={index === active ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.8}
+                onDragEnd={handleDragEnd}
               >
                 <img
                   src={src}
@@ -282,7 +291,7 @@ function GallerySection({ gallery }) {
       <GalleryArrow direction="prev" onClick={handlePrev} />
       <GalleryArrow direction="next" onClick={handleNext} />
 
-      <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 flex gap-[5px] z-20">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-[5px] z-20">
         {images.map((_, i) => (
           <button
             key={i}
@@ -330,10 +339,12 @@ function DescriptionSection({ description }) {
   );
 }
 
-function BottomNav({ onSave, onQrCode, onNavigate }) {
+function BottomNav({ onSave, onQrCode, onReview }) {
   const [srMessage, setSrMessage] = useState("");
+  const [activeTab, setActiveTab] = useState("qrcode");
 
   const handleSave = useCallback(async () => {
+    setActiveTab("enregistrer");
     if (onSave) { onSave(); return; }
     try {
       if (navigator.share) {
@@ -348,28 +359,67 @@ function BottomNav({ onSave, onQrCode, onNavigate }) {
     }
   }, [onSave]);
 
+  const items = useMemo(() => [
+    { id: "enregistrer", label: "Enregistrer", icon: UserRoundPlus, action: handleSave },
+    { id: "qrcode", label: "QR Code", icon: QrCode, action: () => { setActiveTab("qrcode"); if (onQrCode) onQrCode(); } },
+    { id: "avis", label: "Avis", icon: MessageSquare, action: () => { setActiveTab("avis"); if (onReview) onReview(); } },
+  ], [handleSave, onReview, onQrCode]);
+
   return (
     <nav className="relative z-20 w-full shrink-0" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} aria-label="Navigation principale">
       <div className={`absolute inset-x-0 bottom-0 h-[82px] bg-white/40 rounded-t-[25px] backdrop-blur-[7.58px] ${GLASS_SHADOW}`} aria-hidden="true" />
 
-      <div className="relative h-[107px] w-full">
-        <button type="button" onClick={onNavigate} aria-label="Navigation entre sections"
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[75px] h-[75px] z-10 flex items-center justify-center">
-          <span aria-hidden="true" className="absolute inset-0 rounded-full bg-white/30 backdrop-blur-[7.58px] shadow-[inset_1px_1px_4px_rgba(255,255,255,0.2),0_4px_24px_rgba(0,0,0,0.10)]" />
-          <LayoutGrid className="relative w-8 h-8 text-neutral-950" />
-        </button>
-
-        <button type="button" onClick={handleSave} aria-label="Enregistrer le contact"
-          className="absolute bottom-[14px] left-[60px] flex flex-col items-center gap-0.5">
-          <UserRoundPlus className="w-6 h-6 text-neutral-950" />
-          <span className="text-[11px] font-medium text-neutral-950 leading-none">Enregistrer</span>
-        </button>
-
-        <button type="button" onClick={onQrCode} aria-label="Afficher le QR Code"
-          className="absolute bottom-[14px] right-[60px] flex flex-col items-center gap-0.5">
-          <QrCode className="w-6 h-6 text-neutral-950" />
-          <span className="text-[11px] font-medium text-neutral-950 leading-none">Qr Code</span>
-        </button>
+      <div className="relative h-[82px] w-full max-w-[340px] mx-auto flex items-center justify-between px-4">
+        {items.map((item) => {
+          const isActive = activeTab === item.id;
+          const isSpecial = item.id === "qrcode";
+          const Icon = item.icon;
+          
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={item.action}
+              aria-label={item.label}
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex items-center justify-center transition-all duration-300 ease-out z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 active:scale-95 ${
+                isSpecial
+                  ? "bg-neutral-950 text-white rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.15)] h-[54px]"
+                  : "h-[50px] rounded-full hover:bg-white/20"
+              } ${isActive ? "px-5" : (isSpecial ? "w-[54px]" : "w-[50px]")}`}
+            >
+              {isActive && !isSpecial && (
+                <motion.div
+                  layoutId="active-tab-bg"
+                  className="absolute inset-0 rounded-full bg-white/60 shadow-[inset_1px_1px_4px_rgba(255,255,255,0.4),0_2px_8px_rgba(0,0,0,0.05)]"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                />
+              )}
+              <div className="relative z-10 flex items-center">
+                <Icon className={`w-[22px] h-[22px] transition-colors duration-300 shrink-0 ${
+                  isSpecial ? "text-white" : (isActive ? "text-neutral-950" : "text-neutral-950/70")
+                }`} />
+                <AnimatePresence initial={false}>
+                  {isActive && (
+                    <motion.div
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: "auto", opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="overflow-hidden whitespace-nowrap"
+                    >
+                      <span className={`block pl-2 text-[13px] font-semibold ${
+                        isSpecial ? "text-white" : "text-neutral-950"
+                      }`}>
+                        {item.label}
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       <span className="sr-only" aria-live="polite">{srMessage}</span>
