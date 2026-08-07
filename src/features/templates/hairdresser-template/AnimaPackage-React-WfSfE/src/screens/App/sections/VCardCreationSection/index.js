@@ -1,1 +1,0 @@
-export { VCardCreationSection } from "./VCardCreationSection";

@@ -4,6 +4,7 @@ import ProductsPage from "@/features/products/ProductsPage";
 import { AuthForm, ProtectedRoute } from "@/features/auth";
 import OnboardingPage from "@/features/onboarding/OnboardingPage";
 import PublicProfileRoute from "@/app/routes/public-profile";
+import BuzzTemplate from "@/features/templates/BuzzTemplate/BuzzTemplate";
 
 export default function AppRouter() {
     return (
@@ -21,7 +22,7 @@ export default function AppRouter() {
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:category" element={<ProductsPage />} />
             <Route path="/profile/:slug" element={<PublicProfileRoute />} />
-            <Route path="/template" element={<PublicProfileRoute />} />
+            <Route path="/template" element={<BuzzTemplate />} />
         </Routes>
     );
 }
