@@ -102,7 +102,7 @@ function HeroSection({ profile }) {
 
   return (
     <article
-      className={`relative w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-[7.58px] ${GLASS_SHADOW} -mt-[39px] pt-[47px] pb-[18px] flex flex-col items-center gap-[6px]`}
+      className={`relative z-50 w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-[7.58px] ${GLASS_SHADOW} -mt-[39px] pt-[47px] pb-[18px] flex flex-col items-center gap-[6px]`}
       aria-label="Carte de contact"
     >
       <div className="absolute -top-[39px] left-1/2 -translate-x-1/2 w-[78px] h-[78px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-[0_4px_16px_rgba(0,0,0,0.20),0_1px_4px_rgba(0,0,0,0.10)]">
@@ -168,7 +168,7 @@ function ContactPopover({ icon: Icon, label, entries, prefix }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-50">
       <button
         type="button"
         aria-label={label}
@@ -202,7 +202,7 @@ function SocialLinksSection({ socials }) {
 
   return (
     <nav
-      className={`relative w-full rounded-[25px] bg-[#ffffff90] backdrop-blur-[7.58px] ${GLASS_SHADOW} ${GLASS_BORDER} px-[14px] py-[16px]`}
+      className={`relative z-0 w-full rounded-[25px] bg-[#ffffff90] backdrop-blur-[7.58px] ${GLASS_SHADOW} ${GLASS_BORDER} px-[14px] py-[16px]`}
       aria-label="Social media links"
     >
       <ul className="relative z-[2] grid grid-cols-3 gap-y-[18px] list-none m-0 p-0">
