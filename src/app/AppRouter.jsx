@@ -5,6 +5,7 @@ import { AuthForm, ProtectedRoute } from "@/features/auth";
 import OnboardingPage from "@/features/onboarding/OnboardingPage";
 import PublicProfileRoute from "@/app/routes/public-profile";
 import BuzzTemplate from "@/features/templates/BuzzTemplate/BuzzTemplate";
+import DoctorTemplate from "@/features/templates/doctor-template/DoctorTemplate";
 
 export default function AppRouter() {
     return (
@@ -23,6 +24,7 @@ export default function AppRouter() {
             <Route path="/products/:category" element={<ProductsPage />} />
             <Route path="/profile/:slug" element={<PublicProfileRoute />} />
             <Route path="/template" element={<BuzzTemplate />} />
+            <Route path="/doctor-template" element={<DoctorTemplate />} />
         </Routes>
     );
 }

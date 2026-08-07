@@ -4,6 +4,7 @@ import ProductsPage from "@/features/products/ProductsPage";
 import { AuthForm, ProtectedRoute } from "@/features/auth";
 import { OnboardingPage } from "@/features/onboarding";
 import BuzzTemplate from "@/features/templates/BuzzTemplate/BuzzTemplate";
+import DoctorTemplate from "@/features/templates/doctor-template/DoctorTemplate";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
           />
         }
       />
+      <Route path="/doctor-template" element={<DoctorTemplate />} />
     </Routes>
   );
 }
