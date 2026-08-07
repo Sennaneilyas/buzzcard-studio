@@ -1,0 +1,27 @@
+import { Routes, Route } from "react-router-dom";
+import LandingPage from "@/features/marketing/LandingPage";
+import ProductsPage from "@/features/products/ProductsPage";
+import { AuthForm, ProtectedRoute } from "@/features/auth";
+import OnboardingPage from "@/features/onboarding/OnboardingPage";
+import PublicProfileRoute from "@/app/routes/public-profile";
+
+export default function AppRouter() {
+    return (
+        <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/auth" element={<AuthForm />} />
+            <Route
+                path="/onboarding"
+                element={
+                    <ProtectedRoute>
+                        <OnboardingPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:category" element={<ProductsPage />} />
+            <Route path="/profile/:slug" element={<PublicProfileRoute />} />
+            <Route path="/template" element={<PublicProfileRoute />} />
+        </Routes>
+    );
+}

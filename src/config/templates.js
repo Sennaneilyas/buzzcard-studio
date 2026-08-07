@@ -515,6 +515,29 @@ export const TEMPLATES = [
       backgroundPattern: "paw-prints",
     },
   },
+  {
+    id: "hairdresser-lara",
+    name: "Hairdresser Luxe",
+    category: "professional",
+    layoutType: "full-bleed",
+    thumbnail: "/img/image-lara-miller.png",
+    theme: {
+      bgPrimary: "#f5f4f0",
+      bgSection: "#ffffff",
+      textPrimary: "#1e3d25",
+      textSecondary: "#6b6558",
+      accent: "#8b7355",
+      accentHover: "#6e5438",
+      heroAvatarBorder: "#8b7355",
+      heroAvatarShape: "circle",
+      cardBorderRadius: "24px",
+      cardShadow: "0 16px 40px rgba(30, 61, 37, 0.12)",
+      socialIconStyle: "circle-filled",
+      sectionDivider: "line",
+      fontHeading: "'Playfair Display', serif",
+      fontBody: "'Lato', sans-serif",
+    },
+  },
 ];
 
 /**
