@@ -78,7 +78,7 @@ export default function HeroText() {
           href="#how-it-works"
           className="inline-flex items-center justify-center px-6 py-4 text-base font-semibold text-ink/60 transition-all duration-300 hover:text-ink"
         >
-          See How It Works
+          <u>See How It Works</u>
         </a>
       </motion.div>
     </div>

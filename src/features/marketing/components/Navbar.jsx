@@ -4,8 +4,8 @@ import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 
 
 const NAV_LINKS = [
-  { label: "Pricing", href: "#pricing" },
   { label: "Our Products", href: "#products" },
+  { label: "Pricing", href: "#pricing" },
   { label: "Work", href: "#work" },
   { label: "Contact", href: "#contact" },
 ];
