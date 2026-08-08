@@ -57,8 +57,7 @@ export default function HeroText() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mt-4 text-lg md:text-xl text-ink/55 font-medium leading-relaxed max-w-2xl"
       >
-        Tap your premium metal card to any smartphone and instantly share
-        your contact info, social links, and portfolio. No app required.
+        Tap or scan your BuzzCard to instantly share your contact info, social links, portfolio, and more. One card, one powerful digital profile — no app required.
       </motion.p>
 
       {/* CTA */}
