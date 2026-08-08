@@ -40,3 +40,4 @@ export function DigitalCardQrSection({ profile }) {
     </motion.section>
   );
 }
+

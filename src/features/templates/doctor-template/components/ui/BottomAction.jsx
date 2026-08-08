@@ -179,7 +179,7 @@ export function BottomAction({ profile }) {
                     <Share2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-['Poppins'] font-bold text-[#4682b4] text-[15px] leading-none">
+                    <h3 className="font-poppins font-bold text-[#4682b4] text-[15px] leading-none">
                       Partager le profil
                     </h3>
                     <p className="text-[11px] text-[rgba(70,130,180,0.65)] mt-0.5">
@@ -249,5 +249,6 @@ export function BottomAction({ profile }) {
     </>
   );
 }
+
 
 

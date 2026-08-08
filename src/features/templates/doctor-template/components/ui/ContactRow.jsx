@@ -40,3 +40,4 @@ export function ContactRow({ icon: Icon, label, value, actionLabel, href }) {
     </div>
   );
 }
+

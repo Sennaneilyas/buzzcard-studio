@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { SectionHeader } from "../ui/SectionHeader";
 import { fadeInUp, staggerContainer } from "../../utils/animations";
-import { ServiceCard } from "@/components/ui/service-card";
+import { ServiceCard } from "../ui/ServiceCard";
 
 export function ServicesSection({ profile }) {
   if (!profile?.services || profile.services.length === 0) return null;

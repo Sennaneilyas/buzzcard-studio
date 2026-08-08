@@ -105,7 +105,7 @@ export function HeroSection({ profile }) {
             transition={{ delay: 0.2 }}
             className="flex items-center justify-between w-full mb-1"
           >
-            <h1 className="font-['Poppins'] font-bold text-[22px] text-white leading-tight">
+            <h1 className="font-poppins font-bold text-[22px] text-white leading-tight">
               {profile.fullName}
             </h1>
             <div className="flex items-center gap-2.5">
@@ -213,19 +213,19 @@ export function HeroSection({ profile }) {
             className="flex w-full mt-6 pt-5 border-t-[0.667px] border-[rgba(255,255,255,0.2)]"
           >
             <div className="flex-1 flex flex-col items-start">
-              <span className="font-['Poppins'] font-bold text-[18px] text-white leading-tight">
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
                 <AnimatedCounter to={14} delay={0.7} suffix="+" />
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Ans Exp.</span>
             </div>
             <div className="flex-1 flex flex-col items-start border-l-[0.667px] border-[rgba(255,255,255,0.2)] pl-4">
-              <span className="font-['Poppins'] font-bold text-[18px] text-white leading-tight">
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
                 <AnimatedCounter to={2800} delay={1.5} suffix="+" />
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Patients</span>
             </div>
             <div className="flex-1 flex flex-col items-start border-l-[0.667px] border-[rgba(255,255,255,0.2)] pl-4">
-              <span className="font-['Poppins'] font-bold text-[18px] text-white leading-tight">
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
                 <AnimatedCounter to={98} delay={2.3} suffix="%" />
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Satisfaction</span>
@@ -236,3 +236,4 @@ export function HeroSection({ profile }) {
     </div>
   );
 }
+

@@ -122,7 +122,7 @@ export function BlogSection() {
               </div>
 
               {/* Title */}
-              <h3 className="font-['Poppins'] font-semibold text-[15px] text-[#4682b4] mb-2 leading-snug">
+              <h3 className="font-poppins font-semibold text-[15px] text-[#4682b4] mb-2 leading-snug">
                 {post.title}
               </h3>
 
@@ -224,4 +224,5 @@ export function BlogSection() {
     </motion.section>
   );
 }
+
 

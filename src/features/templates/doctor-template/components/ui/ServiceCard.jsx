@@ -9,8 +9,9 @@ export function ServiceCard({ icon: Icon, title, desc }) {
       <div className="w-10 h-10 rounded-[12px] bg-[rgba(70,130,180,0.08)] flex items-center justify-center mb-3 text-[#4682b4] group-hover:bg-[#4682b4] group-hover:text-white transition-colors">
         <Icon className="w-5 h-5" strokeWidth={2} />
       </div>
-      <h3 className="font-['Poppins'] font-semibold text-[14px] text-[#4682b4] mb-2">{title}</h3>
+      <h3 className="font-poppins font-semibold text-[14px] text-[#4682b4] mb-2">{title}</h3>
       <p className="text-[12px] text-[rgba(70,130,180,0.55)] leading-relaxed flex-grow">{desc}</p>
     </motion.div>
   );
 }
+

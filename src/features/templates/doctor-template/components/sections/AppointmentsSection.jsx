@@ -72,7 +72,7 @@ export function AppointmentsSection() {
             {/* STEP 1: DATE */}
             {step === 1 && (
               <motion.div key="step1" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="flex flex-col">
-                <h3 className="font-['Poppins'] font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Choisissez une date</h3>
+                <h3 className="font-poppins font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Choisissez une date</h3>
                 <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1 pb-2 custom-scrollbar">
                   {availableDays.map((date, i) => (
                     <button
@@ -90,7 +90,7 @@ export function AppointmentsSection() {
             {/* STEP 2: TIME */}
             {step === 2 && (
               <motion.div key="step2" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="flex flex-col">
-                <h3 className="font-['Poppins'] font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Choisissez l'heure</h3>
+                <h3 className="font-poppins font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Choisissez l'heure</h3>
                 <div className="flex items-center justify-center gap-2 mb-4 text-[12px] text-[#4682b48c] bg-[#4682b40a] py-1.5 px-3 rounded-full w-max mx-auto">
                   <Calendar className="w-3.5 h-3.5" /> {selectedDate && formatShortDate(selectedDate)}
                 </div>
@@ -111,7 +111,7 @@ export function AppointmentsSection() {
             {/* STEP 3: DETAILS */}
             {step === 3 && (
               <motion.div key="step3" custom={direction} variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.3 }} className="flex flex-col">
-                <h3 className="font-['Poppins'] font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Vos coordonnées</h3>
+                <h3 className="font-poppins font-semibold text-[#4682b4] text-[16px] mb-4 text-center">Vos coordonnées</h3>
                 <div className="flex flex-col gap-2 mb-4 text-[12px] text-[#4682b48c] bg-[#4682b40a] p-3 rounded-[12px]">
                   <p className="flex items-center gap-2"><Calendar className="w-3.5 h-3.5" /> {selectedDate && formatShortDate(selectedDate)}</p>
                   <p className="flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> {selectedTime}</p>
@@ -138,7 +138,7 @@ export function AppointmentsSection() {
                 <div className="w-14 h-14 bg-[#10b98115] rounded-[16px] flex items-center justify-center mb-5">
                   <Check className="w-7 h-7 text-[#10b981]" strokeWidth={3} />
                 </div>
-                <h3 className="font-['Poppins'] font-semibold text-[#10b981] text-[18px] mb-2">Rendez-vous confirmé !</h3>
+                <h3 className="font-poppins font-semibold text-[#10b981] text-[18px] mb-2">Rendez-vous confirmé !</h3>
                 <p className="text-[rgba(70,130,180,0.55)] text-[13px] mb-1 flex items-center gap-1.5 mx-auto w-max"><Calendar className="w-4 h-4"/> {selectedDate && formatShortDate(selectedDate)}</p>
                 <p className="text-[rgba(70,130,180,0.55)] text-[13px] mb-8 flex items-center gap-1.5 mx-auto w-max"><Clock className="w-4 h-4"/> {selectedTime}</p>
                 <button onClick={() => { setStep(1); setDirection(-1); setFormData({name:"", phone:""}); }} className="text-[13px] font-semibold text-[#4682b4] hover:opacity-80 transition-opacity">
@@ -153,3 +153,4 @@ export function AppointmentsSection() {
     </motion.section>
   );
 }
+
