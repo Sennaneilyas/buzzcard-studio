@@ -66,3 +66,10 @@ If you want to make agent assistance even more effective in this repo, the next 
 1. A frontend-focused instructions file for route/component conventions.
 2. A Supabase-specific agent guide that captures table and RLS expectations.
 3. A test-specific prompt for integration and infra coverage.
+
+## Project Protection Rule: Lean & Fast Architecture
+
+**CRITICAL MANDATE FOR ALL AGENTS:** The owner of this project is at a mid-beginner level and wants to avoid "optimization confusion" and "extra-libraries hell." 
+- **NO BLOAT**: Do NOT introduce new React libraries (e.g., state managers, heavy UI kits, complex animation libs) unless explicitly requested and deeply justified. Rely on the existing stack (Zustand, TanStack Query, Framer Motion, Tailwind).
+- **KEEP IT SIMPLE**: Avoid confusing component structures. Break things down into logical, readable, atomic components.
+- **PERFORMANCE FIRST**: Always protect the app from becoming "lazy" or slow. Use `React.lazy` and `Suspense` for heavy components below the fold, keep initial bundles small, and avoid excessive re-renders. Do not over-engineer solutions.

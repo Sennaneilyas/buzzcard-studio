@@ -8,23 +8,23 @@ import BuzzTemplate from "@/features/templates/BuzzTemplate/BuzzTemplate";
 import DoctorTemplate from "@/features/templates/doctor-template/DoctorTemplate";
 
 export default function AppRouter() {
-    return (
-        <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthForm />} />
-            <Route
-                path="/onboarding"
-                element={
-                    <ProtectedRoute>
-                        <OnboardingPage />
-                    </ProtectedRoute>
-                }
-            />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:category" element={<ProductsPage />} />
-            <Route path="/profile/:slug" element={<PublicProfileRoute />} />
-            <Route path="/template" element={<BuzzTemplate />} />
-            <Route path="/doctor-template" element={<DoctorTemplate />} />
-        </Routes>
-    );
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/auth" element={<AuthForm />} />
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/products" element={<ProductsPage />} />
+      <Route path="/products/:category" element={<ProductsPage />} />
+      <Route path="/profile/:slug" element={<PublicProfileRoute />} />
+      <Route path="/template" element={<BuzzTemplate />} />
+      <Route path="/template-doctor" element={<DoctorTemplate />} />
+    </Routes>
+  );
 }
