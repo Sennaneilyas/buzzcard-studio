@@ -118,14 +118,14 @@ export function AppointmentsSection() {
                 </div>
                 <form onSubmit={handleBook} className="flex flex-col gap-3">
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4682b48c]" />
-                    <input required type="text" placeholder="Nom complet" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full pl-9 pr-3 py-2.5 bg-white border border-[#4682b42e] rounded-[12px] text-[13px] focus:outline-none focus:border-[#4682b4]" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4682b48c]" />
+                    <input required type="text" placeholder="Nom complet" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full pl-10 pr-3.5 py-3 sm:py-2.5 bg-white border border-[#4682b42e] rounded-[13px] text-[16px] sm:text-[13px] focus:outline-none focus:border-[#4682b4] transition-all" />
                   </div>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4682b48c]" />
-                    <input required type="tel" placeholder="Numéro de téléphone" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full pl-9 pr-3 py-2.5 bg-white border border-[#4682b42e] rounded-[12px] text-[13px] focus:outline-none focus:border-[#4682b4]" />
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4682b48c]" />
+                    <input required type="tel" placeholder="Numéro de téléphone" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full pl-10 pr-3.5 py-3 sm:py-2.5 bg-white border border-[#4682b42e] rounded-[13px] text-[16px] sm:text-[13px] focus:outline-none focus:border-[#4682b4] transition-all" />
                   </div>
-                  <button type="submit" className="w-full bg-[#4682b4] text-white font-semibold py-2.5 rounded-[12px] text-[13px] hover:bg-[#3b6d96] transition-colors mt-2">
+                  <button type="submit" className="w-full bg-[#4682b4] text-white font-semibold py-3 sm:py-2.5 rounded-[13px] text-[14px] sm:text-[13px] hover:bg-[#3b6d96] transition-colors mt-2 active:scale-[0.98]">
                     Confirmer le RDV
                   </button>
                 </form>

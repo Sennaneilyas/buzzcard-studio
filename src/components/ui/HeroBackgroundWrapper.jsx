@@ -18,6 +18,7 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform vec3 uColor1;
 uniform vec3 uColor2;
+uniform float uNoiseScale;
 varying vec2 vUv;
 
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -66,7 +67,7 @@ void main() {
     vec2 coord = gl_FragCoord.xy;
     
     // Enhanced noise with time
-    float noise = snoise(uv * 1.5 + vec2(uTime * 0.05, uTime * 0.03)) * 0.25;
+    float noise = snoise(uv * uNoiseScale + vec2(uTime * 0.05, uTime * 0.03)) * 0.25;
     
     // Gradients from both left corners fading towards the right
     float distBL = uv.x + uv.y;
@@ -120,7 +121,7 @@ void main() {
 }
 `;
 
-const GradientPlane = ({ color1, color2, speed = 1 }) => {
+const GradientPlane = ({ color1, color2, speed = 1, noiseScale = 1.5 }) => {
     const meshRef = useRef(null);
     const uniforms = useMemo(
         () => ({
@@ -128,8 +129,9 @@ const GradientPlane = ({ color1, color2, speed = 1 }) => {
             uResolution: { value: new THREE.Vector2(1000, 1000) },
             uColor1: { value: new THREE.Color(color1) },
             uColor2: { value: new THREE.Color(color2) },
+            uNoiseScale: { value: noiseScale },
         }),
-        [color1, color2]
+        [color1, color2, noiseScale]
     );
 
     useFrame((state) => {
@@ -140,6 +142,7 @@ const GradientPlane = ({ color1, color2, speed = 1 }) => {
         if (uniforms.uResolution.value.x !== size.width || uniforms.uResolution.value.y !== size.height) {
             uniforms.uResolution.value.set(size.width, size.height);
         }
+        uniforms.uNoiseScale.value = noiseScale;
     });
 
     return (
@@ -163,6 +166,7 @@ export default function HeroBackgroundWrapper({
     color1 = "#00e676", // Using BuzzCard's mint color
     color2 = "#f4f5f7", // Using BuzzCard's cloud color
     speed = 0.5, // Slowed down for comfort
+    noiseScale = 1.5,
 }) {
     return (
         <div className={cn("relative w-full overflow-hidden", className)}>
@@ -179,7 +183,7 @@ export default function HeroBackgroundWrapper({
                         preserveDrawingBuffer: false,
                     }}
                 >
-                    <GradientPlane color1={color1} color2={color2} speed={speed} />
+                    <GradientPlane color1={color1} color2={color2} speed={speed} noiseScale={noiseScale} />
                 </Canvas>
             </div>
 

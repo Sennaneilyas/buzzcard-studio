@@ -64,12 +64,12 @@ export default function DoctorTemplate({ profile = mockProfile }) {
   }
 
   return (
-    <div className="relative w-full min-h-[100dvh] overflow-x-hidden bg-[#f0f5fa] flex justify-center sm:py-8 font-['Inter']">
+    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start sm:py-6 font-['Inter'] antialiased selection:bg-[#4682b4] selection:text-white">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="w-full max-w-[480px] bg-[#f0f5fa] sm:rounded-[28px] overflow-hidden shadow-[0px_8px_40px_0px_rgba(70,130,180,0.18),0px_2px_12px_0px_rgba(70,130,180,0.1)] flex flex-col pb-[100px] relative"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[440px] bg-[#f0f5fa] sm:rounded-[32px] sm:border sm:border-[#4682b425] overflow-hidden sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.22),0px_2px_14px_0px_rgba(70,130,180,0.12)] flex flex-col pb-3 sm:pb-4 relative min-h-screen sm:min-h-[auto]"
       >
         {/* Above the fold - Loaded synchronously */}
         <HeroSection profile={profile} />

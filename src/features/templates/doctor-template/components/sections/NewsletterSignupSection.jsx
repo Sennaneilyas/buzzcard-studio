@@ -25,8 +25,8 @@ export function NewsletterSignupSection() {
       <motion.p variants={fadeInUp} className="text-[#ffffffb2] text-[13px] mt-2 mb-6 relative z-10">Conseils santé, actualités médicales et rappels de rendez-vous.</motion.p>
       
       <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="w-full flex gap-2 relative z-10">
-        <input type="email" required value={email} onChange={(e) => {setEmail(e.target.value); setMessage("");}} placeholder="Votre e-mail" className="flex-1 min-w-0 px-4 py-3 bg-[#ffffff1f] rounded-xl border-[1.33px] border-[#ffffff40] text-white placeholder:text-[#ffffff80] text-sm outline-none" />
-        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="px-4 py-3 bg-white text-[#4682b4] font-semibold text-sm rounded-xl">S'abonner</motion.button>
+        <input type="email" required value={email} onChange={(e) => {setEmail(e.target.value); setMessage("");}} placeholder="Votre e-mail" className="flex-1 min-w-0 px-4 py-3 bg-[#ffffff1f] rounded-xl border-[1.33px] border-[#ffffff40] text-white placeholder:text-[#ffffff80] text-[16px] sm:text-sm outline-none" />
+        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="px-4 py-3 bg-white text-[#4682b4] font-semibold text-sm rounded-xl shrink-0">S'abonner</motion.button>
       </motion.form>
       {message && <p className="text-white text-xs mt-3 relative z-10">{message}</p>}
     </motion.section>

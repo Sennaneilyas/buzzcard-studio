@@ -30,6 +30,30 @@ export function HeroSection({ profile }) {
     { id: "awards", label: "Distinctions" },
   ];
 
+  const handleScrollToAppointments = () => {
+    const el = document.getElementById("appointments-section");
+    if (el) {
+      const targetY = el.getBoundingClientRect().top + window.pageYOffset - 16;
+      const startY = window.pageYOffset;
+      const distance = targetY - startY;
+      const duration = 750;
+      let startTime = null;
+
+      const easeInOutCubic = (t) =>
+        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+      const step = (currentTime) => {
+        if (!startTime) startTime = currentTime;
+        const progress = Math.min((currentTime - startTime) / duration, 1);
+        window.scrollTo(0, startY + distance * easeInOutCubic(progress));
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        }
+      };
+      requestAnimationFrame(step);
+    }
+  };
+
   return (
     <div className="bg-[#4682b4] relative w-full flex flex-col pb-[32px]">
       <div className="relative w-full h-[160px]">
@@ -68,7 +92,7 @@ export function HeroSection({ profile }) {
           >
             <InteractiveHoverButton 
               text="Prendre RDV"
-              onClick={() => document.getElementById("appointments-section")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={handleScrollToAppointments}
               className="text-[13px] h-[36px]"
             />
           </motion.div>
@@ -81,19 +105,45 @@ export function HeroSection({ profile }) {
             transition={{ delay: 0.2 }}
             className="flex items-center justify-between w-full mb-1"
           >
-            <h1 className="font-['Poppins'] font-bold text-[24px] text-white leading-tight">
+            <h1 className="font-['Poppins'] font-bold text-[22px] text-white leading-tight">
               {profile.fullName}
             </h1>
-            <div className="flex gap-3">
-              <motion.a href="#" whileHover={{ scale: 1.15, y: -2 }} className="text-[rgba(255,255,255,0.7)] hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-              </motion.a>
-              <motion.a href="#" whileHover={{ scale: 1.15, y: -2 }} className="text-[rgba(255,255,255,0.7)] hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-              </motion.a>
-              <motion.a href="#" whileHover={{ scale: 1.15, y: -2 }} className="text-[rgba(255,255,255,0.7)] hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
-              </motion.a>
+            <div className="flex items-center gap-2.5">
+              {profile.phones?.[0] && (
+                <motion.a 
+                  href={`tel:${profile.phones[0]}`}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.92 }}
+                  aria-label="Appeler"
+                  className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </motion.a>
+              )}
+              {profile.emails?.[0] && (
+                <motion.a 
+                  href={`mailto:${profile.emails[0]}`}
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.92 }}
+                  aria-label="Envoyer un email"
+                  className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </motion.a>
+              )}
+              {profile.location && (
+                <motion.a 
+                  href={`https://maps.google.com/?q=${profile.location}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.92 }}
+                  aria-label="Itinéraire"
+                  className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                </motion.a>
+              )}
             </div>
           </motion.div>
           
@@ -101,7 +151,7 @@ export function HeroSection({ profile }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-[15px] font-medium text-[rgba(255,255,255,0.9)] mb-4"
+            className="text-[14px] font-medium text-[rgba(255,255,255,0.92)] mb-3.5"
           >
             {profile.title}
           </motion.p>
@@ -110,13 +160,13 @@ export function HeroSection({ profile }) {
             variants={staggerContainer}
             initial="hidden"
             animate="visible"
-            className="flex gap-2 mb-6 flex-wrap"
+            className="flex gap-1.5 mb-5 flex-wrap"
           >
             {["Cardiologie", "Soins Préventifs", "ECG"].map((tag) => (
               <motion.span 
                 key={tag}
                 variants={fadeInUp}
-                className="bg-[rgba(255,255,255,0.15)] border-[0.667px] border-[rgba(255,255,255,0.25)] rounded-full px-[12px] py-[4px] font-medium text-[11px] text-white"
+                className="bg-[rgba(255,255,255,0.14)] border-[0.667px] border-[rgba(255,255,255,0.22)] rounded-full px-[10px] py-[3px] font-medium text-[11px] text-white"
               >
                 {tag}
               </motion.span>
@@ -141,15 +191,15 @@ export function HeroSection({ profile }) {
             ))}
           </motion.div>
           
-          <div className="h-[80px] w-full relative">
+          <div className="min-h-[76px] w-full relative py-1">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}
-                initial={{ opacity: 0, y: 5 }}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
+                exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 text-[13px] text-[rgba(255,255,255,0.85)] leading-relaxed whitespace-pre-line"
+                className="text-[13px] text-[rgba(255,255,255,0.88)] leading-relaxed whitespace-pre-line"
               >
                 {profile[activeTab]}
               </motion.div>

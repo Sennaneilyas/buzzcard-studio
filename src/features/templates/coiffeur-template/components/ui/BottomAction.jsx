@@ -9,7 +9,7 @@ export function BottomAction({ profile }) {
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "https://buzzcard.ma";
   const shareTitle = `${profile.fullName} · ${profile.title}`;
-  const shareText = `Découvrez la carte digitale médicale de ${profile.fullName} (${profile.title}) :`;
+  const shareText = `Découvrez la carte digitale de ${profile.fullName} (${profile.title}) :`;
 
   const handleSaveContact = useCallback(() => {
     const { fullName, phones, emails, location, title } = profile;
@@ -75,8 +75,8 @@ export function BottomAction({ profile }) {
       url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     },
     {
-      name: "X (Twitter)",
-      color: "bg-[#0f1419] text-white hover:bg-[#000000]",
+      name: "X",
+      color: "bg-[#1A1A1A] text-white hover:bg-black",
       icon: (
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -92,7 +92,7 @@ export function BottomAction({ profile }) {
     },
     {
       name: "SMS",
-      color: "bg-[#4682b4] text-white hover:bg-[#3b6d96]",
+      color: "bg-[#1A1A1A] text-white hover:bg-black",
       icon: <MessageSquare className="w-4 h-4" />,
       url: `sms:?body=${encodeURIComponent(shareText + " " + shareUrl)}`
     }
@@ -100,18 +100,17 @@ export function BottomAction({ profile }) {
 
   return (
     <>
-      {/* Sticky Bottom Action Container */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
         className="sticky bottom-3.5 sm:bottom-4 px-4 w-full z-40 mt-auto pointer-events-none"
       >
-        <div className="bg-[#4682b4]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(70,130,180,0.28)] border border-white/20 flex items-center gap-1.5 pointer-events-auto">
+        <div className="bg-[#1A1A1A]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(0,0,0,0.25)] border border-white/10 flex items-center gap-1.5 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleSaveContact}
-            className="flex-1 h-[40px] bg-white text-[#4682b4] rounded-[11px] flex items-center justify-center gap-1.5 font-semibold text-[13px] shadow-sm hover:bg-slate-50 transition-colors"
+            className="flex-1 h-[40px] bg-white text-[#1A1A1A] rounded-[11px] flex items-center justify-center gap-1.5 font-semibold text-[13px] shadow-sm hover:bg-gray-100 transition-colors"
           >
             <AnimatePresence mode="wait">
               {saved ? (
@@ -144,7 +143,7 @@ export function BottomAction({ profile }) {
             whileTap={{ scale: 0.94 }}
             onClick={() => setShowShareModal(true)}
             aria-label="Partager ce profil"
-            className="w-[40px] h-[40px] bg-white/15 hover:bg-white/25 text-white rounded-[11px] flex items-center justify-center shrink-0 transition-colors border border-white/20"
+            className="w-[40px] h-[40px] bg-white/10 hover:bg-white/20 text-white rounded-[11px] flex items-center justify-center shrink-0 transition-colors border border-white/10"
           >
             <Share2 className="w-[16px] h-[16px]" strokeWidth={2} />
           </motion.button>
@@ -155,34 +154,31 @@ export function BottomAction({ profile }) {
       <AnimatePresence>
         {showShareModal && (
           <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-auto">
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowShareModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             />
 
-            {/* Modal Card */}
             <motion.div
               initial={{ opacity: 0, y: 100, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              className="relative w-full max-w-[420px] bg-white rounded-t-[28px] sm:rounded-[24px] p-5 shadow-2xl border border-[#4682b420] z-10 overflow-hidden"
+              className="relative w-full max-w-[420px] bg-white rounded-t-[28px] sm:rounded-[24px] p-5 shadow-2xl z-10 overflow-hidden"
             >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#4682b418] mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#4682b412] flex items-center justify-center text-[#4682b4]">
+              <div className="flex items-center justify-between pb-3 border-b border-black/5 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center text-white">
                     <Share2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-['Poppins'] font-bold text-[#4682b4] text-[15px] leading-none">
+                    <h3 className="font-times text-[#1A1A1A] text-[18px] leading-none mb-1">
                       Partager le profil
                     </h3>
-                    <p className="text-[11px] text-[rgba(70,130,180,0.65)] mt-0.5">
+                    <p className="text-[12px] text-gray-500">
                       {profile.fullName}
                     </p>
                   </div>
@@ -190,13 +186,12 @@ export function BottomAction({ profile }) {
 
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="w-8 h-8 rounded-full bg-[#f0f5fa] text-[#4682b4] hover:bg-[#e2edf8] flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-gray-100 text-[#1A1A1A] hover:bg-gray-200 flex items-center justify-center transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Social Channels Grid */}
               <div className="grid grid-cols-3 gap-2.5 mb-4">
                 {socialSharePlatforms.map((platform) => (
                   <a
@@ -205,29 +200,28 @@ export function BottomAction({ profile }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setShowShareModal(false)}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[16px] bg-[#f0f5fa] hover:bg-[#e4effa] border border-[#4682b415] transition-all group active:scale-95"
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[16px] bg-[#F9F9F9] hover:bg-[#F0F0F0] border border-black/5 transition-all group active:scale-95"
                   >
                     <div className={`w-9 h-9 rounded-full ${platform.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
                       {platform.icon}
                     </div>
-                    <span className="text-[11px] font-medium text-[#4682b4]">
+                    <span className="text-[11px] font-medium text-[#1A1A1A]">
                       {platform.name}
                     </span>
                   </a>
                 ))}
               </div>
 
-              {/* Copy URL Bar */}
-              <div className="flex items-center gap-2 p-2 bg-[#f0f5fa] rounded-[14px] border border-[#4682b420]">
+              <div className="flex items-center gap-2 p-2 bg-[#F9F9F9] rounded-[14px] border border-black/5">
                 <input
                   type="text"
                   readOnly
                   value={shareUrl}
-                  className="flex-1 bg-transparent px-2 text-[12px] text-[#4682b4] outline-none truncate select-all"
+                  className="flex-1 bg-transparent px-2 text-[12px] text-gray-600 outline-none truncate select-all"
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="px-3 py-1.5 bg-[#4682b4] text-white rounded-[10px] text-[12px] font-semibold flex items-center gap-1 hover:bg-[#3b6d96] transition-colors shrink-0"
+                  className="px-4 py-2 bg-[#1A1A1A] text-white rounded-[10px] text-[12px] font-semibold flex items-center gap-1 hover:bg-[#C5A880] transition-colors shrink-0"
                 >
                   {copiedLink ? (
                     <>
@@ -249,5 +243,3 @@ export function BottomAction({ profile }) {
     </>
   );
 }
-
-
