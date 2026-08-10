@@ -20,20 +20,29 @@ export function GallerySection({ images }) {
           className="mt-8 grid grid-cols-2 gap-3"
         >
           {images.map((img, index) => {
-            const isLarge = index === 0; // First image spans 2 columns
+            // Curated layout pattern for a "Mood Board" feel
+            const patterns = [
+              'col-span-2 aspect-[16/9]',
+              'col-span-1 aspect-[3/4]',
+              'col-span-1 aspect-[4/5]',
+              'col-span-1 aspect-square',
+              'col-span-1 aspect-[4/3]',
+              'col-span-2 aspect-[21/9]'
+            ];
+            const layoutClass = patterns[index % patterns.length];
+
             return (
               <motion.div 
                 key={index}
                 variants={scaleIn}
-                whileHover={{ scale: 0.98 }}
-                className={`relative rounded-[16px] overflow-hidden bg-[#F9F9F9] ${isLarge ? 'col-span-2 aspect-[16/9]' : 'aspect-square'}`}
+                className={`relative rounded-[20px] overflow-hidden bg-[#F9F9F9] group ${layoutClass}`}
               >
-                <img 
+                <motion.img 
                   src={img} 
                   alt={`Réalisation ${index + 1}`} 
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors duration-300" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
               </motion.div>
             );
           })}
