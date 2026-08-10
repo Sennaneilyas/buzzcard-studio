@@ -1,0 +1,94 @@
+/* ── Hotel Template — Scoped Design Tokens ── */
+
+/* Cormorant Garamond for luxury serif headings */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
+
+/* ── Scoped CSS Variables ── */
+.hotel-template {
+  --hotel-latte: #F3E9D7;
+  --hotel-caramel: #B08968;
+  --hotel-mocha: #7A553A;
+  --hotel-cappuccino: #D6BFA6;
+  --hotel-espresso: #3B2A22;
+  --hotel-gold: #C9A96E;
+  --hotel-ivory: #FAF6F0;
+
+  --hotel-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --hotel-font-body: Arial, Helvetica, sans-serif;
+}
+
+/* ── Gold Shimmer Animation ── */
+@keyframes hotel-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.hotel-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--hotel-caramel) 0%,
+    var(--hotel-gold) 25%,
+    #E8D5A8 50%,
+    var(--hotel-gold) 75%,
+    var(--hotel-caramel) 100%
+  );
+  background-size: 200% auto;
+  animation: hotel-shimmer 4s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hotel-shimmer-line {
+  background: linear-gradient(
+    90deg,
+    var(--hotel-caramel) 0%,
+    var(--hotel-gold) 25%,
+    #E8D5A8 50%,
+    var(--hotel-gold) 75%,
+    var(--hotel-caramel) 100%
+  );
+  background-size: 200% auto;
+  animation: hotel-shimmer 4s ease-in-out infinite;
+}
+
+/* ── Zellige Pattern Background ── */
+.hotel-zellige {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B08968' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Moroccan Arch Clip Path ── */
+.hotel-arch {
+  clip-path: polygon(0 15%, 5% 5%, 15% 1%, 50% 0%, 85% 1%, 95% 5%, 100% 15%, 100% 100%, 0% 100%);
+}
+
+/* ── Smooth Horizontal Scroll ── */
+.hotel-scroll-snap {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.hotel-scroll-snap::-webkit-scrollbar {
+  display: none;
+}
+.hotel-scroll-snap > * {
+  scroll-snap-align: start;
+}
+
+/* ── Content Visibility for Performance ── */
+.hotel-lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 400px;
+}
+
+/* ── Star Rating Gold ── */
+.hotel-star {
+  color: var(--hotel-gold);
+  filter: drop-shadow(0 1px 2px rgba(201, 169, 110, 0.3));
+}
+
+/* ── Lightbox Overlay ── */
+.hotel-lightbox-backdrop {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}

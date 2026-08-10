@@ -6,6 +6,7 @@ import { OnboardingPage } from "@/features/onboarding";
 import BuzzTemplate from "@/features/templates/BuzzTemplate/BuzzTemplate";
 import DoctorTemplate from "@/features/templates/doctor-template/DoctorTemplate";
 import CoiffeurTemplate from "@/features/templates/coiffeur-template/CoiffeurTemplate";
+import HotelTemplate from "@/features/templates/hotel-template/HotelTemplate";
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
       <Route path="/doctor-template" element={<DoctorTemplate />} />
       <Route path="/template-doctor" element={<DoctorTemplate />} />
       <Route path="/template-coiffeur" element={<CoiffeurTemplate />} />
+      <Route path="/template-hotel" element={<HotelTemplate />} />
     </Routes>
   );
 }
