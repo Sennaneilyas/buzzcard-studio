@@ -17,6 +17,14 @@
   --hotel-font-body: Arial, Helvetica, sans-serif;
 }
 
+.font-hotel-display {
+  font-family: var(--hotel-font-display);
+}
+
+.font-hotel-body {
+  font-family: var(--hotel-font-body);
+}
+
 /* ── Gold Shimmer Animation ── */
 @keyframes hotel-shimmer {
   0%   { background-position: -200% center; }

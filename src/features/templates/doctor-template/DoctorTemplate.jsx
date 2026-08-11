@@ -60,7 +60,11 @@ export default function DoctorTemplate({ profile = mockProfile }) {
   }, []);
 
   if (isLoading) {
-    return <GlobalLoader />;
+    return (
+      <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-center font-['Inter']">
+        <GlobalLoader />
+      </div>
+    );
   }
 
   return (

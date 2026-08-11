@@ -1,3 +1,4 @@
+import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import { motion } from "framer-motion";
 import { SectionHeader } from "../ui/SectionHeader";
 import { fadeInUp, staggerContainer, scaleIn } from "../../utils/animations";
@@ -37,12 +38,13 @@ export function GallerySection({ images }) {
                 variants={scaleIn}
                 className={`relative rounded-[20px] overflow-hidden bg-[#F9F9F9] group ${layoutClass}`}
               >
-                <motion.img 
+                <ZoomableImage 
                   src={img} 
                   alt={`Réalisation ${index + 1}`} 
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  className="w-full h-full"
+                  imageClassName="transition-transform duration-700 ease-out group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 pointer-events-none" />
               </motion.div>
             );
           })}

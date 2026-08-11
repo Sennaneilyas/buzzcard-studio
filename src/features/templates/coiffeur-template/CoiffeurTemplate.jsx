@@ -104,7 +104,11 @@ export default function CoiffeurTemplate({ profile = mockProfile }) {
   }, []);
 
   if (isLoading) {
-    return <GlobalLoader />;
+    return (
+      <div className="relative w-full min-h-[100dvh] bg-[#F9F9F9] flex justify-center items-center font-inter">
+        <GlobalLoader />
+      </div>
+    );
   }
 
   return (

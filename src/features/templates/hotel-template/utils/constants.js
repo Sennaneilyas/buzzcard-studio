@@ -107,6 +107,9 @@ export const mockHotelProfile = {
     { platform: "Instagram", href: "https://instagram.com/daralandalous" },
     { platform: "TripAdvisor", href: "https://tripadvisor.com/" },
     { platform: "Facebook", href: "https://facebook.com/" },
+    { platform: "GoogleMaps", href: "https://maps.google.com/?cid=123456789" },
+    { platform: "Airbnb", href: "https://airbnb.com/rooms/123456" },
+    { platform: "Booking", href: "https://booking.com/hotel/ma/dar-al-andalous" },
   ],
 
   hours: [
