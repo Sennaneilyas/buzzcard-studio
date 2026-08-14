@@ -103,7 +103,7 @@ function HeroSection({ profile }) {
 
   return (
     <article
-      className={`relative w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-[7.58px] ${GLASS_SHADOW} -mt-[39px] pt-[47px] pb-[18px] flex flex-col items-center gap-[6px]`}
+      className={`relative z-50 w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-[7.58px] ${GLASS_SHADOW} -mt-[39px] pt-[47px] pb-[18px] flex flex-col items-center gap-[6px]`}
       aria-label="Carte de contact"
     >
       <div className="absolute -top-[39px] left-1/2 -translate-x-1/2 w-[78px] h-[78px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-[0_4px_16px_rgba(0,0,0,0.20),0_1px_4px_rgba(0,0,0,0.10)]">
@@ -169,7 +169,7 @@ function ContactPopover({ icon: Icon, label, entries, prefix }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-50">
       <button
         type="button"
         aria-label={label}
@@ -203,7 +203,7 @@ function SocialLinksSection({ socials }) {
 
   return (
     <nav
-      className={`relative w-full rounded-[25px] bg-[#ffffff90] backdrop-blur-[7.58px] ${GLASS_SHADOW} ${GLASS_BORDER} px-[14px] py-[16px]`}
+      className={`relative z-0 w-full rounded-[25px] bg-[#ffffff90] backdrop-blur-[7.58px] ${GLASS_SHADOW} ${GLASS_BORDER} px-[14px] py-[16px]`}
       aria-label="Social media links"
     >
       <ul className="relative z-[2] grid grid-cols-3 gap-y-[18px] list-none m-0 p-0">
@@ -246,6 +246,11 @@ function GallerySection({ gallery }) {
   const handleNext = useCallback(() => setActive((p) => (p + 1) % images.length), [images.length]);
   const handlePrev = useCallback(() => setActive((p) => (p - 1 + images.length) % images.length), [images.length]);
 
+  const handleDragEnd = useCallback((e, { offset }) => {
+    if (offset.x < -50) handleNext();
+    else if (offset.x > 50) handlePrev();
+  }, [handleNext, handlePrev]);
+
   if (!images.length) return null;
 
   return (
@@ -256,7 +261,7 @@ function GallerySection({ gallery }) {
             {images.map((src, index) => (
               <motion.div
                 key={src}
-                className="absolute inset-0 origin-bottom"
+                className={`absolute inset-0 origin-bottom ${index === active ? "cursor-grab active:cursor-grabbing" : ""}`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{
                   opacity: index === active ? 1 : 0.55,
@@ -267,6 +272,10 @@ function GallerySection({ gallery }) {
                 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
+                drag={index === active ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.8}
+                onDragEnd={handleDragEnd}
               >
                 <ZoomableImage
                   src={src}
@@ -283,7 +292,7 @@ function GallerySection({ gallery }) {
       <GalleryArrow direction="prev" onClick={handlePrev} />
       <GalleryArrow direction="next" onClick={handleNext} />
 
-      <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 flex gap-[5px] z-20">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-[5px] z-20">
         {images.map((_, i) => (
           <button
             key={i}
@@ -377,7 +386,11 @@ function BottomNav({ onSave, onQrCode, onReview }) {
               className={`relative flex items-center justify-center transition-all duration-300 ease-out z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 active:scale-95 ${
                 isSpecial
                   ? "bg-neutral-950 text-white rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.15)] h-[54px]"
+<<<<<<< HEAD
                   : "h-[50px] rounded-full"
+=======
+                  : "h-[50px] rounded-full hover:bg-white/20"
+>>>>>>> 8743f68655d8b6d84c0a7c924358bca06cf308e7
               } ${isActive ? "px-5" : (isSpecial ? "w-[54px]" : "w-[50px]")}`}
             >
               {isActive && !isSpecial && (
