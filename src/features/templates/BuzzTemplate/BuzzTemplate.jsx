@@ -386,11 +386,7 @@ function BottomNav({ onSave, onQrCode, onReview }) {
               className={`relative flex items-center justify-center transition-all duration-300 ease-out z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-950 active:scale-95 ${
                 isSpecial
                   ? "bg-neutral-950 text-white rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.15)] h-[54px]"
-<<<<<<< HEAD
-                  : "h-[50px] rounded-full"
-=======
                   : "h-[50px] rounded-full hover:bg-white/20"
->>>>>>> 8743f68655d8b6d84c0a7c924358bca06cf308e7
               } ${isActive ? "px-5" : (isSpecial ? "w-[54px]" : "w-[50px]")}`}
             >
               {isActive && !isSpecial && (
