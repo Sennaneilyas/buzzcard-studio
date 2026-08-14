@@ -2,7 +2,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getTemplatesByCategory } from "@/config/templates";
-import { Check, MousePointerClick, Filter, Eye, X } from "lucide-react";
+import { Check, MousePointerClick, Eye, X, Filter, Crown } from "lucide-react";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 
 export default function StepTemplate({ selectedId, onSelect }) {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -20,34 +21,23 @@ export default function StepTemplate({ selectedId, onSelect }) {
 
   return (
     <div className="w-full space-y-8 flex flex-col h-full">
-      {/* ── Category Filter Dropdown ── */}
-      <div className="relative w-full max-w-sm mx-auto shrink-0 flex items-center">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-          <Filter className="h-4 w-4 text-navy/50" />
-        </div>
-        <select
-          value={activeCategory}
-          onChange={(e) => {
-            setActiveCategory(e.target.value);
-            setPage(0); // Reset page on filter change
-          }}
-          className="w-full pl-11 pr-10 py-3 bg-[#e0e5ec] text-sm font-bold text-navy rounded-2xl appearance-none focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all cursor-pointer"
-        >
-          <option value="all">All Templates</option>
-          <option value="professional">Professional</option>
-          <option value="creative">Creative</option>
-          <option value="minimal">Minimal</option>
-          <option value="specialty">Specialty</option>
-        </select>
-        <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
-          <svg className="h-4 w-4 text-navy/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+
+      {/* ── Top Bar: Filter ── */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-navy hidden sm:block">Template Gallery</h2>
+        <div className="ml-auto w-full sm:w-auto">
+          <Select value={activeCategory} onValueChange={(v) => { setActiveCategory(v); setPage(0); }}>
+            <SelectTrigger icon={Filter} placeholder="Filter by category" variant="bordered" className="w-full sm:w-[220px]" />
+            <SelectContent>
+              <SelectItem index={0} value="all">All Templates</SelectItem>
+              <SelectItem index={1} value="premium">Premium Flagships</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* ── Template Gallery Grid ── */}
-      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full">
+      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-10 w-full">
         {paginatedTemplates.map((template, index) => {
           const isSelected = selectedId === template.id;
 
@@ -67,8 +57,14 @@ export default function StepTemplate({ selectedId, onSelect }) {
                   : "bg-[#e0e5ec] shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)] border-2 border-transparent hover:border-mint/30"
               )}
             >
-              {/* High Quality Thumbnail Image (Large) */}
-              <div className="w-full h-64 relative overflow-hidden rounded-t-xl bg-[#e0e5ec]">
+              {/* High Quality Thumbnail Image (Large Aspect Ratio) */}
+              <div className="w-full aspect-[9/16] relative overflow-hidden rounded-t-xl bg-[#e0e5ec]">
+                {template.isPremium && (
+                  <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-lg border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+                    <Crown className="w-3.5 h-3.5 text-white drop-shadow-md" strokeWidth={2} />
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest drop-shadow-md">Premium</span>
+                  </div>
+                )}
                 <img
                   src={template.thumbnail}
                   alt={template.name}
@@ -100,15 +96,10 @@ export default function StepTemplate({ selectedId, onSelect }) {
               </div>
 
               {/* Neomorphic Info Bar */}
-              <div className="p-5 flex flex-col gap-2 bg-[#e0e5ec] relative z-10 rounded-b-2xl">
-                <p className="text-lg font-bold text-navy truncate leading-tight">
+              <div className="px-3 py-2.5 flex flex-col items-center justify-center gap-1 bg-[#e0e5ec] relative z-10 rounded-b-2xl border-t border-white/40 transition-colors group-hover:bg-[#d8dee6]">
+                <p className="text-[14px] font-serif italic font-bold text-navy/90 truncate tracking-wide">
                   {template.name}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-md bg-[#e0e5ec] text-xs font-bold text-navy/70 uppercase tracking-wider shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)]">
-                    {template.category}
-                  </span>
-                </div>
 
                 {/* Selected checkmark badge */}
                 <AnimatePresence>
@@ -177,9 +168,6 @@ export default function StepTemplate({ selectedId, onSelect }) {
               <div className="shrink-0 p-3 px-5 flex items-center justify-between border-b border-navy/10">
                 <div className="flex items-center gap-3">
                   <h2 className="text-lg font-bold text-navy">{previewTemplate.name}</h2>
-                  <span className="inline-block px-2 py-0.5 rounded bg-[#e0e5ec] text-[10px] font-bold text-navy/70 uppercase tracking-wider shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)]">
-                    {previewTemplate.category}
-                  </span>
                 </div>
                 <button
                   onClick={() => setPreviewTemplate(null)}
@@ -189,13 +177,21 @@ export default function StepTemplate({ selectedId, onSelect }) {
                 </button>
               </div>
 
-              {/* Modal Body: Exact Template Image */}
-              <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 shadow-inner py-8 px-4">
-                <img
-                  src={previewTemplate.thumbnail}
-                  alt={previewTemplate.name}
-                  className="w-full max-w-[450px] mx-auto h-auto block rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
-                />
+              {/* Modal Body: Exact Template Image or Interactive Iframe */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50 shadow-inner py-8 px-4 relative">
+                {previewTemplate.previewUrl ? (
+                  <iframe 
+                    src={previewTemplate.previewUrl} 
+                    className="w-full max-w-[450px] mx-auto h-[1200px] block rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] ring-1 ring-black/5 bg-white border-0"
+                    title={previewTemplate.name}
+                  />
+                ) : (
+                  <img
+                    src={previewTemplate.thumbnail}
+                    alt={previewTemplate.name}
+                    className="w-full max-w-[450px] mx-auto h-auto block rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
+                  />
+                )}
               </div>
 
               {/* Modal Footer */}

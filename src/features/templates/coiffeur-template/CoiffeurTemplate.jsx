@@ -28,7 +28,7 @@ const mockProfile = {
   phones: ["+212 6 00 11 22 33"],
   emails: ["booking@laramiller.salon"],
   location: "15 Rue de la Beauté, Guéliz, Marrakech",
-  avatarUrl: "/AnimaPackage-React-WfSfE/static/img/image-lara-miller.png",
+  avatarUrl: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=800",
   bannerUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=600&h=250",
   quote: '"L\'art de sublimer votre beauté naturelle avec précision et passion."',
   about: "Experte en colorimétrie et visagisme, Lara Miller transforme votre coiffure en une véritable œuvre d'art.",

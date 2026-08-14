@@ -8,23 +8,23 @@ export function ReviewsSection({ reviews }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  if (!reviews || reviews.length === 0) return null;
-
   const next = useCallback(
-    () => setCurrent((c) => (c + 1) % reviews.length),
-    [reviews.length],
+    () => setCurrent((c) => (c + 1) % (reviews?.length || 1)),
+    [reviews?.length],
   );
   const prev = useCallback(
-    () => setCurrent((c) => (c - 1 + reviews.length) % reviews.length),
-    [reviews.length],
+    () => setCurrent((c) => (c - 1 + (reviews?.length || 1)) % (reviews?.length || 1)),
+    [reviews?.length],
   );
 
   // Auto-play
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || !reviews || reviews.length === 0) return;
     const interval = setInterval(next, 5000);
     return () => clearInterval(interval);
-  }, [isPaused, next]);
+  }, [isPaused, next, reviews]);
+
+  if (!reviews || reviews.length === 0) return null;
 
   const review = reviews[current];
 

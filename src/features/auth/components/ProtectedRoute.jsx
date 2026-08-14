@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { useAuthStore } from "../store/useAuthStore";
 
 export function ProtectedRoute({ children }) {
@@ -15,11 +15,7 @@ export function ProtectedRoute({ children }) {
   }, [user, isLoading, navigate]);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-cloud">
-        <Loader2 className="size-8 animate-spin text-navy" />
-      </div>
-    );
+    return <GlobalLoader className="bg-cloud" />;
   }
 
   if (!user) {

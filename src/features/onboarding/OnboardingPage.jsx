@@ -1,8 +1,18 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore, useProfile } from "@/features/auth";
 import { supabase } from "@/lib/supabase";
-import { LogOut, ChevronDown, Mail, Search, Sparkles, UserCircle, Share2, Rocket, ArrowRight } from "lucide-react";
+import {
+  LogOut,
+  ChevronDown,
+  Mail,
+  Search,
+  Sparkles,
+  UserCircle,
+  Share2,
+  Rocket,
+  ArrowRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import StepTemplate from "./steps/StepTemplate";
 import StepBasicInfo from "./steps/StepBasicInfo";
@@ -23,7 +33,7 @@ export default function OnboardingPage() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  
+
   const [profileData, setProfileData] = useState({
     name: "",
     role: "",
@@ -66,9 +76,10 @@ export default function OnboardingPage() {
   const displayName = rawDisplayName.split(" ")[0];
 
   return (
-    <div className="min-h-screen bg-cloud flex flex-col justify-between">
-      {/* ── Navbar ── */}
-      <header className="top-0 inset-x-0 z-50">
+    <div className="min-h-screen bg-transparent p-2 sm:p-3 lg:p-4">
+      <div className="bg-cloud rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden shadow-[0_8px_40px_rgba(0,0,0,0.04)] border border-black/5 flex flex-col justify-between min-h-[calc(100vh-16px)] sm:min-h-[calc(100vh-24px)] lg:min-h-[calc(100vh-32px)]">
+        {/* ── Navbar ── */}
+        <header className="top-0 inset-x-0 z-50">
         <div
           className="
             w-full flex items-center justify-between
@@ -145,7 +156,7 @@ export default function OnboardingPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="p-2">
                     <button
                       onClick={handleLogout}
@@ -164,12 +175,11 @@ export default function OnboardingPage() {
 
       {/* ── Main Content Area ── */}
       <main className="flex-1 px-4 py-8 sm:px-6 lg:px-8 w-full flex flex-col items-center justify-center max-w-[1600px] mx-auto">
-        
         {/* Title */}
         <div className="text-center mb-10 shrink-0 mt-4">
-          <h1 
+          <h1
             className="text-3xl sm:text-4xl tracking-tight text-ink italic"
-            style={{ fontFamily: 'Georgia, serif' }}
+            style={{ fontFamily: "Georgia, serif" }}
           >
             Welcome, {displayName}! Let's set up your digital profile.
           </h1>
@@ -177,26 +187,26 @@ export default function OnboardingPage() {
 
         {/* Global Stepper Navigation */}
         <div className="w-full max-w-5xl mx-auto mb-10">
-          <div className="flex items-center justify-center gap-2 sm:gap-4 overflow-x-auto custom-scrollbar pb-2">
+          <div className="flex items-center justify-center overflow-x-auto custom-scrollbar pb-2">
             {ONBOARDING_STEPS.map((step, index) => {
               const isActive = activeTabIndex === index;
               const isPassed = index < activeTabIndex;
               return (
-                <div key={step.id} className="flex items-center">
+                <React.Fragment key={step.id}>
                   <div
                     className={cn(
                       "flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 whitespace-nowrap",
                       isActive
                         ? "bg-[#e0e5ec] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.6),_inset_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-mint/30"
                         : isPassed
-                        ? "bg-[#e0e5ec] shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-white/50"
-                        : "opacity-40"
+                          ? "bg-[#e0e5ec] shadow-[3px_3px_6px_rgba(163,177,198,0.6),_-3px_-3px_6px_rgba(255,255,255,0.8)] border border-white/50"
+                          : "opacity-40",
                     )}
                   >
                     <span
                       className={cn(
                         "text-sm font-bold",
-                        isActive || isPassed ? "text-mint" : "text-navy"
+                        isActive || isPassed ? "text-mint" : "text-navy",
                       )}
                     >
                       0{index + 1}
@@ -204,7 +214,11 @@ export default function OnboardingPage() {
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        isActive ? "text-navy font-bold" : isPassed ? "text-navy/80" : "text-navy/60"
+                        isActive
+                          ? "text-navy font-bold"
+                          : isPassed
+                            ? "text-navy/80"
+                            : "text-navy/60",
                       )}
                     >
                       {step.label}
@@ -212,9 +226,9 @@ export default function OnboardingPage() {
                   </div>
                   {/* Separator line between steps */}
                   {index < ONBOARDING_STEPS.length - 1 && (
-                    <div className="w-4 sm:w-8 h-[2px] mx-2 bg-navy/10 rounded-full" />
+                    <div className="w-4 sm:w-8 h-[2px] mx-2 sm:mx-4 bg-navy/10 rounded-full" />
                   )}
-                </div>
+                </React.Fragment>
               );
             })}
           </div>
@@ -225,10 +239,14 @@ export default function OnboardingPage() {
           /* PHASE 1: The Full-Screen Template Gallery */
           <div className="w-full max-w-7xl mx-auto bg-[#e0e5ec] rounded-[2.5rem] relative border border-white/50 p-6 sm:p-10 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)]">
             <div className="mb-8 text-center">
-              <h2 className="text-2xl font-bold text-navy">Select a Foundation</h2>
-              <p className="text-navy/60 mt-1">Choose a template to start building your digital profile.</p>
+              <h2 className="text-2xl font-bold text-navy">
+                Select a Foundation
+              </h2>
+              <p className="text-navy/60 mt-1">
+                Choose a template to start building your digital profile.
+              </p>
             </div>
-            
+
             <StepTemplate
               selectedId={selectedTemplateId}
               onSelect={setSelectedTemplateId}
@@ -249,7 +267,6 @@ export default function OnboardingPage() {
         ) : (
           /* PHASE 2: The Studio Editor (Wizard) */
           <div className="w-full max-w-4xl mx-auto bg-[#e0e5ec] rounded-[2rem] relative border border-white/50 p-8 flex flex-col shadow-[9px_9px_16px_rgba(163,177,198,0.6),_-9px_-9px_16px_rgba(255,255,255,0.8)] mt-10 max-h-[70vh] lg:max-h-[65vh]">
-            
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
               {activeTabIndex === 1 ? (
@@ -257,34 +274,48 @@ export default function OnboardingPage() {
               ) : activeTabIndex === 2 ? (
                 <StepSocials data={profileData} onChange={setProfileData} />
               ) : (
-                <StepLaunch data={profileData} selectedTemplateId={selectedTemplateId} />
+                <StepLaunch
+                  data={profileData}
+                  selectedTemplateId={selectedTemplateId}
+                />
               )}
             </div>
 
-                {/* Action Buttons — pinned at the bottom */}
-                <div className="shrink-0 pt-6 mt-2 border-t border-navy/5 flex items-center justify-between">
-                  <button
-                    onClick={() => setActiveTabIndex(Math.max(0, activeTabIndex - 1))}
-                    disabled={activeTabIndex === 0}
-                    className="px-6 py-3 text-sm font-semibold text-navy/50 hover:text-navy transition-colors disabled:opacity-30"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (activeTabIndex === ONBOARDING_STEPS.length - 1) {
-                        // TODO: Implement actual save to Supabase here
-                        console.log("Publishing profile...", { profileData, selectedTemplateId });
-                        alert("Profile ready! (Supabase saving is not yet implemented)");
-                      } else {
-                        setActiveTabIndex(Math.min(ONBOARDING_STEPS.length - 1, activeTabIndex + 1));
-                      }
-                    }}
-                    className="px-8 py-3 text-sm font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
-                  >
-                    {activeTabIndex === ONBOARDING_STEPS.length - 1 ? "Publish Profile" : "Next Step"}
-                  </button>
-                </div>
+            {/* Action Buttons — pinned at the bottom */}
+            <div className="shrink-0 pt-6 mt-2 border-t border-navy/5 flex items-center justify-between">
+              <button
+                onClick={() =>
+                  setActiveTabIndex(Math.max(0, activeTabIndex - 1))
+                }
+                disabled={activeTabIndex === 0}
+                className="px-6 py-3 text-sm font-semibold text-navy/50 hover:text-navy transition-colors disabled:opacity-30"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => {
+                  if (activeTabIndex === ONBOARDING_STEPS.length - 1) {
+                    // TODO: Implement actual save to Supabase here
+                    console.log("Publishing profile...", {
+                      profileData,
+                      selectedTemplateId,
+                    });
+                    alert(
+                      "Profile ready! (Supabase saving is not yet implemented)",
+                    );
+                  } else {
+                    setActiveTabIndex(
+                      Math.min(ONBOARDING_STEPS.length - 1, activeTabIndex + 1),
+                    );
+                  }
+                }}
+                className="px-8 py-3 text-sm font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
+              >
+                {activeTabIndex === ONBOARDING_STEPS.length - 1
+                  ? "Publish Profile"
+                  : "Next Step"}
+              </button>
+            </div>
           </div>
         )}
       </main>
@@ -294,16 +325,36 @@ export default function OnboardingPage() {
         <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-mint/30 to-transparent"></div>
         <div className="w-full max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold tracking-wide text-navy/40 uppercase">
           <div className="flex items-center gap-2">
-            <img src="/logoHB.svg" alt="BuzzCard" className="h-4 w-auto opacity-70 grayscale" />
+            <img
+              src="/logoHB.svg"
+              alt="BuzzCard"
+              className="h-4 w-auto opacity-70 grayscale"
+            />
             <span>BuzzCard Studio © {new Date().getFullYear()}</span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Privacy</a>
-            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Terms</a>
-            <a href="mailto:support@buzzcard.ma" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Support</a>
+            <a
+              href="#"
+              className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]"
+            >
+              Privacy
+            </a>
+            <a
+              href="#"
+              className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]"
+            >
+              Terms
+            </a>
+            <a
+              href="mailto:support@buzzcard.ma"
+              className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]"
+            >
+              Support
+            </a>
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

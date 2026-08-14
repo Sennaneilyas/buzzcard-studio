@@ -1,5 +1,16 @@
 import { motion } from "framer-motion";
 import { Check, Zap, Crown, Building2 } from "lucide-react";
+import thumbHotel from "@/assets/templates/thumb_hotel.png";
+import thumbDoctor from "@/assets/templates/thumb_doctor.png";
+import thumbCoiffeur from "@/assets/templates/thumb_coiffeur.png";
+import thumbBuzz from "@/assets/templates/thumb_buzz.png";
+
+const PREMIUM_TEMPLATES = [
+  { name: "Luxury Hotel", image: thumbHotel },
+  { name: "Doctor & Clinic", image: thumbDoctor },
+  { name: "Barber & Coiffeur", image: thumbCoiffeur },
+  { name: "BuzzCard Original", image: thumbBuzz },
+];
 
 const PLANS = [
   {
@@ -182,6 +193,45 @@ export default function Pricing() {
             </motion.div>
           ))}
         </div>
+
+        {/* Template Showcase */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-24 text-center"
+        >
+          <div className="flex items-center justify-center gap-4 mb-4 opacity-80">
+            <div className="w-8 h-[1px] bg-ink/20"></div>
+            <span className="font-serif italic text-sm tracking-wide text-ink/80">Premium Access</span>
+            <div className="w-8 h-[1px] bg-ink/20"></div>
+          </div>
+          <h3 className="text-2xl md:text-3xl font-extrabold text-ink mb-12">
+            Unlock our <span className="text-mint">Flagship</span> Templates
+          </h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
+            {PREMIUM_TEMPLATES.map((tpl, i) => (
+              <motion.div
+                key={tpl.name}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="group relative rounded-2xl overflow-hidden aspect-[9/16] shadow-lg border border-ink/5"
+              >
+                <img 
+                  src={tpl.image} 
+                  alt={tpl.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent flex items-end p-4">
+                  <p className="text-white font-bold text-sm md:text-base w-full text-center">
+                    {tpl.name}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );

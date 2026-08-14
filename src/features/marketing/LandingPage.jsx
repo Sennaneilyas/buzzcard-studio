@@ -2,7 +2,7 @@ import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import HowItWorks from "./components/HowItWorks";
 import ProductsShowcase from "./components/ProductsShowcase";
-import Pricing from "./components/Pricing";
+import TemplateShowcase from "./components/TemplateShowcase";
 import Testimonials from "./components/Testimonials";
 import Footer from "./components/Footer";
 
@@ -29,7 +29,7 @@ export default function LandingPage() {
       <main>
         <HowItWorks />
         <ProductsShowcase />
-        <Pricing />
+        <TemplateShowcase />
         <Testimonials />
       </main>
 
