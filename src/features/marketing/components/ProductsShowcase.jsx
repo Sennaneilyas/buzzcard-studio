@@ -3,7 +3,7 @@ import { Package } from "lucide-react";
 import SocialCards from "@/components/ui/card-fan-carousel";
 
 const PRODUCT_CARDS = [
-  { imgUrl: "https://buzzcards.netlify.app/ChatGPT%20Image%2025%20juil.%202026,%2019_25_39.png", alt: "NFC Bracelets", linkUrl: "/products/bracelets" },
+  { imgUrl: "/NFC Bracelet.png", alt: "NFC Bracelets", linkUrl: "/products/bracelets" },
   { imgUrl: "/NFC Cards.png", alt: "NFC Cards", linkUrl: "/products/metal-cards" },
   { imgUrl: "/NFC Plates.png", alt: "NFC Plates", linkUrl: "/products/stickers" },
   { imgUrl: "/Stands.png", alt: "NFC Stands", linkUrl: "/products/tags" },
