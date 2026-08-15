@@ -11,9 +11,10 @@ import {
 
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import BuzzCardQRCode from "@/features/marketing/components/BuzzCardQRCode";
+import { ReviewContainer } from "./components/ReviewComponents";
 
 const GLASS_SHADOW =
-  "shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),0px_12px_12px_-6px_rgba(0,0,0,0.06),0px_24px_24px_-12px_rgba(0,0,0,0.06)]";
+  "shadow-[0px_0px_0px_1px_rgba(0,0,0,0.06),0px_1px_1px_-0.5px_rgba(0,0,0,0.06),0px_3px_3px_-1.5px_rgba(0,0,0,0.06),_0px_6px_6px_-3px_rgba(0,0,0,0.06),_0px_12px_12px_-6px_rgba(0,0,0,0.06),_0px_24px_24px_-12px_rgba(0,0,0,0.06)";
 
 const GLASS_BORDER =
   "before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:rounded-[25px] before:p-px before:content-[''] before:[background:conic-gradient(from_90deg_at_100%_100%,rgba(255,255,255,0.5)_12%,rgba(255,255,255,0)_37%,rgba(255,255,255,0.5)_62%,rgba(255,255,255,0)_87%)] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] before:[-webkit-mask-composite:xor] before:[mask-composite:exclude]";
@@ -42,22 +43,48 @@ export default function BuzzTemplate({
   profile = {},
   socials = [],
   gallery = [],
+  reviews = [],
+  currentUser = null,
   onSave,
   onQrCode,
   onReview,
+  isLoggedIn = false,
+  onSubmitReview,
+  onUpdateReview,
+  onDeleteReview,
+  onSubmitReply,
+  onUpdateReply,
+  onDeleteReply,
+  onReportReview,
 }) {
   const [showQrCode, setShowQrCode] = useState(false);
+  const [showReview, setShowReview] = useState(false);
   const [activeTab, setActiveTab] = useState("qrcode");
   const shouldReduceMotion = useReducedMotion();
 
   const handleQrCode = useCallback(() => {
     setShowQrCode(true);
+    setShowReview(false);
     setActiveTab("qrcode");
+
     if (onQrCode) onQrCode();
   }, [onQrCode]);
 
   const closeQrCode = useCallback(() => {
     setShowQrCode(false);
+    setActiveTab(null);
+  }, []);
+
+  const handleReview = useCallback(() => {
+    setShowReview(true);
+    setShowQrCode(false);
+    setActiveTab("avis");
+
+    if (onReview) onReview();
+  }, [onReview]);
+
+  const closeReview = useCallback(() => {
+    setShowReview(false);
     setActiveTab(null);
   }, []);
 
@@ -70,6 +97,7 @@ export default function BuzzTemplate({
         decoding="async"
         className="absolute left-0 top-[12%] w-full h-auto opacity-50 pointer-events-none z-0"
       />
+
       <img
         src="/Vector 2.svg"
         alt=""
@@ -88,10 +116,12 @@ export default function BuzzTemplate({
           <div className="flex flex-col gap-4 px-5 sm:px-6">
             <HeroSection profile={profile} />
             <SocialLinksSection socials={socials} />
+
             <GallerySection
               gallery={gallery}
               shouldReduceMotion={shouldReduceMotion}
             />
+
             <DescriptionSection description={profile.description} />
           </div>
         </div>
@@ -102,20 +132,57 @@ export default function BuzzTemplate({
         setActiveTab={setActiveTab}
         onSave={onSave}
         onQrCode={handleQrCode}
-        onReview={onReview}
+        onReview={handleReview}
         shouldReduceMotion={shouldReduceMotion}
       />
 
+      {/* QR CODE CONTAINER */}
       <AnimatePresence>
         {showQrCode && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+            transition={{
+              duration: shouldReduceMotion ? 0 : 0.2,
+            }}
             className="fixed inset-0 z-[60]"
           >
-            <BuzzCardQRCode profile={profile} onClose={closeQrCode} />
+            <BuzzCardQRCode
+              profile={profile}
+              onClose={closeQrCode}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* REVIEW CONTAINER */}
+      <AnimatePresence>
+        {showReview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: shouldReduceMotion ? 0 : 0.2,
+            }}
+            className="fixed inset-0 z-[60]"
+          >
+            <ReviewContainer
+              isLoggedIn={isLoggedIn}
+              currentUser={currentUser}
+              profile={profile}
+              reviews={reviews}
+              onClose={closeReview}
+              onSubmitReview={onSubmitReview}
+              onUpdateReview={onUpdateReview}
+              onDeleteReview={onDeleteReview}
+              onSubmitReply={onSubmitReply}
+              onUpdateReply={onUpdateReply}
+              onDeleteReply={onDeleteReply}
+              onReportReview={onReportReview}
+              shouldReduceMotion={shouldReduceMotion}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -127,7 +194,9 @@ function ProfileHeader({ coverImage, quote }) {
   return (
     <header
       className="relative w-full h-[26vh] min-h-[170px] max-h-[260px] shrink-0 bg-cover bg-center rounded-b-[40px] overflow-hidden bg-neutral-200"
-      style={{ backgroundImage: coverImage ? `url(${coverImage})` : "none" }}
+      style={{
+        backgroundImage: coverImage ? `url(${coverImage})` : "none",
+      }}
       role="img"
       aria-label="Photo de couverture"
     >
@@ -149,15 +218,22 @@ function HeroSection({ profile }) {
 
   const phones = useMemo(
     () => profile.phones?.filter(Boolean) ?? [],
-    [profile.phones],
+    [profile.phones]
   );
+
   const emails = useMemo(
     () => profile.emails?.filter(Boolean) ?? [],
-    [profile.emails],
+    [profile.emails]
   );
 
   const handleSaveContact = useCallback(() => {
-    const { fullName, company, profession, website, avatarUrl } = profile;
+    const {
+      fullName,
+      company,
+      profession,
+      website,
+      avatarUrl,
+    } = profile;
 
     const vcard = [
       "BEGIN:VCARD",
@@ -174,18 +250,23 @@ function HeroSection({ profile }) {
       .filter(Boolean)
       .join("\n");
 
-    const blob = new Blob([vcard], { type: "text/vcard" });
+    const blob = new Blob([vcard], {
+      type: "text/vcard",
+    });
+
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
+
     a.href = url;
     a.download = `${fullName?.replace(/\s+/g, "_") ?? "contact"}.vcf`;
+
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
 
-    // Timeout prevents mobile browsers from aborting the download instantly
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+
     setIsSaved(true);
   }, [profile, phones, emails]);
 
@@ -197,24 +278,26 @@ function HeroSection({ profile }) {
           entries: phones,
           href: `tel:${phones[0]}`,
           icon: Phone,
-          label: `Appeler`,
+          label: "Appeler",
         },
+
         emails.length > 0 && {
           id: "email",
           entries: emails,
           href: `mailto:${emails[0]}`,
           icon: Mail,
-          label: `Email`,
+          label: "Email",
         },
+
         profile.website && {
           id: "website",
           entries: null,
           href: profile.website,
           icon: Link,
-          label: `Site web`,
+          label: "Site web",
         },
       ].filter(Boolean),
-    [phones, emails, profile.website],
+    [phones, emails, profile.website]
   );
 
   return (
@@ -241,31 +324,34 @@ function HeroSection({ profile }) {
 
       {(profile.company || profile.profession) && (
         <p className="text-neutral-950 text-xs text-center italic leading-normal px-4 [font-family:'Georgia',serif]">
-          {[profile.company, profile.profession].filter(Boolean).join(" | ")}
+          {[profile.company, profile.profession]
+            .filter(Boolean)
+            .join(" | ")}
         </p>
       )}
 
       {contactActions.length > 0 && (
         <div className="flex items-center justify-center gap-[15px] mt-3 flex-wrap px-4">
-          {contactActions.map(({ id, entries, href, icon: Icon, label }) =>
-            entries?.length > 1 ? (
-              <ContactPopover
-                key={id}
-                icon={Icon}
-                label={label}
-                entries={entries}
-                prefix={id === "phone" ? "tel:" : "mailto:"}
-              />
-            ) : (
-              <a
-                key={id}
-                href={href}
-                aria-label={label}
-                className="w-[45px] h-[45px] shrink-0 rounded-full bg-[#f4f5f7] flex items-center justify-center shadow-[inset_1px_1px_3px_rgba(255,255,255,0.8),-1px_-1px_6px_rgba(0,0,0,0.08)] active:scale-95 transition-transform"
-              >
-                <Icon className="w-5 h-5 text-neutral-950" />
-              </a>
-            ),
+          {contactActions.map(
+            ({ id, entries, href, icon: Icon, label }) =>
+              entries?.length > 1 ? (
+                <ContactPopover
+                  key={id}
+                  icon={Icon}
+                  label={label}
+                  entries={entries}
+                  prefix={id === "phone" ? "tel:" : "mailto:"}
+                />
+              ) : (
+                <a
+                  key={id}
+                  href={href}
+                  aria-label={label}
+                  className="w-[45px] h-[45px] shrink-0 rounded-full bg-[#f4f5f7] flex items-center justify-center shadow-[inset_1px_1px_3px_rgba(255,255,255,0.8),-1px_-1px_6px_rgba(0,0,0,0.08)] active:scale-95 transition-transform"
+                >
+                  <Icon className="w-5 h-5 text-neutral-950" />
+                </a>
+              )
           )}
         </div>
       )}
@@ -279,6 +365,7 @@ function HeroSection({ profile }) {
         className="mt-1 w-[175px] max-w-[80%] h-[37px] flex items-center justify-center gap-2 bg-neutral-950 rounded-[15px] active:bg-neutral-800 transition-colors"
       >
         <UserRoundPlus className="w-4 h-4 text-[#f4f5f7] shrink-0" />
+
         <span className="text-[#f4f5f7] text-xs font-medium leading-none whitespace-nowrap">
           {isSaved ? "Contact enregistré" : "Enregistrer le contact"}
         </span>
@@ -299,11 +386,19 @@ function ContactPopover({ icon: Icon, label, entries, prefix }) {
     if (!open) return;
 
     const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
     };
 
-    document.addEventListener("mousedown", handler, { passive: true });
-    document.addEventListener("touchstart", handler, { passive: true });
+    document.addEventListener("mousedown", handler, {
+      passive: true,
+    });
+
+    document.addEventListener("touchstart", handler, {
+      passive: true,
+    });
+
     return () => {
       document.removeEventListener("mousedown", handler);
       document.removeEventListener("touchstart", handler);
@@ -356,8 +451,12 @@ function SocialLinksSection({ socials }) {
       <ul className="relative z-[2] grid grid-cols-3 gap-y-[18px] list-none m-0 p-0">
         {socials.slice(0, 6).map((social) => {
           const icon = SOCIAL_ICONS[social.platform?.toLowerCase()];
+
           return (
-            <li key={social.platform} className="flex justify-center">
+            <li
+              key={social.platform}
+              className="flex justify-center"
+            >
               <a
                 href={social.href}
                 target="_blank"
@@ -380,6 +479,7 @@ function SocialLinksSection({ socials }) {
                     <Link className="w-6 h-6 text-neutral-500" />
                   )}
                 </div>
+
                 <span className="text-[10px] font-medium text-neutral-950 text-center leading-none">
                   {social.platform}
                 </span>
@@ -393,16 +493,24 @@ function SocialLinksSection({ socials }) {
 }
 
 function GallerySection({ gallery, shouldReduceMotion }) {
-  const images = useMemo(() => gallery?.slice(0, 5) ?? [], [gallery]);
+  const images = useMemo(
+    () => gallery?.slice(0, 5) ?? [],
+    [gallery]
+  );
+
   const [active, setActive] = useState(0);
 
   const handleNext = useCallback(
     () => setActive((p) => (p + 1) % images.length),
-    [images.length],
+    [images.length]
   );
+
   const handlePrev = useCallback(
-    () => setActive((p) => (p - 1 + images.length) % images.length),
-    [images.length],
+    () =>
+      setActive(
+        (p) => (p - 1 + images.length) % images.length
+      ),
+    [images.length]
   );
 
   const handleDragEnd = useCallback(
@@ -410,7 +518,7 @@ function GallerySection({ gallery, shouldReduceMotion }) {
       if (offset.x < -40) handleNext();
       else if (offset.x > 40) handlePrev();
     },
-    [handleNext, handlePrev],
+    [handleNext, handlePrev]
   );
 
   if (!images.length) return null;
@@ -426,8 +534,15 @@ function GallerySection({ gallery, shouldReduceMotion }) {
             {images.map((src, index) => (
               <motion.div
                 key={`${src}-${index}`}
-                className={`absolute inset-0 origin-bottom will-change-transform ${index === active ? "cursor-grab active:cursor-grabbing z-10" : "z-0"}`}
-                initial={{ opacity: 0, scale: 0.9 }}
+                className={`absolute inset-0 origin-bottom will-change-transform ${
+                  index === active
+                    ? "cursor-grab active:cursor-grabbing z-10"
+                    : "z-0"
+                }`}
+                initial={{
+                  opacity: 0,
+                  scale: 0.9,
+                }}
                 animate={{
                   opacity: index === active ? 1 : 0.55,
                   scale: index === active ? 1 : 0.93,
@@ -438,15 +553,24 @@ function GallerySection({ gallery, shouldReduceMotion }) {
                       : index % 2 === 0
                         ? 3
                         : -3,
-                  zIndex: index === active ? 10 : images.length - index,
+                  zIndex:
+                    index === active
+                      ? 10
+                      : images.length - index,
                 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.9,
+                }}
                 transition={{
                   duration: shouldReduceMotion ? 0 : 0.3,
                   ease: "easeOut",
                 }}
                 drag={index === active ? "x" : false}
-                dragConstraints={{ left: 0, right: 0 }}
+                dragConstraints={{
+                  left: 0,
+                  right: 0,
+                }}
                 dragElastic={0.6}
                 onDragEnd={handleDragEnd}
               >
@@ -462,8 +586,15 @@ function GallerySection({ gallery, shouldReduceMotion }) {
         </div>
       </div>
 
-      <GalleryArrow direction="prev" onClick={handlePrev} />
-      <GalleryArrow direction="next" onClick={handleNext} />
+      <GalleryArrow
+        direction="prev"
+        onClick={handlePrev}
+      />
+
+      <GalleryArrow
+        direction="next"
+        onClick={handleNext}
+      />
 
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-[6px] z-20">
         {images.map((_, i) => (
@@ -472,8 +603,14 @@ function GallerySection({ gallery, shouldReduceMotion }) {
             type="button"
             onClick={() => setActive(i)}
             aria-label={`Voir l'image ${i + 1}`}
-            aria-current={i === active ? "true" : undefined}
-            className={`w-[6px] h-[6px] rounded-full transition-colors ${i === active ? "bg-neutral-950" : "bg-neutral-950/30"}`}
+            aria-current={
+              i === active ? "true" : undefined
+            }
+            className={`w-[6px] h-[6px] rounded-full transition-colors ${
+              i === active
+                ? "bg-neutral-950"
+                : "bg-neutral-950/30"
+            }`}
           />
         ))}
       </div>
@@ -483,12 +620,17 @@ function GallerySection({ gallery, shouldReduceMotion }) {
 
 function GalleryArrow({ direction, onClick }) {
   const isPrev = direction === "prev";
+
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={isPrev ? "Image précédente" : "Image suivante"}
-      className={`absolute top-1/2 -translate-y-1/2 ${isPrev ? "left-[10px]" : "right-[10px]"} z-20 w-[30px] h-[30px] rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center active:scale-90 transition-transform`}
+      aria-label={
+        isPrev ? "Image précédente" : "Image suivante"
+      }
+      className={`absolute top-1/2 -translate-y-1/2 ${
+        isPrev ? "left-[10px]" : "right-[10px]"
+      } z-20 w-[30px] h-[30px] rounded-full bg-white/70 backdrop-blur-md flex items-center justify-center active:scale-90 transition-transform`}
     >
       <svg
         viewBox="0 0 24 24"
@@ -498,7 +640,11 @@ function GalleryArrow({ direction, onClick }) {
         strokeWidth="2.5"
       >
         <path
-          d={isPrev ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"}
+          d={
+            isPrev
+              ? "M15 18l-6-6 6-6"
+              : "M9 18l6-6-6-6"
+          }
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -521,12 +667,17 @@ function DescriptionSection({ description }) {
       >
         -- Description --
       </h2>
+
       <p className="relative z-[2] text-neutral-950 text-sm leading-5">
         {description}
       </p>
     </section>
   );
 }
+
+/* =========================================================
+   BOTTOM NAVIGATION
+   ========================================================= */
 
 function BottomNav({
   activeTab,
@@ -540,23 +691,33 @@ function BottomNav({
 
   const handleSave = useCallback(async () => {
     setActiveTab("enregistrer");
+
     if (onSave) {
       onSave();
       return;
     }
+
     try {
       if (navigator.share) {
         await navigator.share({
           title: document.title,
           url: window.location.href,
         });
+
         setSrMessage("Lien partagé");
       } else {
-        await navigator.clipboard?.writeText(window.location.href);
-        setSrMessage("Lien copié dans le presse-papier");
+        await navigator.clipboard?.writeText(
+          window.location.href
+        );
+
+        setSrMessage(
+          "Lien copié dans le presse-papier"
+        );
       }
     } catch (err) {
-      if (err?.name !== "AbortError") setSrMessage("Action indisponible");
+      if (err?.name !== "AbortError") {
+        setSrMessage("Action indisponible");
+      }
     }
   }, [onSave, setActiveTab]);
 
@@ -574,6 +735,7 @@ function BottomNav({
         icon: QrCode,
         action: () => {
           setActiveTab("qrcode");
+
           if (onQrCode) onQrCode();
         },
       },
@@ -583,17 +745,25 @@ function BottomNav({
         icon: MessageSquare,
         action: () => {
           setActiveTab("avis");
+
           if (onReview) onReview();
         },
       },
     ],
-    [handleSave, onReview, onQrCode, setActiveTab],
+    [
+      handleSave,
+      onReview,
+      onQrCode,
+      setActiveTab,
+    ]
   );
 
   return (
     <nav
       className="relative z-20 w-full shrink-0"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
       aria-label="Navigation principale"
     >
       <div
@@ -613,14 +783,21 @@ function BottomNav({
               type="button"
               onClick={item.action}
               aria-label={item.label}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={
+                isActive ? "page" : undefined
+              }
               className={`relative flex items-center justify-center transition-all duration-300 ease-out z-10 outline-none focus-visible:ring-2 focus-visible:ring-neutral-950 active:scale-95 ${
                 isSpecial
                   ? "bg-neutral-950 text-white rounded-full shadow-md h-[54px]"
                   : "h-[50px] rounded-full active:bg-white/20"
-              } ${isActive ? "px-5 w-auto" : isSpecial ? "w-[54px]" : "w-[50px]"}`}
+              } ${
+                isActive
+                  ? "px-5 w-auto"
+                  : isSpecial
+                    ? "w-[54px]"
+                    : "w-[50px]"
+              }`}
             >
-              {/* Only show the gray background slider for non-special buttons */}
               {isActive && !isSpecial && (
                 <motion.div
                   layoutId="active-tab-bg"
@@ -628,7 +805,9 @@ function BottomNav({
                   transition={{
                     type: "spring",
                     bounce: 0.2,
-                    duration: shouldReduceMotion ? 0 : 0.4,
+                    duration: shouldReduceMotion
+                      ? 0
+                      : 0.4,
                   }}
                 />
               )}
@@ -644,21 +823,35 @@ function BottomNav({
                   }`}
                 />
 
-                {/* Removed the !isSpecial restriction here so the QR code button can expand */}
                 <AnimatePresence initial={false}>
                   {isActive && (
                     <motion.div
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: "auto", opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
+                      initial={{
+                        width: 0,
+                        opacity: 0,
+                      }}
+                      animate={{
+                        width: "auto",
+                        opacity: 1,
+                      }}
+                      exit={{
+                        width: 0,
+                        opacity: 0,
+                      }}
                       transition={{
-                        duration: shouldReduceMotion ? 0 : 0.25,
+                        duration: shouldReduceMotion
+                          ? 0
+                          : 0.25,
                         ease: "easeOut",
                       }}
                       className="overflow-hidden whitespace-nowrap"
                     >
                       <span
-                        className={`block pl-2 text-[13px] font-semibold ${isSpecial ? "text-white" : "text-neutral-950"}`}
+                        className={`block pl-2 text-[13px] font-semibold ${
+                          isSpecial
+                            ? "text-white"
+                            : "text-neutral-950"
+                        }`}
                       >
                         {item.label}
                       </span>
@@ -670,7 +863,11 @@ function BottomNav({
           );
         })}
       </div>
-      <span className="sr-only" aria-live="polite">
+
+      <span
+        className="sr-only"
+        aria-live="polite"
+      >
         {srMessage}
       </span>
     </nav>
