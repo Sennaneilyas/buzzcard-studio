@@ -8,7 +8,7 @@ import { LogOut, ChevronDown, Mail, UserCircle } from "lucide-react";
 
 const NAV_LINKS = [
   { label: "Our Products", href: "#products" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Templates", href: "#templates" },
   { label: "Work", href: "#work" },
   { label: "Contact", href: "#contact" },
 ];
