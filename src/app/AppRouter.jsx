@@ -8,12 +8,7 @@ const LandingPage = React.lazy(() => import("@/features/marketing/LandingPage"))
 const ProductsPage = React.lazy(() => import("@/features/products/ProductsPage"));
 const OnboardingPage = React.lazy(() => import("@/features/onboarding/OnboardingPage"));
 const PublicProfileRoute = React.lazy(() => import("@/app/routes/public-profile"));
-
-// Lazy-loaded template components
-const BuzzTemplate = React.lazy(() => import("@/features/templates/BuzzTemplate/BuzzTemplate"));
-const DoctorTemplate = React.lazy(() => import("@/features/templates/doctor-template/DoctorTemplate"));
-const CoiffeurTemplate = React.lazy(() => import("@/features/templates/coiffeur-template/CoiffeurTemplate"));
-const HotelTemplate = React.lazy(() => import("@/features/templates/hotel-template/HotelTemplate"));
+const StudioEditor = React.lazy(() => import("@/features/editor/StudioEditor"));
 
 export default function AppRouter() {
   return (
@@ -32,12 +27,14 @@ export default function AppRouter() {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:category" element={<ProductsPage />} />
         <Route path="/profile/:slug" element={<PublicProfileRoute />} />
-        
-        <Route path="/template" element={<BuzzTemplate />} />
-        <Route path="/template-doctor" element={<DoctorTemplate />} />
-        <Route path="/doctor-template" element={<DoctorTemplate />} />
-        <Route path="/template-coiffeur" element={<CoiffeurTemplate />} />
-        <Route path="/template-hotel" element={<HotelTemplate />} />
+        <Route
+          path="/profile/:slug/edit"
+          element={
+            <ProtectedRoute>
+              <StudioEditor />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Suspense>
   );

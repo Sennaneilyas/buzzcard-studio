@@ -10,7 +10,10 @@ import {
   SiSnapchat, 
   SiYoutube, 
   SiGithub, 
-  SiDribbble 
+  SiDribbble,
+  SiBehance,
+  SiTripadvisor,
+  SiThreads
 } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
 
@@ -24,6 +27,9 @@ const SOCIAL_PLATFORMS = [
   { id: "youtube", name: "YouTube", icon: SiYoutube, colorClass: "text-[#FF0000]", placeholder: "https://youtube.com/..." },
   { id: "github", name: "GitHub", icon: SiGithub, colorClass: "text-[#181717]", placeholder: "https://github.com/..." },
   { id: "dribbble", name: "Dribbble", icon: SiDribbble, colorClass: "text-[#EA4C89]", placeholder: "https://dribbble.com/..." },
+  { id: "behance", name: "Behance", icon: SiBehance, colorClass: "text-[#1769ff]", placeholder: "https://behance.net/..." },
+  { id: "tripadvisor", name: "TripAdvisor", icon: SiTripadvisor, colorClass: "text-[#34E0A1]", placeholder: "https://tripadvisor.com/..." },
+  { id: "threads", name: "Threads", icon: SiThreads, colorClass: "text-black", placeholder: "https://threads.net/..." },
 ];
 
 export default function StepSocials({ data, onChange }) {
