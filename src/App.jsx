@@ -161,11 +161,6 @@ function App() {
         />
 
         <Route
-          path="/doctor-template"
-          element={<DoctorTemplate />}
-        />
-
-        <Route
           path="/template-doctor"
           element={<DoctorTemplate />}
         />
