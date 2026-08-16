@@ -16,18 +16,20 @@ export default function GallerySection({ gallery, shouldReduceMotion }) {
   if (!images.length) return null;
 
   return (
-    <section className="relative w-full h-[220px]" aria-label="Galerie de photos">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-[46vw] h-[190px] max-w-[180px]">
+    <section
+      className="relative w-full h-[290px]"
+      aria-label="Galerie de photos"
+    >
+      <div className="absolute inset-x-0 top-0 flex items-center justify-center">
+        <div className="relative w-[65vw] h-[230px] max-w-[260px]">
           <AnimatePresence mode="popLayout">
             {images.map((src, index) => (
               <motion.div
                 key={`${src}-${index}`}
-                className={`absolute inset-0 origin-bottom will-change-transform ${
-                  index === active
+                className={`absolute inset-0 origin-bottom will-change-transform ${index === active
                     ? "cursor-grab active:cursor-grabbing z-10"
                     : "z-0"
-                }`}
+                  }`}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{
                   opacity: index === active ? 1 : 0.55,
@@ -66,7 +68,8 @@ export default function GallerySection({ gallery, shouldReduceMotion }) {
       <GalleryArrow direction="prev" onClick={handlePrev} />
       <GalleryArrow direction="next" onClick={handleNext} />
 
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-[6px] z-20">
+      {/* Dots with more vertical spacing */}
+      <div className="absolute bottom-[12px] left-1/2 -translate-x-1/2 flex gap-[6px] z-20">
         {images.map((_, i) => (
           <button
             key={i}
@@ -74,9 +77,8 @@ export default function GallerySection({ gallery, shouldReduceMotion }) {
             onClick={() => setActive(i)}
             aria-label={`Voir l'image ${i + 1}`}
             aria-current={i === active ? "true" : undefined}
-            className={`w-[6px] h-[6px] rounded-full transition-colors ${
-              i === active ? "bg-neutral-950" : "bg-neutral-950/30"
-            }`}
+            className={`w-[6px] h-[6px] rounded-full transition-colors ${i === active ? "bg-neutral-950" : "bg-neutral-950/30"
+              }`}
           />
         ))}
       </div>
