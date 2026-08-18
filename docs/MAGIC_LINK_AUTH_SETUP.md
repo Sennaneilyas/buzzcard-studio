@@ -34,6 +34,8 @@ The Supabase built-in email service is only intended for demos and early testing
    ```text
    http://localhost:5173/onboarding
    https://<production-domain>/onboarding
+   http://localhost:5173/auth/reset-password
+   https://<production-domain>/auth/reset-password
    ```
 
 8. Go to **Authentication → Email Templates → Magic Link**.
@@ -45,8 +47,11 @@ The Supabase built-in email service is only intended for demos and early testing
 - The client uses `supabase.auth.signInWithOtp()` for Magic Link delivery.
 - The redirect target must be an allow-listed `/onboarding` URL.
 - Signup with Magic Link must require acceptance of Terms and Privacy Policy.
+- Passwordless signup must also require first and last name, then save
+  `first_name`, `last_name`, and `full_name` in the new user's metadata.
+- Existing users signing in by Magic Link must retain their stored metadata.
 - Login mode should not silently create an account for an unknown email address (`shouldCreateUser: false`).
-- Add a short resend cooldown in the UI to prevent accidental repeated requests. Supabase also enforces server-side limits; client-side cooldown is only an additional UX safeguard.
+- Before enabling Magic Link in production, add a short resend cooldown in the UI to prevent accidental repeated requests. Supabase server-side limits remain the security boundary.
 
 ## Verify end to end
 
