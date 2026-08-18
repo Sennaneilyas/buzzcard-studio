@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useId, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Eye,
@@ -25,9 +25,10 @@ import { useAuthStore } from "../store/useAuthStore";
  */
 export default function AuthForm() {
   const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
-  const [mode, setMode] = useState(initialMode); // "login" | "signup"
+  const [authMethod, setAuthMethod] = useState("password"); // "password" | "magic-link"
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,15 +41,7 @@ export default function AuthForm() {
   const user = useAuthStore((s) => s.user);
   const setError = useAuthStore((s) => s.setError);
   const navigate = useNavigate();
-  const isSignup = mode === "signup";
-
-  // ── Sync mode when URL parameter changes ──
-  useEffect(() => {
-    const urlMode = searchParams.get("mode");
-    if (urlMode === "login" || urlMode === "signup") {
-      setMode(urlMode);
-    }
-  }, [searchParams]);
+  const isSignup = searchParams.get("mode") !== "login";
 
   // ── Redirect to /onboarding when authenticated ──
   useEffect(() => {
@@ -73,16 +66,49 @@ export default function AuthForm() {
   };
 
   // ── Magic Link ──
-  const handleMagicLink = async () => {
-    if (!email) {
+  const handleMagicLink = async (event) => {
+    event?.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
       setMessage({ type: "error", text: "Enter your email first." });
       return;
     }
+    if (isSignup) {
+      const normalizedFirstName = firstName.trim();
+      const normalizedLastName = lastName.trim();
+
+      if (!normalizedFirstName || !normalizedLastName) {
+        setMessage({
+          type: "error",
+          text: "First name and last name are required to create an account.",
+        });
+        return;
+      }
+      if (!agreedToTerms) {
+        setMessage({
+          type: "error",
+          text: "You must agree to the terms to create an account.",
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     setMessage(null);
     const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: window.location.origin },
+      email: normalizedEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/onboarding`,
+        shouldCreateUser: isSignup,
+        ...(isSignup && {
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            full_name: `${firstName.trim()} ${lastName.trim()}`,
+          },
+        }),
+      },
     });
     if (error) {
       setMessage({ type: "error", text: error.message });
@@ -99,12 +125,23 @@ export default function AuthForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
+    const normalizedEmail = email.trim().toLowerCase();
 
-    if (!email || !password) {
+    if (!normalizedEmail || !password) {
       setMessage({ type: "error", text: "Email and password are required." });
       return;
     }
     if (isSignup) {
+      const normalizedFirstName = firstName.trim();
+      const normalizedLastName = lastName.trim();
+
+      if (!normalizedFirstName || !normalizedLastName) {
+        setMessage({
+          type: "error",
+          text: "First name and last name are required.",
+        });
+        return;
+      }
       if (password !== confirmPassword) {
         setMessage({ type: "error", text: "Passwords do not match." });
         return;
@@ -129,9 +166,16 @@ export default function AuthForm() {
 
     if (isSignup) {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+          data: {
+            first_name: firstName.trim(),
+            last_name: lastName.trim(),
+            full_name: `${firstName.trim()} ${lastName.trim()}`,
+          },
+        },
       });
       if (error) {
         setMessage({ type: "error", text: error.message });
@@ -143,7 +187,7 @@ export default function AuthForm() {
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password,
       });
       if (error) {
@@ -155,13 +199,13 @@ export default function AuthForm() {
   };
 
   const switchMode = () => {
-    setMode(isSignup ? "login" : "signup");
     setMessage(null);
+    navigate(`/auth?mode=${isSignup ? "login" : "signup"}`);
   };
 
   // ─────────── Marketing Panel ───────────
   const marketingPanel = (
-    <div className="relative flex h-full flex-col items-center justify-between overflow-hidden bg-ink px-8 py-12 text-cloud sm:px-12 lg:py-16">
+    <div className="relative hidden h-full flex-col items-center justify-between overflow-hidden bg-ink px-12 py-16 text-cloud lg:flex">
       
       {/* Cinematic Spotlight (Lamp effect) */}
       <div className="absolute left-1/2 top-[30%] h-[350px] w-[350px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-mint/25 opacity-80 blur-[100px] pointer-events-none" />
@@ -181,7 +225,7 @@ export default function AuthForm() {
             hidden: { opacity: 0, y: 20 },
             visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
           }}
-          className="relative flex w-full flex-1 items-center justify-center min-h-[300px]"
+          className="relative flex w-full flex-1 items-center justify-center"
         >
           {/* Back Card (Tilted Left, Behind) */}
           <img
@@ -205,12 +249,12 @@ export default function AuthForm() {
           }}
           className="mt-8 text-center"
         >
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          <h2 className="text-3xl font-semibold tracking-tight">
             Your digital identity,
             <br />
             one tap away.
           </h2>
-          <p className="mx-auto mt-3 max-w-[320px] text-sm leading-relaxed text-cloud/60">
+          <p className="mx-auto mt-3 max-w-[300px] text-sm leading-relaxed text-cloud/60">
             Design your NFC card, share your profile instantly, and update your
             info anytime — no reprinting needed.
           </p>
@@ -227,7 +271,7 @@ export default function AuthForm() {
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.95 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="mt-8 flex h-11 items-center gap-2 rounded-lg border border-cloud/20 px-6 text-sm font-medium text-cloud transition-colors hover:bg-cloud/10"
+          className="mt-10 flex h-12 items-center gap-2 rounded-xl border border-cloud/20 px-6 text-sm font-medium text-cloud transition-colors hover:bg-cloud/10"
         >
           {isSignup ? (
             <>
@@ -247,7 +291,20 @@ export default function AuthForm() {
 
   // ─────────── Form Panel ───────────
   const formPanel = (
-    <div className="flex h-full items-center justify-center bg-white px-6 py-12 sm:px-10 lg:px-14">
+    <div className="flex min-h-[100dvh] flex-col items-start justify-center bg-white px-5 py-6 sm:px-8 sm:py-10 lg:h-full lg:min-h-0 lg:items-center lg:overflow-hidden lg:px-14 lg:py-10">
+      <div className="mb-10 flex w-full max-w-[420px] shrink-0 items-center justify-between lg:mb-8">
+        <Link to="/" className="inline-flex items-center" aria-label="BuzzCard home">
+          <img src="/logoHB.svg" alt="BuzzCard" className="h-7 w-auto" />
+        </Link>
+        <button
+          type="button"
+          onClick={switchMode}
+          className="rounded-full bg-cloud px-4 py-2 text-xs font-semibold text-navy transition-colors hover:bg-navy/10 lg:hidden"
+        >
+          {isSignup ? "Log in" : "Sign up"}
+        </button>
+      </div>
+
       <motion.div
         initial="hidden"
         animate="visible"
@@ -255,14 +312,17 @@ export default function AuthForm() {
           hidden: { opacity: 0 },
           visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: 0.1 } },
         }}
-        className="w-full max-w-[420px]"
+        className="w-full max-w-[420px] lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
       >
         {/* Title */}
         <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
-          <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-navy/45">
+            {isSignup ? "Get started" : "Welcome back"}
+          </p>
+          <h1 className="text-3xl font-semibold tracking-tight text-navy sm:text-[2rem]">
             {isSignup ? "Create an account" : "Welcome back"}
           </h1>
-          <p className="mt-1.5 text-sm text-ink/50">
+          <p className="mt-2 text-sm leading-relaxed text-ink/55">
             {isSignup
               ? "Start your 7-day free trial today."
               : "Sign in to your BuzzCard dashboard."}
@@ -276,7 +336,7 @@ export default function AuthForm() {
               initial={{ opacity: 0, height: 0, marginTop: 0 }}
               animate={{ opacity: 1, height: "auto", marginTop: 20 }}
               exit={{ opacity: 0, height: 0, marginTop: 0 }}
-              className={`overflow-hidden rounded-lg px-4 py-3 text-sm ${
+              className={`overflow-hidden rounded-xl px-4 py-3 text-sm ${
                 message.type === "error"
                   ? "bg-red-50 text-red-700"
                   : "bg-emerald-50 text-emerald-700"
@@ -288,7 +348,7 @@ export default function AuthForm() {
         </AnimatePresence>
 
         {/* OAuth Buttons */}
-        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="mt-7 grid gap-3 sm:grid-cols-2">
+        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="mt-8 grid grid-cols-2 gap-3">
           <motion.button
             type="button"
             onClick={() => handleOAuth("google")}
@@ -296,7 +356,7 @@ export default function AuthForm() {
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-ink/12 bg-white px-3 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
           >
             <GoogleIcon />
             <span>Google</span>
@@ -308,7 +368,7 @@ export default function AuthForm() {
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-ink/12 bg-white px-3 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
           >
             <FacebookIcon />
             <span>Facebook</span>
@@ -319,12 +379,15 @@ export default function AuthForm() {
         <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
           <motion.button
             type="button"
-            onClick={handleMagicLink}
+            onClick={() => {
+              setAuthMethod("magic-link");
+              setMessage(null);
+            }}
             disabled={loading}
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="mt-3 flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
+            className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-ink/12 bg-white px-4 text-sm font-medium text-ink transition-colors hover:bg-cloud disabled:opacity-50"
           >
             <Mail className="size-4 shrink-0 text-ink/50" />
             <span>Magic link</span>
@@ -332,14 +395,43 @@ export default function AuthForm() {
         </motion.div>
 
         {/* Divider */}
-        <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="my-6 flex items-center gap-4 text-xs font-medium text-ink/30">
+        <motion.div variants={{ hidden: { opacity: 0, y: 7 }, visible: { opacity: 1, y: 0 } }} className="my-7 flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink/30">
           <div className="h-px flex-1 bg-ink/8" />
           or continue with email
           <div className="h-px flex-1 bg-ink/8" />
         </motion.div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={authMethod === "magic-link" ? handleMagicLink : handleSubmit}
+          className="space-y-4"
+        >
+          <AnimatePresence>
+            {isSignup && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="grid grid-cols-2 gap-3 overflow-hidden"
+              >
+                <InputField
+                  label="First name"
+                  placeholder="Jane"
+                  value={firstName}
+                  onChange={setFirstName}
+                  autoComplete="given-name"
+                />
+                <InputField
+                  label="Last name"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={setLastName}
+                  autoComplete="family-name"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}>
             <InputField
               label="Email"
@@ -347,33 +439,49 @@ export default function AuthForm() {
               placeholder="you@example.com"
               value={email}
               onChange={setEmail}
+              autoComplete="email"
             />
           </motion.div>
 
-          <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="relative">
-            <InputField
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter password"
-              value={password}
-              onChange={setPassword}
-            />
-            <motion.button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              whileTap={{ scale: 0.85 }}
-              className="absolute right-3.5 top-[38px] text-ink/35 hover:text-ink transition-colors"
-            >
-              {showPassword ? (
-                <EyeOff className="size-4" />
-              ) : (
-                <Eye className="size-4" />
-              )}
-            </motion.button>
-          </motion.div>
+          {authMethod === "password" && (
+            <motion.div variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="relative">
+              <InputField
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                value={password}
+                onChange={setPassword}
+                autoComplete={isSignup ? "new-password" : "current-password"}
+              />
+              <motion.button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                whileTap={{ scale: 0.85 }}
+                className="absolute right-3.5 top-[38px] text-ink/35 hover:text-ink transition-colors"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </motion.button>
+            </motion.div>
+          )}
+
+          {authMethod === "password" && !isSignup && (
+            <div className="-mt-1 text-right">
+              <Link
+                to="/auth/forgot-password"
+                className="text-xs font-medium text-navy/70 underline underline-offset-2 transition-colors hover:text-navy"
+              >
+                Forgot password?
+              </Link>
+            </div>
+          )}
 
           <AnimatePresence>
-            {isSignup && (
+            {isSignup && authMethod === "password" && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -386,12 +494,14 @@ export default function AuthForm() {
                   placeholder="Re-enter password"
                   value={confirmPassword}
                   onChange={setConfirmPassword}
+                  autoComplete="new-password"
                 />
                 <motion.button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   whileTap={{ scale: 0.85 }}
                   className="absolute right-3.5 top-[42px] text-ink/35 hover:text-ink transition-colors"
+                  aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="size-4" />
@@ -410,7 +520,7 @@ export default function AuthForm() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex items-start gap-3 overflow-hidden pt-2 text-xs leading-5 text-ink/45 cursor-pointer"
+                className="flex items-start gap-3 overflow-hidden pt-1 text-xs leading-5 text-ink/50 cursor-pointer"
               >
                 <span className="relative mt-0.5 size-4 shrink-0">
                   <input
@@ -462,10 +572,12 @@ export default function AuthForm() {
               whileHover={{ scale: 1.015 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="mt-3 flex h-11 w-full items-center justify-center rounded-lg bg-navy text-sm font-medium text-white transition-colors hover:bg-navy/90 disabled:opacity-60"
+              className="mt-4 flex h-12 w-full items-center justify-center rounded-xl bg-navy text-sm font-semibold text-white shadow-[0_8px_20px_rgba(0,35,102,0.18)] transition-colors hover:bg-navy/90 disabled:opacity-60"
             >
               {loading ? (
                 <Loader2 className="size-4 animate-spin" />
+              ) : authMethod === "magic-link" ? (
+                "Send magic link"
               ) : isSignup ? (
                 "Create account"
               ) : (
@@ -473,6 +585,19 @@ export default function AuthForm() {
               )}
             </motion.button>
           </motion.div>
+
+          {authMethod === "magic-link" && (
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod("password");
+                setMessage(null);
+              }}
+              className="w-full pt-1 text-xs font-medium text-navy/70 underline underline-offset-2 transition-colors hover:text-navy"
+            >
+              Use email and password instead
+            </button>
+          )}
         </form>
       </motion.div>
     </div>
@@ -480,58 +605,57 @@ export default function AuthForm() {
 
   // ─────────── Layout ───────────
   return (
-    <section className="flex min-h-screen items-center justify-center p-4 lg:p-6 overflow-hidden relative pb-24">
-      <div 
-        className={`flex w-full max-w-[1120px] flex-col lg:min-h-[640px] overflow-hidden rounded-2xl shadow-xl lg:flex-row ${
-          isSignup ? "" : "lg:flex-row-reverse"
+    <section className="relative min-h-[100dvh] overflow-x-hidden bg-cloud lg:flex lg:items-center lg:justify-center lg:p-6">
+      <div className="pointer-events-none absolute -left-32 -top-28 h-72 w-72 rounded-full bg-mint/20 blur-3xl lg:hidden" />
+      <div
+        className={`relative mx-auto w-full max-w-[1120px] overflow-hidden bg-white lg:flex lg:h-[720px] lg:min-h-[720px] lg:rounded-3xl lg:shadow-[0_24px_80px_rgba(17,24,39,0.12)] ${
+          isSignup ? "lg:flex-row" : "lg:flex-row-reverse"
         }`}
       >
-        <motion.div 
-          layout 
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="flex-1 bg-ink overflow-hidden"
+        <motion.div
+          layout="position"
+          transition={{ type: "spring", stiffness: 300, damping: 28 }}
+          className="hidden h-full flex-1 bg-ink lg:block"
         >
           {marketingPanel}
         </motion.div>
-        <motion.div 
-          layout 
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="flex-1 bg-white"
+        <motion.div
+          layout="position"
+          transition={{ type: "spring", stiffness: 300, damping: 28 }}
+          className="h-full flex-1 bg-white"
         >
           {formPanel}
         </motion.div>
       </div>
-
-      {/* Minimal Stunning Footer */}
-      <footer className="absolute bottom-0 inset-x-0 border-t border-ink/5 bg-white/40 py-5 backdrop-blur-sm z-20">
-        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-mint/30 to-transparent"></div>
-        <div className="w-full max-w-[1120px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold tracking-wide text-navy/40 uppercase">
-          <div className="flex items-center gap-2">
-            <img src="/logoHB.svg" alt="BuzzCard" className="h-4 w-auto opacity-70 grayscale" />
-            <span>BuzzCard Studio © {new Date().getFullYear()}</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Privacy</a>
-            <a href="#" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Terms</a>
-            <a href="mailto:support@buzzcard.ma" className="hover:text-navy transition-colors hover:shadow-[0_1px_0_var(--color-mint)]">Support</a>
-          </div>
-        </div>
-      </footer>
     </section>
   );
 }
 
 // ── Reusable Input Field ──
-function InputField({ label, type = "text", placeholder, value, onChange }) {
+function InputField({
+  label,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  autoComplete,
+}) {
+  const inputId = useId();
+
   return (
-    <div className="space-y-1.5 text-left w-full">
-      <label className="text-xs font-semibold text-ink/55">{label}</label>
+    <div className="w-full space-y-1.5 text-left">
+      <label htmlFor={inputId} className="text-xs font-semibold text-ink/60">
+        {label}
+      </label>
       <input
+        id={inputId}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="flex h-11 w-full rounded-lg border border-ink/12 bg-white px-3.5 text-sm text-ink outline-none placeholder:text-ink/25 focus:border-navy/40 focus:ring-1 focus:ring-navy/20 transition-colors"
+        autoComplete={autoComplete}
+        required
+        className="flex h-12 w-full rounded-xl border border-ink/12 bg-white px-3.5 text-[16px] text-ink outline-none placeholder:text-ink/30 focus:border-navy/50 focus:ring-2 focus:ring-navy/10 transition-colors"
       />
     </div>
   );
