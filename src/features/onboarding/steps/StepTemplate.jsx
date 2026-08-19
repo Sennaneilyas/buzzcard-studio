@@ -24,9 +24,8 @@ export default function StepTemplate({ selectedId, onSelect }) {
     <div className="w-full space-y-8 flex flex-col h-full">
 
       {/* ── Top Bar: Filter ── */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-navy hidden sm:block">Template Gallery</h2>
-        <div className="ml-auto w-full sm:w-auto">
+      <div className="flex items-center justify-end">
+        <div className="w-full sm:w-auto">
           <Select value={activeCategory} onValueChange={(v) => { setActiveCategory(v); setPage(0); }}>
             <SelectTrigger icon={Filter} placeholder="Filter by category" variant="bordered" className="w-full sm:w-[220px]" />
             <SelectContent>
@@ -49,13 +48,12 @@ export default function StepTemplate({ selectedId, onSelect }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              whileHover={{ scale: 1.02 }}
               onClick={() => onSelect(isSelected ? null : template.id)}
               className={cn(
                 "relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col group",
                 isSelected
-                  ? "bg-[#e0e5ec] p-2.5 shadow-[inset_4px_4px_8px_rgba(163,177,198,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)] border-2 border-transparent ring-2 ring-mint/20"
-                  : "bg-[#e0e5ec] p-0 shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)] border-2 border-transparent hover:border-mint/30"
+                  ? "bg-[#e0e5ec] p-2.5 shadow-[inset_4px_4px_8px_rgba(163,177,198,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)] border-2 border-transparent"
+                  : "bg-[#e0e5ec] p-0 shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)] border-2 border-transparent"
               )}
             >
               <div className={cn(
@@ -79,7 +77,7 @@ export default function StepTemplate({ selectedId, onSelect }) {
                       animate={{ scale: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
                       transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                      className="absolute right-3 top-3 z-30 w-8 h-8 rounded-full bg-gradient-to-tr from-mint to-[#8FB5FF] flex items-center justify-center shadow-[0_4px_12px_rgba(107,151,255,0.5)] border-2 border-white"
+                      className="absolute right-3 top-3 z-30 w-8 h-8 rounded-full bg-ink flex items-center justify-center shadow-lg border-2 border-white"
                     >
                       <svg viewBox="0 0 52 52" className="w-5 h-5 text-white">
                         <motion.path
@@ -100,16 +98,17 @@ export default function StepTemplate({ selectedId, onSelect }) {
                 <img
                   src={template.thumbnail}
                   alt={template.name}
-                  className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
                 
                 {/* Hover Overlay */}
                 <div
                   className={cn(
-                    "absolute inset-0 bg-white/40 backdrop-blur-sm flex items-center justify-center gap-4 transition-opacity duration-300",
-                    isSelected ? "opacity-0" : "opacity-0 group-hover:opacity-100"
+                    "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+                    isSelected ? "opacity-0 pointer-events-none" : "opacity-0 group-hover:opacity-100"
                   )}
+                  style={{ backgroundColor: `${template.theme.accent}30` }}
                 >
                   <button
                     type="button"
@@ -117,13 +116,13 @@ export default function StepTemplate({ selectedId, onSelect }) {
                       e.stopPropagation(); // prevent parent onClick
                       setPreviewTemplate(template);
                     }}
-                    className="w-12 h-12 flex items-center justify-center rounded-full bg-[#e0e5ec] text-navy shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all"
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-xl hover:scale-110 transition-transform"
                   >
-                    <Eye className="w-6 h-6" />
+                    <Eye 
+                      className="w-6 h-6" 
+                      style={{ color: template.theme.accent === "#FFFFFF" ? "#111827" : template.theme.accent }} 
+                    />
                   </button>
-                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-ink text-white shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)]">
-                    <MousePointerClick className="w-6 h-6" />
-                  </div>
                 </div>
               </div>
 

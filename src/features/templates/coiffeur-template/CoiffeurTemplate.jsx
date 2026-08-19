@@ -28,7 +28,7 @@ const mockProfile = {
   phones: ["+212 6 00 11 22 33"],
   emails: ["booking@laramiller.salon"],
   location: "15 Rue de la Beauté, Guéliz, Marrakech",
-  avatarUrl: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=800",
+  avatarUrl: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80&w=800",
   bannerUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=600&h=250",
   quote: '"L\'art de sublimer votre beauté naturelle avec précision et passion."',
   about: "Experte en colorimétrie et visagisme, Lara Miller transforme votre coiffure en une véritable œuvre d'art.",
@@ -75,11 +75,11 @@ const mockProfile = {
     }
   ],
   gallery: [
-    "/AnimaPackage-React-WfSfE/static/img/image-gallery-2.png",
-    "/AnimaPackage-React-WfSfE/static/img/image-gallery-3.png",
-    "/AnimaPackage-React-WfSfE/static/img/image-gallery-4.png",
-    "/AnimaPackage-React-WfSfE/static/img/image-gallery-5.png",
-    "/AnimaPackage-React-WfSfE/static/img/image-gallery-6.png"
+    "https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1521590832167-7bfc17454f20?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1620331311520-246422fd82f9?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?auto=format&fit=crop&q=80&w=800"
   ],
   hours: [
     { day: "Lundi", time: "Fermé" },
