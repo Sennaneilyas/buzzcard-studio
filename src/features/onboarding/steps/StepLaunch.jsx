@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Sparkles, Mail, Phone, User, CheckCircle2, Share2 } from "lucide-react";
 import { getTemplateById } from "@/config/templates";
 import { SOCIAL_PLATFORMS } from "./StepSocials";
+import { SiInstagram, SiX } from "react-icons/si";
+import { FaLinkedin } from "react-icons/fa";
 
 export default function StepLaunch({ data, selectedTemplateId }) {
   const templateName = selectedTemplateId 
@@ -47,19 +49,19 @@ export default function StepLaunch({ data, selectedTemplateId }) {
             )}
           </div>
           <div className="flex flex-col items-center justify-center w-full min-w-0 mt-2">
-            <h3 className="text-base font-bold text-gray-900 truncate leading-tight">{data.name || "No Name"}</h3>
-            <p className="text-xs font-medium text-gray-500 truncate mt-1 uppercase tracking-wider">{data.role || "No Role Provided"}</p>
+            <h3 className={`text-base font-bold truncate leading-tight ${!data.name ? 'text-gray-400' : 'text-gray-900'}`}>
+              {data.name || "Your Name Here"}
+            </h3>
+            <p className={`text-xs font-medium truncate mt-1 uppercase tracking-wider ${!data.role ? 'text-gray-300' : 'text-gray-500'}`}>
+              {data.role || "Add your profession"}
+            </p>
           </div>
           
-          {(data.email || data.phone) && (
-            <>
-              <div className="w-full h-[1px] bg-gray-100 my-2" />
-              <div className="flex items-center justify-center gap-3 w-full">
-                {data.email && <Mail className="w-4 h-4 text-gray-400" />}
-                {data.phone && <Phone className="w-4 h-4 text-gray-400" />}
-              </div>
-            </>
-          )}
+          <div className="w-full h-[1px] bg-gray-100 my-2" />
+          <div className="flex items-center justify-center gap-4 w-full">
+            <Mail className={`w-4 h-4 ${data.email ? 'text-gray-700' : 'text-gray-300'}`} />
+            <Phone className={`w-4 h-4 ${data.phone ? 'text-gray-700' : 'text-gray-300'}`} />
+          </div>
         </motion.div>
 
         {/* Card 3: Socials */}
@@ -71,8 +73,12 @@ export default function StepLaunch({ data, selectedTemplateId }) {
             <Share2 className="w-6 h-6 text-green-500" />
           </div>
           <div className="flex flex-col items-center justify-center mt-2">
-            <h3 className="text-base font-bold text-gray-900 leading-tight">{connectedSocials.length} Networks</h3>
-            <p className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-wider">Synchronized</p>
+            <h3 className="text-base font-bold text-gray-900 leading-tight">
+              {connectedSocials.length > 0 ? `${connectedSocials.length} Networks` : "Expand Reach"}
+            </h3>
+            <p className="text-xs font-medium text-gray-500 mt-1 uppercase tracking-wider">
+              {connectedSocials.length > 0 ? "Synchronized" : "Link profiles"}
+            </p>
           </div>
           
           <div className="w-full h-[1px] bg-gray-100 my-2" />
@@ -93,7 +99,11 @@ export default function StepLaunch({ data, selectedTemplateId }) {
                 ) : null;
               })
             ) : (
-              <div className="text-[11px] font-medium text-gray-400 italic">No links added</div>
+              <div className="flex items-center gap-2 opacity-40 grayscale">
+                <div className="w-7 h-7 rounded-none bg-gray-50 border border-gray-200 flex items-center justify-center"><SiInstagram className="w-3.5 h-3.5" /></div>
+                <div className="w-7 h-7 rounded-none bg-gray-50 border border-gray-200 flex items-center justify-center"><FaLinkedin className="w-3.5 h-3.5" /></div>
+                <div className="w-7 h-7 rounded-none bg-gray-50 border border-gray-200 flex items-center justify-center"><SiX className="w-3.5 h-3.5" /></div>
+              </div>
             )}
             {connectedSocials.length > 4 && (
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.9 }} className="w-7 h-7 rounded-none bg-gray-100 text-gray-500 text-[10px] font-bold flex items-center justify-center border border-gray-200">
