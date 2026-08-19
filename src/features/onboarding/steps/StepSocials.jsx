@@ -17,7 +17,7 @@ import {
 } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
 
-const SOCIAL_PLATFORMS = [
+export const SOCIAL_PLATFORMS = [
   { id: "instagram", name: "Instagram", icon: SiInstagram, colorClass: "text-[#E1306C]", placeholder: "https://instagram.com/..." },
   { id: "twitter", name: "X (Twitter)", icon: SiX, colorClass: "text-black", placeholder: "https://x.com/..." },
   { id: "linkedin", name: "LinkedIn", icon: FaLinkedin, colorClass: "text-[#0A66C2]", placeholder: "https://linkedin.com/in/..." },
@@ -34,6 +34,7 @@ const SOCIAL_PLATFORMS = [
 
 export default function StepSocials({ data, onChange }) {
   const [activePlatform, setActivePlatform] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleUpdate = (platformId, value) => {
     onChange({
@@ -47,15 +48,17 @@ export default function StepSocials({ data, onChange }) {
 
   const socialsData = data.socials || {};
 
-  return (
-    <div className="space-y-8 relative">
-      <div className="text-center mb-8">
-        <h3 className="text-2xl font-bold text-navy">Social Links</h3>
-        <p className="text-navy/60 mt-1">Connect your digital presence.</p>
-      </div>
+  const visiblePlatforms = SOCIAL_PLATFORMS.filter((platform, index) => {
+    if (isExpanded) return true;
+    if (socialsData[platform.id]) return true; // Always show if it has data
+    if (index < 6) return true;
+    return false;
+  });
 
+  return (
+    <div className={`space-y-8 relative ${isExpanded ? 'pb-32' : 'pb-0'}`}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {SOCIAL_PLATFORMS.map((platform) => {
+        {visiblePlatforms.map((platform) => {
           const isActive = activePlatform === platform.id;
           const value = socialsData[platform.id] || "";
 
@@ -111,6 +114,21 @@ export default function StepSocials({ data, onChange }) {
           );
         })}
       </div>
+
+      {(visiblePlatforms.length < SOCIAL_PLATFORMS.length || isExpanded) && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          className="flex justify-center mt-6 pt-4"
+        >
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="px-6 py-3 rounded-2xl font-bold text-navy/70 text-sm flex items-center gap-2 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] hover:text-navy transition-all"
+          >
+            {isExpanded ? "Show less options" : "Show more options"}
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 }

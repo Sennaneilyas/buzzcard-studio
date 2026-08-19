@@ -88,11 +88,7 @@ export default function OnboardingPage() {
       className="min-h-[100dvh] w-full bg-[#e0e5ec] relative overflow-hidden flex flex-col font-sans"
       onMouseMove={handleMouseMove}
     >
-      {/* ── Stunning Neomorphic Background Orbs ── */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-cloud blur-[100px] pointer-events-none z-0" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-mint/20 blur-[120px] pointer-events-none z-0" />
-      <div className="absolute top-[40%] left-[20%] w-[30vw] h-[30vw] rounded-full bg-ink/5 blur-[80px] pointer-events-none z-0" />
-      <div className="absolute top-[20%] right-[10%] w-[25vw] h-[25vw] rounded-full bg-mint/10 blur-[100px] pointer-events-none z-0" />
+      {/* ── Background Orbs Removed for Simplicity ── */}
 
       {/* ── Subtle Dot Pattern Overlay (Base) ── */}
       <div
