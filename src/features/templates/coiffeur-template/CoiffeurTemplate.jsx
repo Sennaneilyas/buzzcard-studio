@@ -93,15 +93,37 @@ const mockProfile = {
   ]
 };
 
-export default function CoiffeurTemplate({ profile = mockProfile }) {
-  const [isLoading, setIsLoading] = useState(true);
+export default function CoiffeurTemplate({ profile: rawProfile, profileData, isEditMode, onPreviewClick }) {
+  // Merge editor flat data on top of the rich mock, so user edits appear instantly.
+  const profile = {
+    ...mockProfile,
+    ...(rawProfile || {}),
+    ...(profileData || {}),
+    fullName: profileData?.name || rawProfile?.fullName || mockProfile.fullName,
+    title: profileData?.role || rawProfile?.title || mockProfile.title,
+    about: profileData?.bio || rawProfile?.about || mockProfile.about,
+    avatarUrl: profileData?.avatarUrl || rawProfile?.avatarUrl || mockProfile.avatarUrl,
+    bannerUrl: profileData?.bannerUrl || rawProfile?.bannerUrl || mockProfile.bannerUrl,
+    gallery: profileData?.gallery?.length ? profileData.gallery : (rawProfile?.gallery || mockProfile.gallery),
+    socials: profileData?.socials
+      ? Object.entries(profileData.socials)
+          .filter(([, href]) => href)
+          .map(([platform, href]) => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href }))
+      : (rawProfile?.socials || mockProfile.socials),
+    services: rawProfile?.services || mockProfile.services,
+    hours: rawProfile?.hours || mockProfile.hours,
+    custom_sections: profileData?.custom_sections || rawProfile?.custom_sections || [],
+  };
+  // In Edit Mode, skip the loading animation so the preview renders instantly.
+  const [isLoading, setIsLoading] = useState(!isEditMode);
 
   useEffect(() => {
+    if (isEditMode) return;
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isEditMode]);
 
   if (isLoading) {
     return (

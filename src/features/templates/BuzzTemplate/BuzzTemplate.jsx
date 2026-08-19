@@ -19,7 +19,8 @@ import ReviewOverlay from "./components/overlays/ReviewOverlay";
  * ./components — see the folder's structure for the breakdown.
  */
 export default function BuzzTemplate({
-  profile = {},
+  profile: rawProfile = {},
+  profileData,
   socials = [],
   gallery = [],
   reviews = [],
@@ -35,7 +36,21 @@ export default function BuzzTemplate({
   onUpdateReply,
   onDeleteReply,
   onReportReview,
+  isEditMode,
+  onPreviewClick,
 }) {
+  // Merge flat editor store data on top of the profile object so preview updates instantly.
+  const profile = profileData
+    ? {
+        ...rawProfile,
+        ...profileData,
+        full_name: profileData.name || rawProfile.full_name,
+        role: profileData.role || rawProfile.role,
+        bio: profileData.bio || rawProfile.bio,
+        avatar_url: profileData.avatarUrl || rawProfile.avatar_url,
+        banner_url: profileData.bannerUrl || rawProfile.banner_url,
+      }
+    : rawProfile;
   const [showQrCode, setShowQrCode] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [activeTab, setActiveTab] = useState("qrcode");

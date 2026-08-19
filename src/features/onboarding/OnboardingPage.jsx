@@ -36,12 +36,7 @@ export default function OnboardingPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const spotlightRef = React.useRef(null);
 
-  const handleMouseMove = (e) => {
-    if (spotlightRef.current) {
-      spotlightRef.current.style.setProperty("--mouse-x", `${e.clientX}px`);
-      spotlightRef.current.style.setProperty("--mouse-y", `${e.clientY}px`);
-    }
-  };
+  const handleMouseMove = () => {};
 
   const [profileData, setProfileData] = useState({
     name: "",
@@ -85,41 +80,8 @@ export default function OnboardingPage() {
 
   return (
     <div 
-      className="min-h-[100dvh] w-full bg-[#e0e5ec] relative overflow-hidden flex flex-col font-sans"
-      onMouseMove={handleMouseMove}
+      className="min-h-[100dvh] w-full bg-white relative overflow-hidden flex flex-col font-sans"
     >
-      {/* ── Background Orbs Removed for Simplicity ── */}
-
-      {/* ── Subtle Dot Pattern Overlay (Base) ── */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: "radial-gradient(rgba(17, 24, 39, 0.08) 1.5px, transparent 1.5px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
-
-      {/* ── Interactive Dot Pattern Overlay (Mouse Spotlight) ── */}
-      <div
-        ref={spotlightRef}
-        className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
-        style={{
-          backgroundImage: "radial-gradient(rgba(17, 24, 39, 0.3) 2px, transparent 2px)",
-          backgroundSize: "28px 28px",
-          WebkitMaskImage: "radial-gradient(350px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, transparent 100%)",
-          maskImage: "radial-gradient(350px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), black 0%, transparent 100%)",
-        }}
-      />
-
-      {/* ── Noise Texture Overlay ── */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.12] mix-blend-overlay z-0"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* ── Linktree-Style Top Navigation Bar ── */}
       <div className="w-full h-20 px-6 sm:px-10 flex items-center justify-between shrink-0 z-20">
         {!isSuccess && (
           <>

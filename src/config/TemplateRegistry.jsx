@@ -21,12 +21,12 @@ const TEMPLATE_COMPONENTS = {
  * TemplateRegistry dynamically renders the correct template component based on the provided templateId.
  * It passes all profile data directly to the template as props.
  */
-export default function TemplateRegistry({ templateId, profileData = {}, isEditMode = false }) {
+export default function TemplateRegistry({ templateId, profileData = {}, isEditMode = false, onPreviewClick }) {
   const TemplateComponent = TEMPLATE_COMPONENTS[templateId] || TEMPLATE_COMPONENTS["buzz-template"]; // Fallback
 
   return (
     <Suspense fallback={<GlobalLoader className="bg-white/80 backdrop-blur-sm" />}>
-      <TemplateComponent profileData={profileData} isEditMode={isEditMode} />
+      <TemplateComponent profile={profileData} profileData={profileData} isEditMode={isEditMode} onPreviewClick={onPreviewClick} />
     </Suspense>
   );
 }

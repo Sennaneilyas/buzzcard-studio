@@ -80,7 +80,7 @@ export default function StepSocials({ data, onChange }) {
                     initial={{ opacity: 0, y: -10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 10, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute top-[80%] left-0 right-0 z-30 p-4 bg-[#e0e5ec] rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-white/50"
+                    className="absolute top-[80%] left-0 right-0 z-30 p-4 bg-white rounded-2xl shadow-xl border border-gray-200"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-bold text-navy flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function StepSocials({ data, onChange }) {
                         value={value}
                         onChange={(e) => handleUpdate(platform.id, e.target.value)}
                         placeholder={platform.placeholder}
-                        className="w-full px-4 py-3 bg-[#e0e5ec] text-sm font-bold text-navy placeholder-navy/30 rounded-xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all"
+                        className="w-full px-4 py-3 bg-white text-sm font-bold text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-gray-900 focus:outline-none transition-colors"
                       />
                     </div>
                   </motion.div>
@@ -123,7 +123,7 @@ export default function StepSocials({ data, onChange }) {
         >
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="px-6 py-3 rounded-2xl font-bold text-navy/70 text-sm flex items-center gap-2 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] hover:text-navy transition-all"
+            className="px-6 py-3 rounded-xl font-bold text-gray-600 text-sm flex items-center gap-2 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-900 transition-all"
           >
             {isExpanded ? "Show less options" : "Show more options"}
           </button>

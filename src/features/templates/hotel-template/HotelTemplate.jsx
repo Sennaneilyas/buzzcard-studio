@@ -47,6 +47,11 @@ const QRSection = lazy(() =>
     default: m.QRSection,
   })),
 );
+const DynamicSection = lazy(() =>
+  import("./components/sections/DynamicSection").then((m) => ({
+    default: m.DynamicSection,
+  })),
+);
 const BottomAction = lazy(() =>
   import("./components/ui/BottomAction").then((m) => ({
     default: m.BottomAction,
@@ -59,13 +64,43 @@ const SectionFallback = () => (
   </div>
 );
 
-export default function HotelTemplate({ profile = mockHotelProfile }) {
-  const [isLoading, setIsLoading] = useState(true);
+export default function HotelTemplate({ profile: rawProfile, profileData, isEditMode, onPreviewClick }) {
+  // In Edit Mode, the Editor sends a flat `profileData` from Zustand.
+  // We deep-merge it on top of the rich mock so:
+  //   - User edits (name, bio, avatarUrl, bannerUrl, gallery, socials) override instantly.
+  //   - Hotel-specific content (rooms, amenities, reviews) keeps the mock values.
+  const profile = {
+    ...mockHotelProfile,
+    ...(rawProfile || {}),
+    ...(profileData || {}),
+    // Map editor flat-field names → hotel template field names
+    name: (profileData?.name || rawProfile?.name || mockHotelProfile.name),
+    about: (profileData?.bio || rawProfile?.about || mockHotelProfile.about),
+    avatarUrl: (profileData?.avatarUrl || rawProfile?.avatarUrl || mockHotelProfile.avatarUrl),
+    bannerUrl: (profileData?.bannerUrl || rawProfile?.bannerUrl || mockHotelProfile.bannerUrl),
+    gallery: (profileData?.gallery?.length ? profileData.gallery : rawProfile?.gallery || mockHotelProfile.gallery),
+    tagline: (profileData?.role || rawProfile?.tagline || mockHotelProfile.tagline),
+    // Socials: if editor has socials object, map it into the hotel's socials array format
+    socials: profileData?.socials
+      ? Object.entries(profileData.socials)
+          .filter(([, href]) => href)
+          .map(([platform, href]) => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href }))
+      : (rawProfile?.socials || mockHotelProfile.socials),
+    // Keep hotel-specific fields from mock
+    rooms: rawProfile?.rooms || mockHotelProfile.rooms,
+    amenities: rawProfile?.amenities || mockHotelProfile.amenities,
+    reviews: rawProfile?.reviews || mockHotelProfile.reviews,
+    hours: rawProfile?.hours || mockHotelProfile.hours,
+    custom_sections: profileData?.custom_sections || rawProfile?.custom_sections || [],
+  };
+  // In Edit Mode, skip the loading animation so the preview renders instantly.
+  const [isLoading, setIsLoading] = useState(!isEditMode);
 
   useEffect(() => {
+    if (isEditMode) return;
     const timer = setTimeout(() => setIsLoading(false), 1400);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isEditMode]);
 
   if (isLoading) {
     return (
@@ -84,14 +119,20 @@ export default function HotelTemplate({ profile = mockHotelProfile }) {
         className="w-full max-w-[440px] bg-white sm:rounded-[32px] sm:border sm:border-[var(--hotel-cappuccino)]/20 overflow-clip sm:shadow-[0px_20px_60px_-15px_rgba(59,42,34,0.12)] flex flex-col relative min-h-screen sm:min-h-[auto]"
       >
         <HotelBackground className="pb-3 sm:pb-4">
-          <HeroSection profile={profile} />
+          <div 
+            onClick={() => isEditMode && onPreviewClick && onPreviewClick("profile")}
+            className={`transition-all duration-200 ${isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-[var(--hotel-gold)] hover:ring-inset rounded-b-3xl' : ''}`}
+          >
+            <HeroSection profile={profile} />
+          </div>
 
           {profile.tagline && (
             <motion.div
+              onClick={() => isEditMode && onPreviewClick && onPreviewClick("profile")}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.5 }}
-              className="w-full bg-[var(--hotel-latte)] py-4 px-6 flex justify-center items-center relative z-20 shadow-sm border-b border-[var(--hotel-cappuccino)]/30"
+              className={`w-full bg-[var(--hotel-latte)] py-4 px-6 flex justify-center items-center relative z-20 shadow-sm border-b border-[var(--hotel-cappuccino)]/30 ${isEditMode ? 'cursor-pointer hover:bg-[var(--hotel-cappuccino)]/20' : ''}`}
             >
               <div className="relative inline-block text-center">
                 <p className="text-[var(--hotel-mocha)] text-[15px] sm:text-[17px] italic tracking-wide relative z-10 leading-snug font-hotel-display font-bold">
@@ -110,14 +151,25 @@ export default function HotelTemplate({ profile = mockHotelProfile }) {
           )}
 
           <Suspense fallback={<SectionFallback />}>
-            <AboutSection profile={profile} />
+            <div onClick={() => isEditMode && onPreviewClick && onPreviewClick("profile")} className={isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-[var(--hotel-gold)] hover:ring-inset' : ''}>
+              <AboutSection profile={profile} />
+            </div>
             <AmenitiesSection amenities={profile.amenities} />
             <RoomsSection rooms={profile.rooms} />
-            <GallerySection images={profile.gallery} />
+            <div onClick={() => isEditMode && onPreviewClick && onPreviewClick("gallery")} className={isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-[var(--hotel-gold)] hover:ring-inset' : ''}>
+              <GallerySection images={profile.gallery} />
+            </div>
             <ReviewsSection reviews={profile.reviews} />
             <LocationSection profile={profile} />
-            <SocialsSection socials={profile.socials} />
+            <div onClick={() => isEditMode && onPreviewClick && onPreviewClick("links")} className={isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-[var(--hotel-gold)] hover:ring-inset' : ''}>
+              <SocialsSection socials={profile.socials} />
+            </div>
             <QRSection profile={profile} />
+            
+            {/* Render any dynamically added custom sections */}
+            {(profile.custom_sections || []).map((section) => (
+               <DynamicSection key={section.id} section={section} />
+            ))}
           </Suspense>
 
           {/* Footer */}

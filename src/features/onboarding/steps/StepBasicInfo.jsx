@@ -7,9 +7,9 @@ export default function StepBasicInfo({ data, onChange }) {
     onChange({ ...data, [name]: value });
   };
 
-  const inputClass = "w-full pl-11 pr-4 py-3 bg-[#e0e5ec] text-sm text-navy placeholder-navy/40 rounded-2xl focus:outline-none shadow-[inset_4px_4px_10px_rgba(163,177,198,0.6),_inset_-4px_-4px_10px_rgba(255,255,255,0.8)] border border-transparent focus:border-mint/40 transition-all";
-  const iconClass = "h-4 w-4 text-navy/40";
-  const labelClass = "block text-xs font-bold text-navy/70 uppercase tracking-wider mb-2 ml-1";
+  const inputClass = "w-full pl-11 pr-4 py-3 bg-white text-sm text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-gray-900 focus:outline-none transition-colors";
+  const iconClass = "h-4 w-4 text-gray-400";
+  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1";
 
   return (
     <div className="space-y-6">

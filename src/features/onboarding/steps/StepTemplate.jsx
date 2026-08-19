@@ -50,18 +50,18 @@ export default function StepTemplate({ selectedId, onSelect }) {
               transition={{ duration: 0.4, delay: index * 0.05 }}
               onClick={() => onSelect(isSelected ? null : template.id)}
               className={cn(
-                "relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col group",
+                "relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col group border-2",
                 isSelected
-                  ? "bg-[#e0e5ec] p-2.5 shadow-[inset_4px_4px_8px_rgba(163,177,198,0.6),_inset_-4px_-4px_8px_rgba(255,255,255,0.8)] border-2 border-transparent"
-                  : "bg-[#e0e5ec] p-0 shadow-[6px_6px_10px_rgba(163,177,198,0.6),_-6px_-6px_10px_rgba(255,255,255,0.8)] border-2 border-transparent"
+                  ? "bg-white border-gray-900 shadow-lg"
+                  : "bg-white border-gray-200 shadow-sm hover:border-gray-400 hover:shadow-md"
               )}
             >
               <div className={cn(
                 "flex flex-col w-full h-full overflow-hidden transition-all duration-300 relative",
                 isSelected ? "rounded-xl" : "rounded-2xl"
               )}>
-                {/* High Quality Thumbnail Image (Large Aspect Ratio) */}
-                <div className="w-full aspect-[9/16] relative bg-[#e0e5ec]">
+                {/* Template Thumbnail */}
+                <div className="w-full aspect-[9/16] relative bg-gray-100 rounded-t-xl overflow-hidden">
                 {template.isPremium && (
                   <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-lg border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
                     <Crown className="w-3.5 h-3.5 text-white drop-shadow-md" strokeWidth={2} />
@@ -126,8 +126,8 @@ export default function StepTemplate({ selectedId, onSelect }) {
                 </div>
               </div>
 
-              {/* Neomorphic Info Bar */}
-              <div className="px-3 py-2.5 flex flex-col items-center justify-center gap-1 bg-[#e0e5ec] relative z-10 border-t border-white/40 transition-colors group-hover:bg-[#d8dee6]">
+              {/* Template Name Bar */}
+              <div className="px-3 py-2.5 flex flex-col items-center justify-center gap-1 bg-white relative z-10 border-t border-gray-100 rounded-b-2xl transition-colors group-hover:bg-gray-50">
                 <p className="text-[14px] font-serif italic font-bold text-navy/90 truncate tracking-wide">
                   {template.name}
                 </p>
@@ -144,7 +144,7 @@ export default function StepTemplate({ selectedId, onSelect }) {
           <button
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
-            className="px-4 py-2 rounded-xl font-bold text-sm text-navy disabled:opacity-30 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all active:scale-95"
+            className="px-4 py-2 rounded-xl font-bold text-sm text-gray-700 disabled:opacity-30 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-400 transition-all active:scale-95"
           >
             Previous
           </button>
@@ -156,7 +156,7 @@ export default function StepTemplate({ selectedId, onSelect }) {
           <button
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page === totalPages - 1}
-            className="px-4 py-2 rounded-xl font-bold text-sm text-navy disabled:opacity-30 bg-[#e0e5ec] shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all active:scale-95"
+            className="px-4 py-2 rounded-xl font-bold text-sm text-gray-700 disabled:opacity-30 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-400 transition-all active:scale-95"
           >
             Next
           </button>
@@ -179,17 +179,17 @@ export default function StepTemplate({ selectedId, onSelect }) {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="relative w-full max-w-5xl bg-[#e0e5ec] rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-200"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="shrink-0 p-4 px-6 flex items-center justify-between bg-[#e0e5ec] shadow-[0_4px_10px_rgba(0,0,0,0.02)] z-10">
+                <div className="shrink-0 p-4 px-6 flex items-center justify-between bg-white border-b border-gray-100 z-10">
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-extrabold text-navy">{previewTemplate.name}</h2>
                   </div>
                   <button
                     onClick={() => setPreviewTemplate(null)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-[#e0e5ec] text-navy shadow-[4px_4px_8px_rgba(163,177,198,0.6),_-4px_-4px_8px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),_inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -215,7 +215,7 @@ export default function StepTemplate({ selectedId, onSelect }) {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="shrink-0 p-4 px-6 flex items-center justify-end bg-[#e0e5ec] shadow-[0_-4px_10px_rgba(0,0,0,0.02)] z-10">
+                <div className="shrink-0 p-4 px-6 flex items-center justify-end bg-white border-t border-gray-100 z-10">
                   <button
                     onClick={() => {
                       onSelect(previewTemplate.id);

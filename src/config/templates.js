@@ -13,6 +13,26 @@ import thumbBuzz from "@/assets/templates/thumb_buzz.png";
 
 export const TEMPLATES = [
   {
+    id: "buzz-template",
+    name: "BuzzCard Original",
+    category: "premium",
+    layoutType: "custom",
+    thumbnail: thumbBuzz,
+    previewUrl: "/template",
+    isPremium: true,
+    theme: {
+      bgPrimary: "#0c0d10",
+      textPrimary: "#FFFFFF",
+      accent: "#FFFFFF",
+    },
+    allowedFields: ["avatarUrl", "bannerUrl", "name", "role", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
+    allowedSections: [
+      { id: "about", label: "About Me" },
+      { id: "portfolio", label: "Portfolio" },
+      { id: "experience", label: "Experience" }
+    ],
+  },
+  {
     id: "hotel-template",
     name: "Luxury Hotel",
     category: "premium",
@@ -25,6 +45,13 @@ export const TEMPLATES = [
       textPrimary: "#3B2A22",
       accent: "#C9A96E",
     },
+    allowedFields: ["avatarUrl", "bannerUrl", "name", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
+    allowedSections: [
+      { id: "rooms", label: "Rooms & Suites" },
+      { id: "amenities", label: "Amenities" },
+      { id: "dining", label: "Dining & Bar" },
+      { id: "events", label: "Events & Spa" }
+    ],
   },
   {
     id: "doctor-template",
@@ -39,6 +66,13 @@ export const TEMPLATES = [
       textPrimary: "#0F172A",
       accent: "#0284C7",
     },
+    allowedFields: ["avatarUrl", "bannerUrl", "name", "role", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
+    allowedSections: [
+      { id: "services", label: "Medical Services" },
+      { id: "insurance", label: "Accepted Insurance" },
+      { id: "team", label: "Our Team" },
+      { id: "faq", label: "Patient FAQ" }
+    ],
   },
   {
     id: "coiffeur-template",
@@ -53,20 +87,13 @@ export const TEMPLATES = [
       textPrimary: "#FFFFFF",
       accent: "#E2B764",
     },
-  },
-  {
-    id: "buzz-template",
-    name: "BuzzCard Original",
-    category: "premium",
-    layoutType: "custom",
-    thumbnail: thumbBuzz,
-    previewUrl: "/template",
-    isPremium: true,
-    theme: {
-      bgPrimary: "#0c0d10",
-      textPrimary: "#FFFFFF",
-      accent: "#FFFFFF",
-    },
+    allowedFields: ["avatarUrl", "bannerUrl", "name", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
+    allowedSections: [
+      { id: "services", label: "Services & Pricing" },
+      { id: "products", label: "Our Products" },
+      { id: "team", label: "The Barbers" },
+      { id: "gallery", label: "Lookbook" }
+    ],
   },
 ];
 
