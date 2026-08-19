@@ -3,26 +3,29 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Loader2, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { AuthPageLayout, AuthStatusMessage } from "./AuthPageLayout";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const resetSchema = z.object({
+  email: z.string().email("Please enter a valid email address.")
+});
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const emailInputId = useId();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const normalizedEmail = email.trim().toLowerCase();
+  const { register, handleSubmit: hookFormSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(resetSchema),
+    mode: "onTouched"
+  });
 
-    if (!normalizedEmail) {
-      setMessage({ type: "error", text: "Enter your email address." });
-      return;
-    }
-
+  const onSubmit = async (data) => {
     setIsSubmitting(true);
     setMessage(null);
     const { error } = await supabase.auth.resetPasswordForEmail(
-      normalizedEmail,
+      data.email,
       { redirectTo: `${window.location.origin}/auth/reset-password` },
     );
 
@@ -50,22 +53,27 @@ export default function ForgotPasswordPage() {
       title="Reset your password"
       description="Enter your email and we’ll send you a secure reset link."
     >
-      <form onSubmit={handleSubmit} className="mt-7 space-y-5">
-        <label htmlFor={emailInputId} className="block space-y-1.5 text-left">
-          <span className="text-xs font-semibold text-ink/55">Email</span>
+      <form onSubmit={hookFormSubmit(onSubmit)} className="mt-7 space-y-5">
+        <label htmlFor={emailInputId} className="block space-y-1.5 text-left relative">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-semibold text-ink/55">Email</span>
+          </div>
           <div className="relative">
             <Mail className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink/35" />
             <input
               id={emailInputId}
               type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               autoComplete="email"
-              required
-              className="h-11 w-full rounded-lg border border-ink/12 bg-white py-2 pl-10 pr-3.5 text-sm text-ink outline-none placeholder:text-ink/25 focus:border-navy/40 focus:ring-1 focus:ring-navy/20"
+              className={`h-11 w-full rounded-lg border bg-white py-2 pl-10 pr-3.5 text-sm outline-none transition-colors ${
+                errors.email 
+                  ? "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 text-red-900 placeholder:text-red-300"
+                  : "border-ink/12 text-ink placeholder:text-ink/25 focus:border-navy/40 focus:ring-1 focus:ring-navy/20"
+              }`}
+              {...register("email")}
             />
           </div>
+          {errors.email && <p className="text-[10px] text-red-500 font-medium absolute -bottom-4 left-0">{errors.email.message}</p>}
         </label>
 
         {message && <AuthStatusMessage message={message} />}

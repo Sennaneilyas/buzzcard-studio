@@ -7,15 +7,15 @@ export function CoiffeurBackground({ children, className }) {
       {/* Background Shapes */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none bg-[#FAFAFA]">
         {/* Rich brown gradient to blurred brown/white */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#8A6B4E]/20 via-[#C5A880]/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#8A6B4E]/20 via-[var(--primary-color, #C5A880)]/10 to-transparent" />
         
         {/* Soft radial overlay for depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#C5A880]/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[var(--primary-color, #C5A880)]/30 via-transparent to-transparent" />
         
         {/* Animated SVG Lines (like 3D ribbons/blobs) */}
         <motion.svg 
           viewBox="0 0 1000 1000" 
-          className="absolute top-[-15%] left-[-30%] w-[150%] h-[150%] opacity-[0.06] text-[#C5A880] mix-blend-multiply"
+          className="absolute top-[-15%] left-[-30%] w-[150%] h-[150%] opacity-[0.06] text-[var(--primary-color, #C5A880)] mix-blend-multiply"
           animate={{ rotate: 360 }}
           transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
         >
@@ -24,7 +24,7 @@ export function CoiffeurBackground({ children, className }) {
         
         <motion.svg 
           viewBox="0 0 1000 1000" 
-          className="absolute top-[30%] left-[20%] w-[130%] h-[130%] opacity-[0.04] text-[#C5A880] mix-blend-multiply"
+          className="absolute top-[30%] left-[20%] w-[130%] h-[130%] opacity-[0.04] text-[var(--primary-color, #C5A880)] mix-blend-multiply"
           animate={{ rotate: -360 }}
           transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
         >

@@ -49,8 +49,23 @@ export default function BuzzTemplate({
         bio: profileData.bio || rawProfile.bio,
         avatar_url: profileData.avatarUrl || rawProfile.avatar_url,
         banner_url: profileData.bannerUrl || rawProfile.banner_url,
+        phones: profileData.phone ? [profileData.phone] : rawProfile.phones,
+        emails: profileData.email ? [profileData.email] : rawProfile.emails,
       }
     : rawProfile;
+
+  let activeSocials = socials;
+  if (profileData?.socials) {
+    const rawSocials = profileData.socials;
+    const order = profileData.socialOrder || Object.keys(rawSocials);
+    activeSocials = order
+      .filter(key => rawSocials[key])
+      .map(key => ({
+        platform: key.charAt(0).toUpperCase() + key.slice(1),
+        href: rawSocials[key]
+      }));
+  }
+
   const [showQrCode, setShowQrCode] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [activeTab, setActiveTab] = useState("qrcode");
@@ -81,18 +96,18 @@ export default function BuzzTemplate({
   }, []);
 
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden bg-[#f4f5f7] flex flex-col">
+    <div className="relative w-full h-full min-h-[100dvh] md:min-h-full overflow-hidden bg-[#f4f5f7] flex flex-col">
       <BuzzCardBackground />
 
       <main className="relative z-10 flex-1 w-full mx-auto max-w-[430px] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex flex-col gap-4 pb-6">
-          <ProfileHeaderSection coverImage={profile.coverImage} quote={profile.quote} />
+          <ProfileHeaderSection coverImage={profile.coverImage || profile.banner_url} quote={profile.quote} isEditMode={isEditMode} />
 
           <div className="flex flex-col gap-4 px-5 sm:px-6">
-            <HeroSection profile={profile} />
-            <SocialLinksSection socials={socials} />
-            <GallerySection gallery={gallery} shouldReduceMotion={shouldReduceMotion} />
-            <DescriptionSection description={profile.description} />
+            <HeroSection profile={profile} isEditMode={isEditMode} />
+            <SocialLinksSection socials={activeSocials} isEditMode={isEditMode} />
+            <GallerySection gallery={profile.gallery || gallery} shouldReduceMotion={shouldReduceMotion} isEditMode={isEditMode} />
+            <DescriptionSection description={profile.bio || profile.description} isEditMode={isEditMode} />
           </div>
         </div>
       </main>

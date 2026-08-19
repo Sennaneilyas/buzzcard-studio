@@ -32,14 +32,14 @@ export function HeroSection({ profile }) {
             <img 
               src={profile.avatarUrl} 
               alt={profile.fullName}
-              className="w-full h-full rounded-full object-cover border border-[#C5A880]/30"
+              className="w-full h-full rounded-full object-cover border border-[var(--primary-color, #C5A880)]/30"
             />
           </div>
           
           <h1 className="font-times text-[28px] text-[#1A1A1A] leading-tight mb-1">
             {profile.fullName}
           </h1>
-          <p className="text-[#C5A880] text-[13px] font-medium tracking-wide uppercase italic">
+          <p className="text-[var(--primary-color, #C5A880)] text-[13px] font-medium tracking-wide uppercase italic">
             {profile.title}
           </p>
 

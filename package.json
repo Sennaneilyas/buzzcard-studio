@@ -11,6 +11,7 @@
     "test:infra": "vitest run tests/supabase-infra.test.js"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.9.1",
     "@react-three/fiber": "^9.6.1",
     "@supabase/supabase-js": "^2.110.8",
     "@tanstack/react-query": "^5.101.4",
@@ -23,11 +24,13 @@
     "qr-code-styling": "^1.9.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hook-form": "^7.85.0",
     "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
     "three": "^0.185.1",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

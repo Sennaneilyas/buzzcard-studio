@@ -14,9 +14,11 @@ export default function ProductAccordion({ initialCategory }) {
 
   // Sync state if the URL parameter changes
   useEffect(() => {
+    let timeoutId;
     if (initialCategory) {
-      setOpenCategory(initialCategory);
+      timeoutId = setTimeout(() => setOpenCategory(initialCategory), 0);
     }
+    return () => clearTimeout(timeoutId);
   }, [initialCategory]);
 
   return (

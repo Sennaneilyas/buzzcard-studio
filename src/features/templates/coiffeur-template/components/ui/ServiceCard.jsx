@@ -14,7 +14,7 @@ const cardVariants = cva(
         red: "bg-red-500/90 text-white",
         blue: "bg-[#4682B4]/90 text-white",
         gray: "bg-gray-100 text-gray-900",
-        gold: "bg-[#C5A880]/90 text-white",
+        gold: "bg-[var(--primary-color, #C5A880)]/90 text-white",
       },
     },
     defaultVariants: {

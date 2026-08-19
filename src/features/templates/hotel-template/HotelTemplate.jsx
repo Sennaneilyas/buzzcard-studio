@@ -4,6 +4,8 @@ import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { HotelBackground } from "./components/ui/HotelBackground";
 import { HeroSection } from "./components/sections/HeroSection";
 import { mockHotelProfile } from "./utils/constants";
+import EditableText from "@/components/ui/EditableText";
+import { useEditorStore } from "@/features/editor/store/useEditorStore";
 import "./hotel-template.css";
 
 // Lazy loaded sections (below the fold)
@@ -65,6 +67,7 @@ const SectionFallback = () => (
 );
 
 export default function HotelTemplate({ profile: rawProfile, profileData, isEditMode, onPreviewClick }) {
+  const setProfileData = useEditorStore((s) => s.setProfileData);
   // In Edit Mode, the Editor sends a flat `profileData` from Zustand.
   // We deep-merge it on top of the rich mock so:
   //   - User edits (name, bio, avatarUrl, bannerUrl, gallery, socials) override instantly.
@@ -82,9 +85,9 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
     tagline: (profileData?.role || rawProfile?.tagline || mockHotelProfile.tagline),
     // Socials: if editor has socials object, map it into the hotel's socials array format
     socials: profileData?.socials
-      ? Object.entries(profileData.socials)
-          .filter(([, href]) => href)
-          .map(([platform, href]) => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href }))
+      ? (profileData.socialOrder || Object.keys(profileData.socials))
+          .filter(platform => profileData.socials[platform])
+          .map(platform => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href: profileData.socials[platform] }))
       : (rawProfile?.socials || mockHotelProfile.socials),
     // Keep hotel-specific fields from mock
     rooms: rawProfile?.rooms || mockHotelProfile.rooms,
@@ -119,25 +122,26 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
         className="w-full max-w-[440px] bg-white sm:rounded-[32px] sm:border sm:border-[var(--hotel-cappuccino)]/20 overflow-clip sm:shadow-[0px_20px_60px_-15px_rgba(59,42,34,0.12)] flex flex-col relative min-h-screen sm:min-h-[auto]"
       >
         <HotelBackground className="pb-3 sm:pb-4">
-          <div 
-            onClick={() => isEditMode && onPreviewClick && onPreviewClick("profile")}
-            className={`transition-all duration-200 ${isEditMode ? 'cursor-pointer hover:ring-2 hover:ring-[var(--hotel-gold)] hover:ring-inset rounded-b-3xl' : ''}`}
-          >
-            <HeroSection profile={profile} />
+          <div className="relative z-10">
+            <HeroSection profile={profile} isEditMode={isEditMode} />
           </div>
 
           {profile.tagline && (
             <motion.div
-              onClick={() => isEditMode && onPreviewClick && onPreviewClick("profile")}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 0.5 }}
-              className={`w-full bg-[var(--hotel-latte)] py-4 px-6 flex justify-center items-center relative z-20 shadow-sm border-b border-[var(--hotel-cappuccino)]/30 ${isEditMode ? 'cursor-pointer hover:bg-[var(--hotel-cappuccino)]/20' : ''}`}
+              className="w-full bg-[var(--hotel-latte)] py-4 px-6 flex justify-center items-center relative z-20 shadow-sm border-b border-[var(--hotel-cappuccino)]/30"
             >
               <div className="relative inline-block text-center">
-                <p className="text-[var(--hotel-mocha)] text-[15px] sm:text-[17px] italic tracking-wide relative z-10 leading-snug font-hotel-display font-bold">
-                  {profile.tagline}
-                </p>
+                <EditableText
+                  as="p"
+                  value={profile.tagline || ""}
+                  onChange={(val) => setProfileData({ role: val })}
+                  isEditMode={isEditMode}
+                  placeholder="Hotel Tagline"
+                  className="text-[var(--hotel-mocha)] text-[15px] sm:text-[17px] italic tracking-wide relative z-10 leading-snug font-hotel-display font-bold"
+                />
                 {/* Animated Underline */}
                 <motion.div
                   initial={{ scaleX: 0 }}

@@ -1,10 +1,14 @@
 import { GLASS_SHADOW, GLASS_BORDER } from "../../utils/constants";
+import EditableText from "@/components/ui/EditableText";
+import { useEditorStore } from "@/features/editor/store/useEditorStore";
 
 /**
  * "-- Description --" bio card.
  */
-export default function DescriptionSection({ description }) {
-  if (!description) return null;
+export default function DescriptionSection({ description, isEditMode }) {
+  const setProfileData = useEditorStore((s) => s.setProfileData);
+
+  if (!description && !isEditMode) return null;
 
   return (
     <section
@@ -18,9 +22,14 @@ export default function DescriptionSection({ description }) {
         -- Description --
       </h2>
 
-      <p className="relative z-[2] text-neutral-950 text-sm leading-5">
-        {description}
-      </p>
+      <EditableText
+        as="p"
+        value={description || ""}
+        onChange={(val) => setProfileData({ bio: val })}
+        isEditMode={isEditMode}
+        placeholder="Add a bio..."
+        className="relative z-[2] text-neutral-950 text-sm leading-5 whitespace-pre-wrap"
+      />
     </section>
   );
 }

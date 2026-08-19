@@ -1,21 +1,35 @@
 import { useState } from "react";
 import { MessageSquare, Star } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const reviewSchema = z.object({
+  rating: z.number().min(1, "Veuillez sélectionner une note"),
+  comment: z.string().min(1, "Veuillez écrire un commentaire").max(500)
+});
 
 export default function ReviewForm({ initialData, onSubmit, onCancel }) {
-  const [rating, setRating] = useState(initialData?.rating || 0);
   const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState(initialData?.comment || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { register, handleSubmit: hookFormSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
+    resolver: zodResolver(reviewSchema),
+    mode: "onChange",
+    defaultValues: {
+      rating: initialData?.rating || 0,
+      comment: initialData?.comment || ""
+    }
+  });
+
+  const rating = watch("rating");
   const displayedRating = hoveredRating || rating;
   const isEditing = !!initialData;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!rating || !comment.trim()) return;
+  const onSubmitHandler = async (data) => {
     setIsSubmitting(true);
     try {
-      await onSubmit({ rating, comment: comment.trim() });
+      await onSubmit({ rating: data.rating, comment: data.comment.trim() });
     } finally {
       setIsSubmitting(false);
     }
@@ -33,8 +47,8 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className={`relative z-[2] ${!isEditing ? "mt-7" : ""}`}>
-        <div className="flex flex-col items-center">
+      <form onSubmit={hookFormSubmit(onSubmitHandler)} className={`relative z-[2] ${!isEditing ? "mt-7" : ""}`}>
+        <div className="flex flex-col items-center relative">
           <p className="text-xs font-medium text-neutral-950 mb-3">
             {isEditing ? "Modifier votre note" : "Votre note"}
           </p>
@@ -44,7 +58,7 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
                 key={star}
                 type="button"
                 onMouseEnter={() => setHoveredRating(star)}
-                onClick={() => setRating(star)}
+                onClick={() => setValue("rating", star, { shouldValidate: true })}
                 className="w-9 h-9 flex items-center justify-center active:scale-90 transition-transform"
               >
                 <Star
@@ -55,18 +69,21 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
               </button>
             ))}
           </div>
+          {errors.rating && <p className="text-[10px] text-red-500 font-medium absolute -bottom-5">{errors.rating.message}</p>}
         </div>
 
-        <div className="mt-6">
+        <div className="mt-8 relative">
           <label className="block text-xs font-medium text-neutral-950 mb-2">Votre commentaire</label>
           <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
             placeholder="Écrivez votre avis..."
             rows={4}
             maxLength={500}
-            className="w-full resize-none rounded-[18px] bg-white/60 border border-neutral-950/10 px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-950/35 outline-none focus:border-neutral-950/25 transition-all"
+            className={`w-full resize-none rounded-[18px] bg-white/60 border px-4 py-3 text-sm text-neutral-950 placeholder:text-neutral-950/35 outline-none transition-all ${
+              errors.comment ? "border-red-300 focus:border-red-500" : "border-neutral-950/10 focus:border-neutral-950/25"
+            }`}
+            {...register("comment")}
           />
+          {errors.comment && <p className="text-[10px] text-red-500 font-medium absolute -bottom-4 left-1">{errors.comment.message}</p>}
         </div>
 
         <div className="mt-5 flex gap-3">
@@ -75,7 +92,7 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
           </button>
           <button
             type="submit"
-            disabled={!rating || !comment.trim() || isSubmitting}
+            disabled={!isValid || isSubmitting}
             className="flex-1 h-[45px] rounded-[15px] bg-neutral-950 text-white text-sm font-medium active:scale-[0.98] disabled:opacity-40"
           >
             {isSubmitting ? "Envoi..." : isEditing ? "Mettre à jour" : "Publier"}

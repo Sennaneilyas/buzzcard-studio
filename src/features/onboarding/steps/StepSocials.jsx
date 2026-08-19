@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "lucide-react";
 import { SocialCard } from "@/components/ui/social-card";
+import { useFormContext } from "react-hook-form";
 import { 
   SiInstagram, 
   SiX, 
@@ -32,21 +33,16 @@ export const SOCIAL_PLATFORMS = [
   { id: "threads", name: "Threads", icon: SiThreads, colorClass: "text-black", placeholder: "https://threads.net/..." },
 ];
 
-export default function StepSocials({ data, onChange }) {
+export default function StepSocials() {
+  const { watch, setValue, formState: { errors } } = useFormContext();
   const [activePlatform, setActivePlatform] = useState(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleUpdate = (platformId, value) => {
-    onChange({
-      ...data,
-      socials: {
-        ...(data.socials || {}),
-        [platformId]: value,
-      },
-    });
-  };
+  const socialsData = watch("socials") || {};
 
-  const socialsData = data.socials || {};
+  const handleUpdate = (platformId, value) => {
+    setValue(`socials.${platformId}`, value, { shouldValidate: true });
+  };
 
   const visiblePlatforms = SOCIAL_PLATFORMS.filter((platform, index) => {
     if (isExpanded) return true;
@@ -104,8 +100,15 @@ export default function StepSocials({ data, onChange }) {
                         value={value}
                         onChange={(e) => handleUpdate(platform.id, e.target.value)}
                         placeholder={platform.placeholder}
-                        className="w-full px-4 py-3 bg-white text-sm font-bold text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-gray-900 focus:outline-none transition-colors"
+                        className={`w-full px-4 py-3 bg-white text-sm font-bold placeholder-gray-400 rounded-xl border focus:outline-none transition-colors ${
+                          errors.socials?.[platform.id] 
+                            ? "border-red-300 focus:border-red-500 text-red-900" 
+                            : "border-gray-200 focus:border-gray-900 text-gray-900"
+                        }`}
                       />
+                      {errors.socials?.[platform.id] && (
+                        <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.socials[platform.id].message}</p>
+                      )}
                     </div>
                   </motion.div>
                 )}

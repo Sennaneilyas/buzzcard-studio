@@ -25,5 +25,17 @@ export const SOCIAL_ICONS = {
   tiktok:
     "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/50/70/42/50704260-89c4-2aa4-7740-4a6a621af5db/TikTok_AppIcon26-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg",
   youtube:
-    "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/8e/43/35/e43350e2-2dad-ac27-13d4-71eac741cf80/logo_youtube_2024_q4_color-0-0-1x_U007emarketing-0-0-0-7-0-0-0-85-220.png/512x512bb.jpg",
+    "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/1e/08/ff/1e08ff36-8df1-12da-6417-11ec08469e24/Placeholder.mill/400x400bb-75.webp",
+  github:
+    "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+  dribbble:
+    "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/80/7e/38/807e3810-7e61-a8cf-bf29-37f26fdbbcaf/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/512x512bb.jpg",
+  behance:
+    "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a4/09/cc/a409cc3c-ebc3-883a-d68a-698e69e06180/AppIcon-1x_U007emarketing-0-7-0-0-85-220.png/512x512bb.jpg",
+  snapchat:
+    "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/91/92/ff/9192ff78-8314-e53b-e19e-e6c2ee736203/AppIcon-1x_U007emarketing-0-7-0-0-85-220.png/512x512bb.jpg",
+  threads:
+    "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/44/2c/3e/442c3e1e-cda2-2b6d-a16f-12002e1c9533/AppIcon-0-0-1x_U007emarketing-0-10-0-sRGB-85-220.png/512x512bb.jpg",
+  twitter:
+    "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/bf/46/c4/bf46c48e-94bb-c30d-601f-d73ed5a70689/ProductionAppIcon-0-0-1x_U007emarketing-0-8-0-0-0-85-220.png/512x512bb.jpg",
 };

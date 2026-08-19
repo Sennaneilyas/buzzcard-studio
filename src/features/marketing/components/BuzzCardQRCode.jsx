@@ -62,12 +62,13 @@ export default function BuzzCardQRCode({ profile = {}, onClose }) {
       },
     });
 
-    qrRef.current.innerHTML = "";
-    qrCodeRef.current.append(qrRef.current);
+    const currentRef = qrRef.current;
+    currentRef.innerHTML = "";
+    qrCodeRef.current.append(currentRef);
 
     return () => {
-      if (qrRef.current) {
-        qrRef.current.innerHTML = "";
+      if (currentRef) {
+        currentRef.innerHTML = "";
       }
     };
   }, [profileUrl]);

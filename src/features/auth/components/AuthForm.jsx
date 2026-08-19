@@ -10,47 +10,72 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { useAuthStore } from "../store/useAuthStore";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
-/**
- * Split-screen auth component.
- *
- * Sign up mode (default):
- *   Left  → Marketing panel (card image + copy + "Log in" button)
- *   Right → Sign up form
- *
- * Log in mode:
- *   Left  → Log in form
- *   Right → Marketing panel (card image + copy + "Sign up" button)
- */
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required")
+});
+
+const signupSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  agreedToTerms: z.boolean().refine(val => val === true, "You must agree to the terms")
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"]
+});
+
+const magicLinkSchema = z.object({
+  email: z.string().email("Invalid email address")
+});
+
+const magicLinkSignupSchema = magicLinkSchema.extend({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  agreedToTerms: z.boolean().refine(val => val === true, "You must agree to the terms")
+});
+
 export default function AuthForm() {
   const [searchParams] = useSearchParams();
-  const [authMethod, setAuthMethod] = useState("password"); // "password" | "magic-link"
-
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [authMethod, setAuthMethod] = useState("password");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const user = useAuthStore((s) => s.user);
   const setError = useAuthStore((s) => s.setError);
   const navigate = useNavigate();
   const isSignup = searchParams.get("mode") !== "login";
 
-  // ── Redirect to /onboarding when authenticated ──
+  const currentSchema = isSignup
+    ? (authMethod === "magic-link" ? magicLinkSignupSchema : signupSchema)
+    : (authMethod === "magic-link" ? magicLinkSchema : loginSchema);
+
+  const { register, handleSubmit: hookFormSubmit, formState: { errors }, reset, watch } = useForm({
+    resolver: zodResolver(currentSchema),
+    mode: "onTouched"
+  });
+
+  const agreedToTerms = watch("agreedToTerms");
+
+  useEffect(() => {
+    reset();
+    setMessage(null);
+  }, [isSignup, authMethod, reset]);
+
   useEffect(() => {
     if (user) {
       navigate("/onboarding", { replace: true });
     }
   }, [user, navigate]);
 
-  // ── OAuth ──
   const handleOAuth = async (provider) => {
     setLoading(true);
     setMessage(null);
@@ -65,134 +90,52 @@ export default function AuthForm() {
     setLoading(false);
   };
 
-  // ── Magic Link ──
-  const handleMagicLink = async (event) => {
-    event?.preventDefault();
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (!normalizedEmail) {
-      setMessage({ type: "error", text: "Enter your email first." });
-      return;
-    }
-    if (isSignup) {
-      const normalizedFirstName = firstName.trim();
-      const normalizedLastName = lastName.trim();
-
-      if (!normalizedFirstName || !normalizedLastName) {
-        setMessage({
-          type: "error",
-          text: "First name and last name are required to create an account.",
-        });
-        return;
-      }
-      if (!agreedToTerms) {
-        setMessage({
-          type: "error",
-          text: "You must agree to the terms to create an account.",
-        });
-        return;
-      }
-    }
-
+  const onSubmit = async (data) => {
     setLoading(true);
     setMessage(null);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: normalizedEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/onboarding`,
-        shouldCreateUser: isSignup,
-        ...(isSignup && {
-          data: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            full_name: `${firstName.trim()} ${lastName.trim()}`,
-          },
-        }),
-      },
-    });
-    if (error) {
-      setMessage({ type: "error", text: error.message });
-    } else {
-      setMessage({
-        type: "success",
-        text: "Magic link sent! Check your inbox.",
-      });
-    }
-    setLoading(false);
-  };
 
-  // ── Email + Password ──
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMessage(null);
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (!normalizedEmail || !password) {
-      setMessage({ type: "error", text: "Email and password are required." });
-      return;
-    }
-    if (isSignup) {
-      const normalizedFirstName = firstName.trim();
-      const normalizedLastName = lastName.trim();
-
-      if (!normalizedFirstName || !normalizedLastName) {
-        setMessage({
-          type: "error",
-          text: "First name and last name are required.",
-        });
-        return;
-      }
-      if (password !== confirmPassword) {
-        setMessage({ type: "error", text: "Passwords do not match." });
-        return;
-      }
-      if (password.length < 6) {
-        setMessage({
-          type: "error",
-          text: "Password must be at least 6 characters.",
-        });
-        return;
-      }
-      if (!agreedToTerms) {
-        setMessage({
-          type: "error",
-          text: "You must agree to the terms to continue.",
-        });
-        return;
-      }
-    }
-
-    setLoading(true);
-
-    if (isSignup) {
-      const { error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password,
+    if (authMethod === "magic-link") {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: data.email,
         options: {
           emailRedirectTo: `${window.location.origin}/onboarding`,
-          data: {
-            first_name: firstName.trim(),
-            last_name: lastName.trim(),
-            full_name: `${firstName.trim()} ${lastName.trim()}`,
-          },
+          shouldCreateUser: isSignup,
+          ...(isSignup && {
+            data: {
+              first_name: data.firstName,
+              last_name: data.lastName,
+              full_name: `${data.firstName} ${data.lastName}`,
+            },
+          }),
         },
       });
-      if (error) {
-        setMessage({ type: "error", text: error.message });
-      } else {
-        setMessage({
-          type: "success",
-          text: "Check your inbox to confirm your email and activate your 7-day trial!",
-        });
-      }
+      if (error) setMessage({ type: "error", text: error.message });
+      else setMessage({ type: "success", text: "Magic link sent! Check your inbox." });
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password,
-      });
-      if (error) {
-        setMessage({ type: "error", text: error.message });
-        setError(error.message);
+      if (isSignup) {
+        const { error } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/onboarding`,
+            data: {
+              first_name: data.firstName,
+              last_name: data.lastName,
+              full_name: `${data.firstName} ${data.lastName}`,
+            },
+          },
+        });
+        if (error) setMessage({ type: "error", text: error.message });
+        else setMessage({ type: "success", text: "Check your inbox to confirm your email and activate your 7-day trial!" });
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        if (error) {
+          setMessage({ type: "error", text: error.message });
+          setError(error.message);
+        }
       }
     }
     setLoading(false);
@@ -403,7 +346,7 @@ export default function AuthForm() {
 
         {/* Form */}
         <form
-          onSubmit={authMethod === "magic-link" ? handleMagicLink : handleSubmit}
+          onSubmit={hookFormSubmit(onSubmit)}
           className="space-y-4"
         >
           <AnimatePresence>
@@ -417,16 +360,16 @@ export default function AuthForm() {
                 <InputField
                   label="First name"
                   placeholder="Jane"
-                  value={firstName}
-                  onChange={setFirstName}
                   autoComplete="given-name"
+                  error={errors.firstName?.message}
+                  {...register("firstName")}
                 />
                 <InputField
                   label="Last name"
                   placeholder="Doe"
-                  value={lastName}
-                  onChange={setLastName}
                   autoComplete="family-name"
+                  error={errors.lastName?.message}
+                  {...register("lastName")}
                 />
               </motion.div>
             )}
@@ -437,9 +380,9 @@ export default function AuthForm() {
               label="Email"
               type="email"
               placeholder="you@example.com"
-              value={email}
-              onChange={setEmail}
               autoComplete="email"
+              error={errors.email?.message}
+              {...register("email")}
             />
           </motion.div>
 
@@ -449,9 +392,9 @@ export default function AuthForm() {
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter password"
-                value={password}
-                onChange={setPassword}
                 autoComplete={isSignup ? "new-password" : "current-password"}
+                error={errors.password?.message}
+                {...register("password")}
               />
               <motion.button
                 type="button"
@@ -492,9 +435,9 @@ export default function AuthForm() {
                   label="Confirm password"
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Re-enter password"
-                  value={confirmPassword}
-                  onChange={setConfirmPassword}
                   autoComplete="new-password"
+                  error={errors.confirmPassword?.message}
+                  {...register("confirmPassword")}
                 />
                 <motion.button
                   type="button"
@@ -525,9 +468,8 @@ export default function AuthForm() {
                 <span className="relative mt-0.5 size-4 shrink-0">
                   <input
                     type="checkbox"
-                    checked={agreedToTerms}
-                    onChange={(e) => setAgreedToTerms(e.target.checked)}
                     className="peer size-full cursor-pointer appearance-none rounded border border-ink/20 bg-white checked:border-navy checked:bg-navy"
+                    {...register("agreedToTerms")}
                   />
                   <svg
                     viewBox="0 0 12 12"
@@ -632,34 +574,41 @@ export default function AuthForm() {
 }
 
 // ── Reusable Input Field ──
-function InputField({
+import React from "react";
+
+const InputField = React.forwardRef(({
   label,
   type = "text",
   placeholder,
-  value,
-  onChange,
   autoComplete,
-}) {
+  error,
+  ...props
+}, ref) => {
   const inputId = useId();
 
   return (
-    <div className="w-full space-y-1.5 text-left">
-      <label htmlFor={inputId} className="text-xs font-semibold text-ink/60">
+    <div className="w-full space-y-1 text-left relative">
+      <label htmlFor={inputId} className="text-xs font-semibold text-ink/60 ml-1">
         {label}
       </label>
       <input
         id={inputId}
+        ref={ref}
         type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         autoComplete={autoComplete}
-        required
-        className="flex h-12 w-full rounded-xl border border-ink/12 bg-white px-3.5 text-[16px] text-ink outline-none placeholder:text-ink/30 focus:border-navy/50 focus:ring-2 focus:ring-navy/10 transition-colors"
+        className={`flex h-12 w-full rounded-xl border bg-white px-3.5 text-[16px] outline-none transition-colors ${
+          error 
+            ? "border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/10 text-red-900 placeholder:text-red-300"
+            : "border-ink/12 text-ink placeholder:text-ink/30 focus:border-navy/50 focus:ring-2 focus:ring-navy/10"
+        }`}
+        {...props}
       />
+      {error && <p className="text-[10px] text-red-500 font-medium ml-1 mt-0.5 absolute -bottom-4">{error}</p>}
     </div>
   );
-}
+});
+InputField.displayName = "InputField";
 
 // ── SVG Icons ──
 

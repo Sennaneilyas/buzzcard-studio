@@ -19,6 +19,18 @@ import StepTemplate from "./steps/StepTemplate";
 import StepBasicInfo from "./steps/StepBasicInfo";
 import StepSocials from "./steps/StepSocials";
 import StepLaunch from "./steps/StepLaunch";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const onboardingSchema = z.object({
+  name: z.string().optional(),
+  role: z.string().optional(),
+  email: z.union([z.literal(""), z.string().email("Invalid email format")]).optional(),
+  phone: z.string().optional(),
+  bio: z.string().optional(),
+  socials: z.record(z.union([z.literal(""), z.string().url("Must be a valid URL")])).optional()
+});
 
 const ONBOARDING_STEPS = [
   { id: "template", label: "Template", icon: Sparkles },
@@ -38,15 +50,20 @@ export default function OnboardingPage() {
 
   const handleMouseMove = () => {};
 
-  const [profileData, setProfileData] = useState({
-    name: "",
-    role: "",
-    bio: "",
-    email: "",
-    phone: "",
-    avatarUrl: "",
-    bannerUrl: "",
+  const methods = useForm({
+    resolver: zodResolver(onboardingSchema),
+    mode: "onTouched",
+    defaultValues: {
+      name: "",
+      role: "",
+      email: "",
+      phone: "",
+      bio: "",
+      socials: {}
+    }
   });
+
+  const { trigger, watch } = methods;
 
   const rawDisplayName =
     user?.user_metadata?.full_name ||
@@ -60,12 +77,25 @@ export default function OnboardingPage() {
   const setEditorTemplate = useEditorStore((s) => s.setTemplateId);
   const setEditorSlug = useEditorStore((s) => s.setSlug);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (activeTabIndex === 1) {
+      const valid = await trigger(["name", "role", "email", "phone", "bio"]);
+      if (!valid) return;
+    }
+    if (activeTabIndex === 2) {
+      const valid = await trigger(["socials"]);
+      if (!valid) return;
+    }
+
     if (activeTabIndex < ONBOARDING_STEPS.length - 1) {
       setActiveTabIndex(activeTabIndex + 1);
     } else {
-      // Save data to mock store for Phase 2 Routing
-      setEditorProfile(profileData);
+      const finalData = watch();
+      setEditorProfile({
+        ...finalData,
+        avatarUrl: "",
+        bannerUrl: "",
+      });
       setEditorTemplate(selectedTemplateId || "buzz-template");
       setEditorSlug(displayName.toLowerCase());
       setIsSuccess(true);
@@ -186,22 +216,18 @@ export default function OnboardingPage() {
                   ) : (
                     /* Phase 2: Form Cards */
                     <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
-                      {activeTabIndex === 1 ? (
-                        <StepBasicInfo
-                          data={profileData}
-                          onChange={setProfileData}
-                        />
-                      ) : activeTabIndex === 2 ? (
-                        <StepSocials
-                          data={profileData}
-                          onChange={setProfileData}
-                        />
-                      ) : (
-                        <StepLaunch
-                          data={profileData}
-                          selectedTemplateId={selectedTemplateId}
-                        />
-                      )}
+                      <FormProvider {...methods}>
+                        {activeTabIndex === 1 ? (
+                          <StepBasicInfo />
+                        ) : activeTabIndex === 2 ? (
+                          <StepSocials />
+                        ) : (
+                          <StepLaunch
+                            data={watch()}
+                            selectedTemplateId={selectedTemplateId}
+                          />
+                        )}
+                      </FormProvider>
                     </div>
                   )}
                 </motion.div>

@@ -46,7 +46,7 @@ export function QuickActions({ profile }) {
             whileTap={{ scale: 0.95 }}
             className="flex flex-col items-center gap-2 group"
           >
-            <div className="w-12 h-12 rounded-full bg-[#F9F9F9] flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-[#C5A880] transition-colors border border-black/5 shadow-sm">
+            <div className="w-12 h-12 rounded-full bg-[#F9F9F9] flex items-center justify-center text-[#1A1A1A] group-hover:bg-[#1A1A1A] group-hover:text-[var(--primary-color, #C5A880)] transition-colors border border-black/5 shadow-sm">
               {action.icon}
             </div>
             <span className="text-[11px] font-medium text-gray-500 group-hover:text-[#1A1A1A] transition-colors">

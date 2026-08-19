@@ -1,13 +1,12 @@
 import { User, Briefcase, Mail, Phone, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFormContext } from "react-hook-form";
 
-export default function StepBasicInfo({ data, onChange }) {
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    onChange({ ...data, [name]: value });
-  };
+export default function StepBasicInfo() {
+  const { register, formState: { errors } } = useFormContext();
 
   const inputClass = "w-full pl-11 pr-4 py-3 bg-white text-sm text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-gray-900 focus:outline-none transition-colors";
+  const errorClass = "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 text-red-900 placeholder:text-red-300";
   const iconClass = "h-4 w-4 text-gray-400";
   const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1";
 
@@ -23,13 +22,12 @@ export default function StepBasicInfo({ data, onChange }) {
             </div>
             <input
               type="text"
-              name="name"
-              value={data.name || ""}
-              onChange={handleChange}
               placeholder="e.g. Vanessa Joe"
-              className={inputClass}
+              className={cn(inputClass, errors.name && errorClass)}
+              {...register("name")}
             />
           </div>
+          {errors.name && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.name.message}</p>}
         </div>
 
         {/* Role / Job Title */}
@@ -41,13 +39,12 @@ export default function StepBasicInfo({ data, onChange }) {
             </div>
             <input
               type="text"
-              name="role"
-              value={data.role || ""}
-              onChange={handleChange}
               placeholder="e.g. Creative Director"
-              className={inputClass}
+              className={cn(inputClass, errors.role && errorClass)}
+              {...register("role")}
             />
           </div>
+          {errors.role && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.role.message}</p>}
         </div>
 
         {/* Email */}
@@ -59,13 +56,12 @@ export default function StepBasicInfo({ data, onChange }) {
             </div>
             <input
               type="email"
-              name="email"
-              value={data.email || ""}
-              onChange={handleChange}
               placeholder="hello@example.com"
-              className={inputClass}
+              className={cn(inputClass, errors.email && errorClass)}
+              {...register("email")}
             />
           </div>
+          {errors.email && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.email.message}</p>}
         </div>
 
         {/* Phone */}
@@ -77,13 +73,12 @@ export default function StepBasicInfo({ data, onChange }) {
             </div>
             <input
               type="tel"
-              name="phone"
-              value={data.phone || ""}
-              onChange={handleChange}
               placeholder="+212 6 00 00 00 00"
-              className={inputClass}
+              className={cn(inputClass, errors.phone && errorClass)}
+              {...register("phone")}
             />
           </div>
+          {errors.phone && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.phone.message}</p>}
         </div>
 
         {/* Bio */}
@@ -94,14 +89,13 @@ export default function StepBasicInfo({ data, onChange }) {
               <FileText className={iconClass} />
             </div>
             <textarea
-              name="bio"
-              value={data.bio || ""}
-              onChange={handleChange}
               placeholder="Write a brief intro about yourself..."
               rows={4}
-              className={cn(inputClass, "pl-11 resize-none")}
+              className={cn(inputClass, "pl-11 resize-none", errors.bio && errorClass)}
+              {...register("bio")}
             />
           </div>
+          {errors.bio && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.bio.message}</p>}
         </div>
       </div>
     </div>

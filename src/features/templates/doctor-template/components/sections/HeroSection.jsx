@@ -55,7 +55,7 @@ export function HeroSection({ profile }) {
   };
 
   return (
-    <div className="bg-[#4682b4] relative w-full flex flex-col pb-[32px]">
+    <div className="bg-[var(--primary-color, #4682b4)] relative w-full flex flex-col pb-[32px]">
       <div className="relative w-full h-[160px]">
         {profile.bannerUrl ? (
           <img src={profile.bannerUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
@@ -184,7 +184,7 @@ export function HeroSection({ profile }) {
                 key={tab.id}
                 whileTap={{ scale: 0.95 }} 
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 rounded-[8px] py-1.5 font-semibold text-[12px] transition-all ${activeTab === tab.id ? "bg-white text-[#4682b4] drop-shadow-[0px_1px_2px_rgba(0,0,0,0.1)]" : "text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)]"}`}
+                className={`flex-1 rounded-[8px] py-1.5 font-semibold text-[12px] transition-all ${activeTab === tab.id ? "bg-white text-[var(--primary-color, #4682b4)] drop-shadow-[0px_1px_2px_rgba(0,0,0,0.1)]" : "text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)]"}`}
               >
                 {tab.label}
               </motion.button>

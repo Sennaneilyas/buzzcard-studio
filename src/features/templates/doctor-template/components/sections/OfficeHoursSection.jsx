@@ -38,35 +38,35 @@ export function OfficeHoursSection() {
         <SectionHeader subtitle="HORAIRES DE LA CLINIQUE" title="Heures d'Ouverture" />
       </motion.div>
       
-      <motion.div variants={fadeInUp} className="mt-8 mb-6 inline-flex items-center gap-2 rounded-full border-[0.67px] border-[#4682b42e] bg-[#1c344f0d] px-[18px] py-2">
+      <motion.div variants={fadeInUp} className="mt-8 mb-6 inline-flex items-center gap-2 rounded-full border-[0.67px] border-[var(--primary-color, #4682b4)2e] bg-[#1c344f0d] px-[18px] py-2">
         <span className={`h-[7px] w-[7px] rounded-full ${isOpenNow ? "bg-[#10b981]" : "bg-[#ef4444]"}`} />
-        <span className="text-xs font-semibold text-[#4682b48c]">
+        <span className="text-xs font-semibold text-[var(--primary-color, #4682b4)8c]">
           {isOpenNow ? "Ouvert actuellement" : "Fermé actuellement"} · {timeString}
         </span>
       </motion.div>
       
-      <motion.div variants={fadeInUp} className="w-full overflow-hidden rounded-2xl border-[0.67px] border-[#4682b42e]">
+      <motion.div variants={fadeInUp} className="w-full overflow-hidden rounded-2xl border-[0.67px] border-[var(--primary-color, #4682b4)2e]">
         <table className="w-full border-collapse text-left">
           <tbody>
             {officeHoursData.map((schedule, index) => {
               const isToday = index === currentDayIndex;
               const hasBottomBorder = index < officeHoursData.length - 1;
-              const bgClass = isToday ? "bg-[#4682b414]" : (index % 2 === 0 ? "bg-white" : "bg-[#1c344f05]");
+              const bgClass = isToday ? "bg-[var(--primary-color, #4682b4)14]" : (index % 2 === 0 ? "bg-white" : "bg-[#1c344f05]");
 
               return (
-                <tr key={schedule.day} className={`${bgClass} ${hasBottomBorder ? "border-b-[0.67px] border-[#4682b42e]" : ""}`}>
+                <tr key={schedule.day} className={`${bgClass} ${hasBottomBorder ? "border-b-[0.67px] border-[var(--primary-color, #4682b4)2e]" : ""}`}>
                   <th className="px-4 py-3 font-normal align-middle">
                     {isToday ? (
                       <span className="inline-flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#4682b4]" />
-                        <span className="text-[13px] font-bold text-[#4682b4]">{schedule.day}</span>
-                        <span className="rounded-full bg-[#4682b4] px-2 py-0.5 text-[10px] font-semibold text-white">Aujourd'hui</span>
+                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary-color, #4682b4)]" />
+                        <span className="text-[13px] font-bold text-[var(--primary-color, #4682b4)]">{schedule.day}</span>
+                        <span className="rounded-full bg-[var(--primary-color, #4682b4)] px-2 py-0.5 text-[10px] font-semibold text-white">Aujourd'hui</span>
                       </span>
                     ) : (
-                      <span className="text-[13px] font-medium text-[#4682b4]">{schedule.day}</span>
+                      <span className="text-[13px] font-medium text-[var(--primary-color, #4682b4)]">{schedule.day}</span>
                     )}
                   </th>
-                  <td className={`px-4 py-3 text-right align-middle text-[13px] font-medium ${schedule.isClosed ? "text-[#4682b48c]" : "text-[#4682b4]"}`}>
+                  <td className={`px-4 py-3 text-right align-middle text-[13px] font-medium ${schedule.isClosed ? "text-[var(--primary-color, #4682b4)8c]" : "text-[var(--primary-color, #4682b4)]"}`}>
                     {schedule.hours}
                   </td>
                 </tr>

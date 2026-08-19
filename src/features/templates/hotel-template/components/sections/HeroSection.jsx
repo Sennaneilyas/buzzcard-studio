@@ -1,8 +1,12 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { letterReveal, staggerFast } from "../../utils/animations";
+import EditableImage from "@/components/ui/EditableImage";
+import EditableText from "@/components/ui/EditableText";
+import { useEditorStore } from "@/features/editor/store/useEditorStore";
 
-export function HeroSection({ profile }) {
+export function HeroSection({ profile, isEditMode }) {
+  const setProfileData = useEditorStore((s) => s.setProfileData);
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -24,11 +28,12 @@ export function HeroSection({ profile }) {
         style={{ y: imageY }}
         className="absolute inset-0 w-full h-[130%]"
       >
-        <img
-          src={profile.bannerUrl}
+        <EditableImage
+          src={profile.bannerUrl || ""}
           alt={profile.name}
-          className="w-full h-full object-cover"
-          loading="eager"
+          isEditMode={isEditMode}
+          onChange={(val) => setProfileData({ bannerUrl: val })}
+          containerClassName="absolute inset-0 w-full h-[130%]"
         />
       </motion.div>
 
@@ -54,9 +59,11 @@ export function HeroSection({ profile }) {
             className="mb-4"
           >
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden relative border border-[var(--hotel-cappuccino)]/30">
-              <img
-                src={profile.avatarUrl}
+              <EditableImage
+                src={profile.avatarUrl || ""}
                 alt={`${profile.name} Logo`}
+                isEditMode={isEditMode}
+                onChange={(val) => setProfileData({ avatarUrl: val })}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -87,28 +94,15 @@ export function HeroSection({ profile }) {
           ))}
         </motion.div>
 
-        {/* Hotel Name — Letter by Letter */}
-        <motion.h1
-          variants={staggerFast}
-          initial="hidden"
-          animate="visible"
+        <EditableText
+          as="h1"
+          value={profile.name || ""}
+          onChange={(val) => setProfileData({ name: val })}
+          isEditMode={isEditMode}
+          placeholder="Hotel Name"
           className="text-center text-[var(--hotel-espresso)] leading-tight font-hotel-display font-semibold px-4 w-full"
-          style={{
-            fontSize: "clamp(1.8rem, 6vw, 2.5rem)",
-            wordBreak: "break-word",
-          }}
-        >
-          {nameLetters.map((letter, i) => (
-            <motion.span
-              key={i}
-              custom={i}
-              variants={letterReveal}
-              className="inline-block"
-            >
-              {letter === " " ? "\u00A0" : letter}
-            </motion.span>
-          ))}
-        </motion.h1>
+          style={{ fontSize: "clamp(1.8rem, 6vw, 2.5rem)", wordBreak: "break-word" }}
+        />
       </div>
     </section>
   );

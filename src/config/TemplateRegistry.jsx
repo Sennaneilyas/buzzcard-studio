@@ -24,9 +24,20 @@ const TEMPLATE_COMPONENTS = {
 export default function TemplateRegistry({ templateId, profileData = {}, isEditMode = false, onPreviewClick }) {
   const TemplateComponent = TEMPLATE_COMPONENTS[templateId] || TEMPLATE_COMPONENTS["buzz-template"]; // Fallback
 
+  const appearanceStyles = {};
+  if (profileData?.appearance?.themeColor) {
+    appearanceStyles["--primary-color"] = profileData.appearance.themeColor;
+    appearanceStyles["--hotel-cappuccino"] = profileData.appearance.themeColor;
+  }
+  if (profileData?.appearance?.font) {
+    appearanceStyles["fontFamily"] = profileData.appearance.font;
+  }
+
   return (
-    <Suspense fallback={<GlobalLoader className="bg-white/80 backdrop-blur-sm" />}>
-      <TemplateComponent profile={profileData} profileData={profileData} isEditMode={isEditMode} onPreviewClick={onPreviewClick} />
-    </Suspense>
+    <div style={appearanceStyles} className="w-full h-full">
+      <Suspense fallback={<GlobalLoader className="bg-white/80 backdrop-blur-sm" />}>
+        <TemplateComponent profile={profileData} profileData={profileData} isEditMode={isEditMode} onPreviewClick={onPreviewClick} />
+      </Suspense>
+    </div>
   );
 }

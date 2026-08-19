@@ -21,7 +21,7 @@ const BottomAction = lazy(() => import("./components/ui/BottomAction").then(m =>
 // A lightweight skeleton to show while sections are being fetched
 const SectionFallback = () => (
   <div className="w-full py-12 flex flex-col items-center justify-center opacity-60">
-    <div className="w-6 h-6 border-2 border-[rgba(70,130,180,0.2)] border-t-[#4682b4] rounded-full animate-spin" />
+    <div className="w-6 h-6 border-2 border-[rgba(70,130,180,0.2)] border-t-[var(--primary-color, #4682b4)] rounded-full animate-spin" />
   </div>
 );
 
@@ -61,9 +61,9 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
     bannerUrl: profileData?.bannerUrl || rawProfile?.bannerUrl || mockProfile.bannerUrl,
     gallery: profileData?.gallery?.length ? profileData.gallery : (rawProfile?.gallery || mockProfile.gallery),
     socials: profileData?.socials
-      ? Object.entries(profileData.socials)
-          .filter(([, href]) => href)
-          .map(([platform, href]) => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href }))
+      ? (profileData.socialOrder || Object.keys(profileData.socials))
+          .filter(platform => profileData.socials[platform])
+          .map(platform => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href: profileData.socials[platform] }))
       : (rawProfile?.socials || mockProfile.socials),
   };
   // In Edit Mode, skip the loading animation so the preview renders instantly.
@@ -87,16 +87,16 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
   }
 
   return (
-    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start sm:py-6 font-['Inter'] antialiased selection:bg-[#4682b4] selection:text-white">
+    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start sm:py-6 font-['Inter'] antialiased selection:bg-[var(--primary-color, #4682b4)] selection:text-white">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-[#f0f5fa] sm:rounded-[32px] sm:border sm:border-[#4682b425] overflow-hidden sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.22),0px_2px_14px_0px_rgba(70,130,180,0.12)] flex flex-col pb-3 sm:pb-4 relative min-h-screen sm:min-h-[auto]"
+        className="w-full max-w-[440px] bg-[#f0f5fa] sm:rounded-[32px] sm:border sm:border-[var(--primary-color, #4682b4)25] overflow-hidden sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.22),0px_2px_14px_0px_rgba(70,130,180,0.12)] flex flex-col pb-3 sm:pb-4 relative min-h-screen sm:min-h-[auto]"
       >
         {/* Above the fold - Loaded synchronously */}
-        <HeroSection profile={profile} />
-        <ContactStripSection profile={profile} />
+        <HeroSection profile={profile} isEditMode={isEditMode} />
+        <ContactStripSection profile={profile} isEditMode={isEditMode} />
 
         {/* Below the fold - Lazy Loaded chunk by chunk */}
         <Suspense fallback={<SectionFallback />}>
@@ -126,14 +126,14 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
 
         {/* Footer Area */}
         <section className="bg-[#f0f5fa] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
-           <p className="font-semibold text-[#4682b4] mb-1">{profile.fullName}</p>
+           <p className="font-semibold text-[var(--primary-color, #4682b4)] mb-1">{profile.fullName}</p>
            <div className="flex justify-center gap-4 mb-5">
-             <a href="#" className="hover:text-[#4682b4] transition-colors">Mentions légales</a>
-             <a href="#" className="hover:text-[#4682b4] transition-colors">Confidentialité</a>
+             <a href="#" className="hover:text-[var(--primary-color, #4682b4)] transition-colors">Mentions légales</a>
+             <a href="#" className="hover:text-[var(--primary-color, #4682b4)] transition-colors">Confidentialité</a>
            </div>
            
-           <div className="flex flex-col items-center gap-2 border-t-[0.667px] border-[#4682b42e] pt-5 w-[80%] mx-auto">
-             <p className="text-[10px] uppercase tracking-widest text-[#4682b48c] font-semibold">Propulsé par</p>
+           <div className="flex flex-col items-center gap-2 border-t-[0.667px] border-[var(--primary-color, #4682b4)2e] pt-5 w-[80%] mx-auto">
+             <p className="text-[10px] uppercase tracking-widest text-[var(--primary-color, #4682b4)8c] font-semibold">Propulsé par</p>
              <div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
                <img src="/justlogo.png" alt="Buzzcard" className="h-4 object-contain" />
              </div>

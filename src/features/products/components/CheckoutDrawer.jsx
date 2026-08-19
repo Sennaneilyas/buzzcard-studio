@@ -9,7 +9,12 @@ export default function CheckoutDrawer({ isOpen, onClose, product }) {
 
   // Reset step when opened
   useEffect(() => {
-    if (isOpen) setStep(1);
+    let timeoutId;
+    if (isOpen) {
+      // Defer state update to avoid synchronous cascading render during mount
+      timeoutId = setTimeout(() => setStep(1), 0);
+    }
+    return () => clearTimeout(timeoutId);
   }, [isOpen]);
 
   if (!product) return null;
