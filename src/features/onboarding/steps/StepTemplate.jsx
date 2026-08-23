@@ -191,38 +191,40 @@ export default function StepTemplate({ selectedId, onSelect }) {
                   <X className="w-6 h-6" />
                 </button>
 
-                {/* Lightbox Content */}
-                <div 
-                  className="w-full max-h-[85vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] shadow-2xl ring-1 ring-white/20 pointer-events-auto bg-white"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {previewTemplate.previewUrl ? (
-                    <iframe 
-                      src={previewTemplate.previewUrl} 
-                      className="w-full h-[850px] sm:h-[950px] block border-0"
-                      title={previewTemplate.name}
-                    />
-                  ) : (
-                    <img
-                      src={previewTemplate.thumbnail}
-                      alt={previewTemplate.name}
-                      className="w-full h-auto block"
-                    />
-                  )}
-                </div>
+                {/* Lightbox Content and Button Wrapper */}
+                <div className="relative w-full flex flex-col items-center max-h-[85vh]">
+                  <div 
+                    className="w-full h-full overflow-y-auto custom-scrollbar rounded-[2.5rem] pointer-events-auto shadow-2xl"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {previewTemplate.previewUrl ? (
+                      <iframe 
+                        src={previewTemplate.previewUrl} 
+                        className="w-full h-[850px] sm:h-[950px] block border-0 bg-white"
+                        title={previewTemplate.name}
+                      />
+                    ) : (
+                      <img
+                        src={previewTemplate.thumbnail}
+                        alt={previewTemplate.name}
+                        className="w-full h-auto block"
+                      />
+                    )}
+                  </div>
 
-                {/* Floating Select Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(previewTemplate.id);
-                    setPreviewTemplate(null);
-                  }}
-                  className="absolute -bottom-16 mt-6 px-8 py-4 text-lg font-bold text-navy bg-white hover:bg-gray-100 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 pointer-events-auto"
-                >
-                  <Check className="w-6 h-6 text-green-500" />
-                  Select {previewTemplate.name}
-                </button>
+                  {/* Floating Select Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(previewTemplate.id);
+                      setPreviewTemplate(null);
+                    }}
+                    className="absolute bottom-0 translate-y-1/2 px-6 py-3 text-sm font-semibold text-white bg-slate-900/80 hover:bg-black backdrop-blur-md rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.3)] border border-white/10 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 pointer-events-auto z-10"
+                  >
+                    <Check className="w-5 h-5" />
+                    Sélectionner
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
           )}
