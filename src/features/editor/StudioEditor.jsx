@@ -71,12 +71,19 @@ export default function StudioEditor() {
 
   const currentData = watch();
 
-  // Sync React Hook Form -> Zustand to power Live Preview
+  // Sync React Hook Form -> Zustand to power Live Preview (debounced to keep typing buttery-smooth at 60 FPS)
   useEffect(() => {
+    let timeoutId;
     const subscription = watch((value) => {
-      setProfileData(value);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setProfileData(value);
+      }, 120);
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, [watch, setProfileData]);
 
   const activeTemplate = getTemplateById(templateId);

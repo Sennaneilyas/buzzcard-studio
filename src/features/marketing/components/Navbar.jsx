@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import PrefetchLink from "@/components/ui/PrefetchLink";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useAuthStore, useProfile } from "@/features/auth";
 import { supabase } from "@/lib/supabase";
@@ -221,14 +221,14 @@ export default function Navbar() {
                       </div>
                       
                       <div className="p-2 flex flex-col gap-1">
-                        <Link
+                        <PrefetchLink
                           to="/dashboard"
                           onClick={() => setIsProfileOpen(false)}
                           className="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-ink/80 rounded-xl hover:bg-ink/5 transition-colors"
                         >
                           <UserCircle className="w-4 h-4" />
                           Dashboard
-                        </Link>
+                        </PrefetchLink>
                         <button
                           onClick={() => {
                             handleLogout();
@@ -246,7 +246,7 @@ export default function Navbar() {
               </div>
             ) : (
               <>
-                <Link
+                <PrefetchLink
                   to="/auth?mode=login"
                   className={`
                     font-medium text-ink/60 rounded-full
@@ -255,8 +255,8 @@ export default function Navbar() {
                   `}
                 >
                   Log in
-                </Link>
-                <Link
+                </PrefetchLink>
+                <PrefetchLink
                   to="/auth?mode=signup"
                   className={`
                     font-semibold text-ink rounded-full
@@ -269,7 +269,7 @@ export default function Navbar() {
                   id="nav-cta-button"
                 >
                   Get started
-                </Link>
+                </PrefetchLink>
               </>
             )}
           </div>
@@ -386,7 +386,7 @@ export default function Navbar() {
               <div className="mt-auto flex flex-col gap-3">
                 {user ? (
                   <>
-                    <Link
+                    <PrefetchLink
                       to="/dashboard"
                       onClick={() => setMobileOpen(false)}
                       className="
@@ -397,7 +397,7 @@ export default function Navbar() {
                       "
                     >
                       Dashboard
-                    </Link>
+                    </PrefetchLink>
                     <button
                       onClick={() => {
                         handleLogout();
@@ -415,7 +415,7 @@ export default function Navbar() {
                   </>
                 ) : (
                   <>
-                    <Link
+                    <PrefetchLink
                       to="/auth?mode=login"
                       onClick={() => setMobileOpen(false)}
                       className="
@@ -426,8 +426,8 @@ export default function Navbar() {
                       "
                     >
                       Log in
-                    </Link>
-                    <Link
+                    </PrefetchLink>
+                    <PrefetchLink
                       to="/auth?mode=signup"
                       onClick={() => setMobileOpen(false)}
                       className="
@@ -440,7 +440,7 @@ export default function Navbar() {
                       id="nav-mobile-cta"
                     >
                       Get started
-                    </Link>
+                    </PrefetchLink>
                   </>
                 )}
               </div>

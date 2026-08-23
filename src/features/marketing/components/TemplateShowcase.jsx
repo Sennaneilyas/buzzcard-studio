@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { TEMPLATES } from "@/config/templates";
+import { prefetchTemplate } from "@/lib/prefetch";
 
 export default function TemplateShowcase() {
   return (
@@ -42,6 +43,7 @@ export default function TemplateShowcase() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.7, delay: i * 0.15, ease: "easeOut" }}
+              onMouseEnter={() => prefetchTemplate(tpl.id)}
               className="group flex flex-col cursor-pointer"
             >
               <div className="relative rounded-[2rem] overflow-hidden aspect-[9/16] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-ink/5 bg-white mb-6">

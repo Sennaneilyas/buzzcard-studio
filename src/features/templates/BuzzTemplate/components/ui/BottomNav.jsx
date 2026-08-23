@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { UserRoundPlus, QrCode, MessageSquare } from "lucide-react";
 import { GLASS_SHADOW } from "../../utils/constants";
@@ -7,7 +7,7 @@ import { useShareProfile } from "../../hooks/useShareProfile";
 /**
  * Fixed bottom tab bar: Enregistrer (share/save profile), QR Code, Avis.
  */
-export default function BottomNav({
+function BottomNav({
   activeTab,
   setActiveTab,
   onSave,
@@ -145,3 +145,5 @@ export default function BottomNav({
     </nav>
   );
 }
+
+export default React.memo(BottomNav);

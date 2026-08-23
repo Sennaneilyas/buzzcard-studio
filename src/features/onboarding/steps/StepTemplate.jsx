@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getTemplatesByCategory } from "@/config/templates";
-import { Check, MousePointerClick, Eye, X, Filter, Crown } from "lucide-react";
+import { prefetchTemplate } from "@/lib/prefetch";
+import { Check, Eye, X, Filter, Crown } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 
 export default function StepTemplate({ selectedId, onSelect }) {
@@ -48,6 +49,7 @@ export default function StepTemplate({ selectedId, onSelect }) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
+              onMouseEnter={() => prefetchTemplate(template.id)}
               onClick={() => onSelect(isSelected ? null : template.id)}
               className={cn(
                 "relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col group border-2",

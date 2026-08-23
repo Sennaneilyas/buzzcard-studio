@@ -1,10 +1,12 @@
+import React from "react";
+
 /**
  * The two decorative Vector SVGs used behind both the main profile page
  * and the review overlay. `fixed` makes them stay put when a scrollable
  * ancestor (like the review overlay) scrolls; omit it for the main page
  * where the SVGs should scroll away with the rest of the layout.
  */
-export default function BuzzCardBackground({ fixed = false }) {
+function BuzzCardBackground({ fixed = false }) {
   const positionClass = fixed ? "fixed" : "absolute";
 
   return (
@@ -27,3 +29,5 @@ export default function BuzzCardBackground({ fixed = false }) {
     </>
   );
 }
+
+export default React.memo(BuzzCardBackground);

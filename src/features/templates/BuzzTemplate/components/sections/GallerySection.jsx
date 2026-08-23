@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import { useGalleryCarousel } from "../../hooks/useGalleryCarousel";
@@ -8,7 +8,7 @@ import GalleryArrow from "../ui/GalleryArrow";
  * Swipeable stacked-photo gallery (max 5 images) with prev/next arrows
  * and dot indicators.
  */
-export default function GallerySection({ gallery, shouldReduceMotion }) {
+function GallerySection({ gallery, shouldReduceMotion }) {
   const images = useMemo(() => gallery?.slice(0, 5) ?? [], [gallery]);
   const { active, setActive, handleNext, handlePrev, handleDragEnd } =
     useGalleryCarousel(images.length);
@@ -85,3 +85,5 @@ export default function GallerySection({ gallery, shouldReduceMotion }) {
     </section>
   );
 }
+
+export default React.memo(GallerySection);
