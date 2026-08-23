@@ -20,7 +20,7 @@ export function ServicesSection() {
       whileInView="visible"
       viewport={{ once: true, margin: "-50px" }}
       variants={staggerContainer}
-      className="bg-white px-5 py-12 w-full"
+      className="bg-transparent px-5 py-12 w-full"
     >
       <motion.div variants={fadeInUp}>
         <SectionHeader subtitle="Ce que nous offrons" title="Nos Services" />

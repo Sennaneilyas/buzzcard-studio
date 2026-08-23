@@ -7,6 +7,7 @@ import HeroSection from "./components/sections/HeroSection";
 import SocialLinksSection from "./components/sections/SocialLinksSection";
 import GallerySection from "./components/sections/GallerySection";
 import DescriptionSection from "./components/sections/DescriptionSection";
+import DynamicSection from "@/components/ui/DynamicSection";
 import BottomNav from "./components/ui/BottomNav";
 import QrCodeOverlay from "./components/overlays/QrCodeOverlay";
 import ReviewOverlay from "./components/overlays/ReviewOverlay";
@@ -107,6 +108,9 @@ export default function BuzzTemplate({
             <HeroSection profile={profile} isEditMode={isEditMode} />
             <SocialLinksSection socials={activeSocials} isEditMode={isEditMode} />
             <GallerySection gallery={profile.gallery || gallery} shouldReduceMotion={shouldReduceMotion} isEditMode={isEditMode} />
+            {(profile.custom_sections || profileData?.custom_sections || []).map((section) => (
+              <DynamicSection key={section.id} section={section} theme="dark" />
+            ))}
             <DescriptionSection description={profile.bio || profile.description} isEditMode={isEditMode} />
           </div>
         </div>

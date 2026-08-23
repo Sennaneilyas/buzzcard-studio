@@ -22,17 +22,17 @@ export function DigitalCardQrSection({ profile }) {
   return (
     <motion.section 
       initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
-      className="bg-[#f0f5fa] px-5 py-12 w-full flex flex-col items-center"
+      className="bg-[#F8FAFC] px-5 py-12 w-full flex flex-col items-center"
     >
       <motion.div variants={fadeInUp} className="w-full">
         <SectionHeader subtitle="ENREGISTRER LE CONTACT" title="Ma vCard" />
       </motion.div>
-      <motion.div variants={fadeInUp} className="mt-8 flex flex-col items-center gap-4 p-6 bg-white rounded-[20px] border-[0.67px] border-[var(--primary-color, #4682b4)2e] shadow-[0px_2px_14px_rgba(70,130,180,0.1)] w-full max-w-[320px]">
+      <motion.div variants={fadeInUp} className="mt-8 flex flex-col items-center gap-4 p-6 bg-white rounded-[20px] border-[0.67px] border-[var(--primary-color,#4682b4)2e] shadow-[0px_2px_14px_rgba(70,130,180,0.1)] w-full max-w-[320px]">
         <img src="/img/container-1.svg" alt="QR Code" className="w-[200px]" />
-        <p className="text-[var(--primary-color, #4682b4)8c] text-xs font-normal">vcards.info/dr-amina-elfassi</p>
+        <p className="text-[var(--primary-color,#4682b4)8c] text-xs font-normal">vcards.info/dr-amina-elfassi</p>
         <motion.button 
           whileTap={{ scale: 0.95 }} onClick={handleDownload}
-          className="w-full py-3 bg-[var(--primary-color, #4682b4)] text-white rounded-xl font-semibold text-sm mt-2"
+          className="w-full py-3 bg-[var(--primary-color,#4682b4)] text-white rounded-xl font-semibold text-sm mt-2"
         >
           ↓ Télécharger ma vCard
         </motion.button>

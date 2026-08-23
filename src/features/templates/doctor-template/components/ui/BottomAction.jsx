@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UserRoundPlus, Check, Share2, X, Copy, CheckCheck, Mail, MessageSquare } from "lucide-react";
 
-export function BottomAction({ profile }) {
+export function BottomAction({ profile, isEditMode = false }) {
   const [saved, setSaved] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -92,7 +92,7 @@ export function BottomAction({ profile }) {
     },
     {
       name: "SMS",
-      color: "bg-[var(--primary-color, #4682b4)] text-white hover:bg-[#3b6d96]",
+      color: "bg-[var(--primary-color,#4682b4)] text-white hover:bg-[#3b6d96]",
       icon: <MessageSquare className="w-4 h-4" />,
       url: `sms:?body=${encodeURIComponent(shareText + " " + shareUrl)}`
     }
@@ -105,13 +105,13 @@ export function BottomAction({ profile }) {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
-        className="sticky bottom-3.5 sm:bottom-4 px-4 w-full z-40 mt-auto pointer-events-none"
+        className={`sticky px-4 w-full z-40 mt-auto pointer-events-none ${isEditMode ? "bottom-4" : "bottom-3.5 sm:bottom-4"}`}
       >
-        <div className="bg-[var(--primary-color, #4682b4)]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(70,130,180,0.28)] border border-white/20 flex items-center gap-1.5 pointer-events-auto">
+        <div className="bg-[var(--primary-color,#4682b4)]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(70,130,180,0.28)] border border-white/20 flex items-center gap-1.5 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleSaveContact}
-            className="flex-1 h-[40px] bg-white text-[var(--primary-color, #4682b4)] rounded-[11px] flex items-center justify-center gap-1.5 font-semibold text-[13px] shadow-sm hover:bg-slate-50 transition-colors"
+            className="flex-1 h-[40px] bg-white text-[var(--primary-color,#4682b4)] rounded-[11px] flex items-center justify-center gap-1.5 font-semibold text-[13px] shadow-sm hover:bg-slate-50 transition-colors"
           >
             <AnimatePresence mode="wait">
               {saved ? (
@@ -170,16 +170,16 @@ export function BottomAction({ profile }) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              className="relative w-full max-w-[420px] bg-white rounded-t-[28px] sm:rounded-[24px] p-5 shadow-2xl border border-[var(--primary-color, #4682b4)20] z-10 overflow-hidden"
+              className="relative w-full max-w-[420px] bg-white rounded-t-[28px] sm:rounded-[24px] p-5 shadow-2xl border border-[var(--primary-color,#4682b4)20] z-10 overflow-hidden"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-[var(--primary-color, #4682b4)18] mb-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[var(--primary-color,#4682b4)18] mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[var(--primary-color, #4682b4)12] flex items-center justify-center text-[var(--primary-color, #4682b4)]">
+                  <div className="w-8 h-8 rounded-full bg-[var(--primary-color,#4682b4)12] flex items-center justify-center text-[var(--primary-color,#4682b4)]">
                     <Share2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-poppins font-bold text-[var(--primary-color, #4682b4)] text-[15px] leading-none">
+                    <h3 className="font-poppins font-bold text-[var(--primary-color,#4682b4)] text-[15px] leading-none">
                       Partager le profil
                     </h3>
                     <p className="text-[11px] text-[rgba(70,130,180,0.65)] mt-0.5">
@@ -190,7 +190,7 @@ export function BottomAction({ profile }) {
 
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="w-8 h-8 rounded-full bg-[#f0f5fa] text-[var(--primary-color, #4682b4)] hover:bg-[#e2edf8] flex items-center justify-center transition-colors"
+                  className="w-8 h-8 rounded-full bg-[#F8FAFC] text-[var(--primary-color,#4682b4)] hover:bg-[#F1F5F9] flex items-center justify-center transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -205,12 +205,12 @@ export function BottomAction({ profile }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setShowShareModal(false)}
-                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[16px] bg-[#f0f5fa] hover:bg-[#e4effa] border border-[var(--primary-color, #4682b4)15] transition-all group active:scale-95"
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[16px] bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[var(--primary-color,#4682b4)15] transition-all group active:scale-95"
                   >
                     <div className={`w-9 h-9 rounded-full ${platform.color} flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform`}>
                       {platform.icon}
                     </div>
-                    <span className="text-[11px] font-medium text-[var(--primary-color, #4682b4)]">
+                    <span className="text-[11px] font-medium text-[var(--primary-color,#4682b4)]">
                       {platform.name}
                     </span>
                   </a>
@@ -218,16 +218,16 @@ export function BottomAction({ profile }) {
               </div>
 
               {/* Copy URL Bar */}
-              <div className="flex items-center gap-2 p-2 bg-[#f0f5fa] rounded-[14px] border border-[var(--primary-color, #4682b4)20]">
+              <div className="flex items-center gap-2 p-2 bg-[#F8FAFC] rounded-[14px] border border-[var(--primary-color,#4682b4)20]">
                 <input
                   type="text"
                   readOnly
                   value={shareUrl}
-                  className="flex-1 bg-transparent px-2 text-[12px] text-[var(--primary-color, #4682b4)] outline-none truncate select-all"
+                  className="flex-1 bg-transparent px-2 text-[12px] text-[var(--primary-color,#4682b4)] outline-none truncate select-all"
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="px-3 py-1.5 bg-[var(--primary-color, #4682b4)] text-white rounded-[10px] text-[12px] font-semibold flex items-center gap-1 hover:bg-[#3b6d96] transition-colors shrink-0"
+                  className="px-3 py-1.5 bg-[var(--primary-color,#4682b4)] text-white rounded-[10px] text-[12px] font-semibold flex items-center gap-1 hover:bg-[#3b6d96] transition-colors shrink-0"
                 >
                   {copiedLink ? (
                     <>

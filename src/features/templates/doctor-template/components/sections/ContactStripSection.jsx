@@ -10,7 +10,7 @@ export function ContactStripSection({ profile }) {
       whileInView="visible"
       viewport={{ once: true, margin: "-50px" }}
       variants={staggerContainer}
-      className="bg-[#f0f5fa] px-5 py-8 w-full flex flex-col gap-3"
+      className="bg-[#F8FAFC] px-5 py-8 w-full flex flex-col gap-3"
     >
       <motion.div variants={fadeInUp}>
         <ContactRow icon={Mail} label="E-mail" value={profile.emails[0]} actionLabel="Écrire" href={`mailto:${profile.emails[0]}`} />

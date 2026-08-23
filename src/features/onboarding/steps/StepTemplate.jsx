@@ -177,58 +177,52 @@ export default function StepTemplate({ selectedId, onSelect }) {
               onClick={() => setPreviewTemplate(null)}
             >
               <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-gray-200"
-                onClick={(e) => e.stopPropagation()}
+                className="relative w-full h-full max-w-lg flex flex-col items-center justify-center pointer-events-none"
               >
-                {/* Modal Header */}
-                <div className="shrink-0 p-4 px-6 flex items-center justify-between bg-white border-b border-gray-100 z-10">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-extrabold text-navy">{previewTemplate.name}</h2>
-                  </div>
-                  <button
-                    onClick={() => setPreviewTemplate(null)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                {/* Floating Close Button */}
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="absolute -top-4 sm:top-4 right-0 sm:-right-16 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors pointer-events-auto backdrop-blur-md"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                {/* Lightbox Content */}
+                <div 
+                  className="w-full max-h-[85vh] overflow-y-auto custom-scrollbar rounded-[2.5rem] shadow-2xl ring-1 ring-white/20 pointer-events-auto bg-white"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {previewTemplate.previewUrl ? (
+                    <iframe 
+                      src={previewTemplate.previewUrl} 
+                      className="w-full h-[850px] sm:h-[950px] block border-0"
+                      title={previewTemplate.name}
+                    />
+                  ) : (
+                    <img
+                      src={previewTemplate.thumbnail}
+                      alt={previewTemplate.name}
+                      className="w-full h-auto block"
+                    />
+                  )}
                 </div>
 
-                {/* Modal Body: Exact Template Image or Interactive Iframe */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar bg-white/50 shadow-inner relative w-full">
-                  <div className="w-full max-w-[450px] mx-auto py-10 sm:py-16 px-4">
-                    {previewTemplate.previewUrl ? (
-                      <iframe 
-                        src={previewTemplate.previewUrl} 
-                        className="w-full h-[850px] sm:h-[1000px] block rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] ring-1 ring-black/5 bg-white border-0"
-                        title={previewTemplate.name}
-                      />
-                    ) : (
-                      <img
-                        src={previewTemplate.thumbnail}
-                        alt={previewTemplate.name}
-                        className="w-full h-auto block rounded-[2.5rem] shadow-[0_30px_60px_rgba(0,0,0,0.15)] ring-1 ring-black/5 bg-white"
-                      />
-                    )}
-                  </div>
-                </div>
-
-                {/* Modal Footer */}
-                <div className="shrink-0 p-4 px-6 flex items-center justify-end bg-white border-t border-gray-100 z-10">
-                  <button
-                    onClick={() => {
-                      onSelect(previewTemplate.id);
-                      setPreviewTemplate(null);
-                    }}
-                    className="px-8 py-3 text-base font-bold text-white bg-ink hover:bg-black rounded-xl shadow-[0_10px_20px_rgba(0,0,0,0.2)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
-                  >
-                    <Check className="w-5 h-5" />
-                    Select this template
-                  </button>
-                </div>
+                {/* Floating Select Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(previewTemplate.id);
+                    setPreviewTemplate(null);
+                  }}
+                  className="absolute -bottom-16 mt-6 px-8 py-4 text-lg font-bold text-navy bg-white hover:bg-gray-100 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 active:scale-95 flex items-center gap-2 pointer-events-auto"
+                >
+                  <Check className="w-6 h-6 text-green-500" />
+                  Select {previewTemplate.name}
+                </button>
               </motion.div>
             </motion.div>
           )}

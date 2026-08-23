@@ -7,36 +7,52 @@ export default function ImageUploadZone({
   onChange, 
   label = "Upload Image", 
   aspectRatio = "square",
-  className 
+  className,
+  multiple = false
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef(null);
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      processFile(file);
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      if (multiple) {
+        processMultipleFiles(files);
+      } else {
+        processFile(files[0]);
+      }
     }
   };
 
   const processFile = (file) => {
-    // Check if it's an image
     if (!file.type.startsWith("image/")) return;
-    
-    // Convert to Base64 Data URL for instant preview (simulating upload)
     const reader = new FileReader();
-    reader.onload = (e) => {
-      onChange(e.target.result);
-    };
+    reader.onload = (e) => onChange(e.target.result);
     reader.readAsDataURL(file);
+  };
+
+  const processMultipleFiles = async (files) => {
+    const validFiles = files.filter(f => f.type.startsWith("image/"));
+    const results = await Promise.all(
+      validFiles.map(file => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      }))
+    );
+    onChange(results);
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      processFile(file);
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length > 0) {
+      if (multiple) {
+        processMultipleFiles(files);
+      } else {
+        processFile(files[0]);
+      }
     }
   };
 
@@ -80,6 +96,7 @@ export default function ImageUploadZone({
           ref={inputRef}
           type="file" 
           accept="image/*" 
+          multiple={multiple}
           className="hidden" 
           onChange={handleFileChange} 
         />

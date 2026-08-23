@@ -9,17 +9,19 @@ import {
 } from "react-icons/si";
 import { CircleMenu } from "@/components/ui/circle-menu";
 
-export function BottomAction({ profile }) {
+export function BottomAction({ profile, isEditMode = false }) {
   const [copiedLink, setCopiedLink] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(isEditMode || false);
 
   useEffect(() => {
+    if (isEditMode) return;
+    
     const handleScroll = () => {
       setIsVisible(window.scrollY > 80);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isEditMode]);
 
   const shareUrl =
     typeof window !== "undefined"

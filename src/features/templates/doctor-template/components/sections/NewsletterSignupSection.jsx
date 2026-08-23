@@ -16,7 +16,7 @@ export function NewsletterSignupSection() {
   return (
     <motion.section 
       initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
-      className="bg-[var(--primary-color, #4682b4)] px-5 py-12 w-full flex flex-col items-center text-center relative overflow-hidden"
+      className="bg-[var(--primary-color,#4682b4)] px-5 py-12 w-full flex flex-col items-center text-center relative overflow-hidden"
     >
       <img src="/img/vector-4.svg" className="absolute top-4 left-4 opacity-50 w-[180px]" alt="" />
       
@@ -26,7 +26,7 @@ export function NewsletterSignupSection() {
       
       <motion.form variants={fadeInUp} onSubmit={handleSubmit} className="w-full flex gap-2 relative z-10">
         <input type="email" required value={email} onChange={(e) => {setEmail(e.target.value); setMessage("");}} placeholder="Votre e-mail" className="flex-1 min-w-0 px-4 py-3 bg-[#ffffff1f] rounded-xl border-[1.33px] border-[#ffffff40] text-white placeholder:text-[#ffffff80] text-[16px] sm:text-sm outline-none" />
-        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="px-4 py-3 bg-white text-[var(--primary-color, #4682b4)] font-semibold text-sm rounded-xl shrink-0">S'abonner</motion.button>
+        <motion.button whileTap={{ scale: 0.95 }} type="submit" className="px-4 py-3 bg-white text-[var(--primary-color,#4682b4)] font-semibold text-sm rounded-xl shrink-0">S'abonner</motion.button>
       </motion.form>
       {message && <p className="text-white text-xs mt-3 relative z-10">{message}</p>}
     </motion.section>

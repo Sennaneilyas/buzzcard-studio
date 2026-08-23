@@ -5,6 +5,7 @@ import { HeroSection } from "./components/sections/HeroSection";
 import { ContactStripSection } from "./components/sections/ContactStripSection";
 import { SectionHeader } from "./components/ui/SectionHeader";
 import { fadeInUp } from "./utils/animations";
+import { DynamicSection } from "@/components/ui/DynamicSection";
 
 // Lazy loaded components (Below the fold)
 const OfficeHoursSection = lazy(() => import("./components/sections/OfficeHoursSection").then(m => ({ default: m.OfficeHoursSection })));
@@ -21,7 +22,7 @@ const BottomAction = lazy(() => import("./components/ui/BottomAction").then(m =>
 // A lightweight skeleton to show while sections are being fetched
 const SectionFallback = () => (
   <div className="w-full py-12 flex flex-col items-center justify-center opacity-60">
-    <div className="w-6 h-6 border-2 border-[rgba(70,130,180,0.2)] border-t-[var(--primary-color, #4682b4)] rounded-full animate-spin" />
+    <div className="w-6 h-6 border-2 border-[rgba(70,130,180,0.2)] border-t-[var(--primary-color,#4682b4)] rounded-full animate-spin" />
   </div>
 );
 
@@ -87,12 +88,12 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
   }
 
   return (
-    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start sm:py-6 font-['Inter'] antialiased selection:bg-[var(--primary-color, #4682b4)] selection:text-white">
+    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start font-['Inter'] antialiased selection:bg-[var(--primary-color,#4682b4)] selection:text-white sm:py-6">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-[#f0f5fa] sm:rounded-[32px] sm:border sm:border-[var(--primary-color, #4682b4)25] overflow-hidden sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.22),0px_2px_14px_0px_rgba(70,130,180,0.12)] flex flex-col pb-3 sm:pb-4 relative min-h-screen sm:min-h-[auto]"
+        className="w-full max-w-[440px] bg-[#F8FAFC] overflow-hidden flex flex-col pb-3 relative min-h-screen sm:pb-4 sm:rounded-[32px] sm:border sm:border-[var(--primary-color,#4682b4)15] sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.12),0px_2px_14px_0px_rgba(70,130,180,0.06)] sm:min-h-[auto]"
       >
         {/* Above the fold - Loaded synchronously */}
         <HeroSection profile={profile} isEditMode={isEditMode} />
@@ -108,7 +109,7 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={fadeInUp}
-            className="bg-[#f0f5fa] px-5 py-12 w-full"
+            className="bg-[#F8FAFC] px-5 py-12 w-full"
           >
             <SectionHeader subtitle="Notre clinique" title="Galerie" />
             <div className="mt-8">
@@ -117,6 +118,12 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
           </motion.section>
 
           <AppointmentsSection />
+
+          {/* Custom Sections from the editor */}
+          {(profile.custom_sections || []).map((section) => (
+            <DynamicSection key={section.id} section={section} />
+          ))}
+
           <TestimonialsSection />
           <BlogSection />
           <ContactFormSection />
@@ -124,24 +131,25 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
           <NewsletterSignupSection />
         </Suspense>
 
-        {/* Footer Area */}
-        <section className="bg-[#f0f5fa] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
-           <p className="font-semibold text-[var(--primary-color, #4682b4)] mb-1">{profile.fullName}</p>
+        {/* Footer Area */}www
+        <section className="bg-[#F8FAFC] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
+           <p className="font-semibold text-[var(--primary-color,#4682b4)] mb-1">{profile.fullName}</p>
+           <p className="mb-4 text-[11px]">Numéro d'Ordre: {profile.orderNumber || "123456"}</p>
            <div className="flex justify-center gap-4 mb-5">
-             <a href="#" className="hover:text-[var(--primary-color, #4682b4)] transition-colors">Mentions légales</a>
-             <a href="#" className="hover:text-[var(--primary-color, #4682b4)] transition-colors">Confidentialité</a>
+             <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Mentions légales</a>
+             <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Confidentialité</a>
            </div>
            
-           <div className="flex flex-col items-center gap-2 border-t-[0.667px] border-[var(--primary-color, #4682b4)2e] pt-5 w-[80%] mx-auto">
-             <p className="text-[10px] uppercase tracking-widest text-[var(--primary-color, #4682b4)8c] font-semibold">Propulsé par</p>
+           <div className="flex flex-col items-center gap-2 border-t border-[var(--primary-color,#4682b4)15] pt-5 w-[80%] mx-auto">
+             <p className="text-[10px] uppercase tracking-widest text-[rgba(70,130,180,0.6)] font-semibold">Propulsé par</p>
              <div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
-               <img src="/justlogo.png" alt="Buzzcard" className="h-4 object-contain" />
+               <img src="/justlogo.png" alt="Buzzcard" className="h-4 object-contain filter grayscale" />
              </div>
            </div>
         </section>
         
         <Suspense fallback={null}>
-          <BottomAction profile={profile} />
+          <BottomAction profile={profile} isEditMode={isEditMode} />
         </Suspense>
       </motion.div>
     </div>

@@ -4,6 +4,7 @@ import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { HeroSection } from "./components/sections/HeroSection";
 import { QuickActions } from "./components/sections/QuickActions";
 import { CoiffeurBackground } from "./components/ui/CoiffeurBackground";
+import DynamicSection from "@/components/ui/DynamicSection";
 
 // Lazy loaded components (Below the fold)
 const ServicesSection = lazy(() => import("./components/sections/ServicesSection").then(m => ({ default: m.ServicesSection })));
@@ -134,19 +135,22 @@ export default function CoiffeurTemplate({ profile: rawProfile, profileData, isE
   }
 
   return (
-    <div className="relative w-full min-h-[100dvh] bg-[#F9F9F9] flex justify-center items-start sm:py-6 font-inter antialiased selection:bg-[var(--primary-color, #C5A880)] selection:text-white">
+    <div className="relative w-full min-h-[100dvh] bg-[#F9F9F9] flex justify-center items-start font-inter antialiased selection:bg-[var(--primary-color, #C5A880)] selection:text-white sm:py-6">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-white sm:rounded-[32px] sm:border sm:border-black/5 overflow-hidden sm:shadow-[0px_20px_60px_-15px_rgba(0,0,0,0.1)] flex flex-col relative min-h-screen sm:min-h-[auto]"
+        className="w-full max-w-[440px] bg-white overflow-hidden flex flex-col relative min-h-screen sm:rounded-[32px] sm:border sm:border-black/5 sm:shadow-[0px_20px_60px_-15px_rgba(0,0,0,0.1)] sm:min-h-[auto]"
       >
         <CoiffeurBackground className="pb-3 sm:pb-4">
-        <HeroSection profile={profile} />
+        <HeroSection profile={profile} isEditMode={isEditMode} />
         <QuickActions profile={profile} />
 
         <Suspense fallback={<SectionFallback />}>
           <ServicesSection profile={profile} />
+          {(profile.custom_sections || []).map((section) => (
+            <DynamicSection key={section.id} section={section} />
+          ))}
           <GallerySection images={profile.gallery} />
           <WorkingHours profile={profile} />
           <BookingSection profile={profile} />
@@ -170,7 +174,7 @@ export default function CoiffeurTemplate({ profile: rawProfile, profileData, isE
         </section>
         
         <Suspense fallback={null}>
-          <BottomAction profile={profile} />
+          <BottomAction profile={profile} isEditMode={isEditMode} />
         </Suspense>
         </CoiffeurBackground>
       </motion.div>

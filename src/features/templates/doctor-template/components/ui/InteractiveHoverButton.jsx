@@ -29,7 +29,7 @@ export const InteractiveHoverButton = React.forwardRef(({ text = "Button", class
       whileTap={{ scale: 0.95 }}
       className={cn(
         "group relative inline-flex items-center justify-center overflow-hidden rounded-full px-5 py-2 font-semibold transition-all duration-300",
-        "border-[0.667px] border-white/40 bg-white/90 backdrop-blur-md text-[var(--primary-color, #4682b4)]",
+        "border-[0.667px] border-white/40 bg-white/90 backdrop-blur-md text-[var(--primary-color,#4682b4)]",
         "hover:shadow-[0px_8px_16px_rgba(0,0,0,0.12)]",
         className
       )}

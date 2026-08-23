@@ -4,7 +4,7 @@ import { UserRoundPlus, Check, Share2, Copy, CheckCheck } from "lucide-react";
 import { SiWhatsapp, SiFacebook, SiX } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
 
-export function BottomAction({ profile }) {
+export function BottomAction({ profile, isEditMode = false }) {
   const [saved, setSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -85,7 +85,7 @@ export function BottomAction({ profile }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
-      className="sticky bottom-3.5 sm:bottom-4 px-4 w-full z-50 mt-auto pointer-events-none"
+      className={`sticky px-4 w-full z-50 mt-auto pointer-events-none ${isEditMode ? "bottom-4" : "bottom-3.5 sm:bottom-4"}`}
     >
       <div className="bg-[#1A1A1A]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(0,0,0,0.25)] border border-white/10 flex items-center gap-1.5 pointer-events-auto relative">
         <motion.button

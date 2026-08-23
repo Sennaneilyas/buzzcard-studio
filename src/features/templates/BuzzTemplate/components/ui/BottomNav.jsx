@@ -54,7 +54,7 @@ function BottomNav({
 
   return (
     <nav
-      className="relative z-20 w-full shrink-0"
+      className="sticky bottom-0 z-50 w-full shrink-0 mt-auto"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Navigation principale"
     >

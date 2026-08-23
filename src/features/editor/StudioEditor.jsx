@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Save, Layout, Palette, User, Share2, ImageIcon, Plus, Loader2, GripVertical, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Layout, User, Share2, ImageIcon, Plus, Loader2, GripVertical, Trash2, Type, AlignLeft, Image as ImageLucide, ChevronDown, ChevronUp } from "lucide-react";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
-import { Reorder } from "framer-motion";
+import { Reorder, AnimatePresence, motion } from "framer-motion";
 import TemplateRegistry from "@/config/TemplateRegistry";
 import { getTemplateById } from "@/config/templates";
 import { SOCIAL_PLATFORMS } from "@/features/onboarding/steps/StepSocials";
@@ -22,36 +22,149 @@ const editorSchema = z.object({
   socials: z.record(z.union([z.literal(""), z.string().url("Must be a valid URL")])).optional(),
   socialOrder: z.array(z.string()).optional(),
   gallery: z.array(z.string()).max(7, "Maximum 7 images allowed").optional(),
-  appearance: z.object({
-    themeColor: z.string().optional(),
-    font: z.string().optional()
-  }).optional(),
   avatarUrl: z.string().optional(),
   bannerUrl: z.string().optional(),
+  custom_sections: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    image: z.string().optional(),
+  })).optional(),
 });
 
 const NAV_ITEMS = [
   { id: "profile", icon: User, label: "Profile Info" },
   { id: "links", icon: Share2, label: "Links & Socials" },
   { id: "sections", icon: Layout, label: "Custom Sections" },
-  { id: "appearance", icon: Palette, label: "Appearance" },
   { id: "gallery", icon: ImageIcon, label: "Gallery" },
 ];
 
-const THEME_COLORS = [
-  { label: "Noir", value: "#1A1A1A" },
-  { label: "Gold", value: "#C5A880" },
-  { label: "Steel Blue", value: "#4682b4" },
-  { label: "Emerald", value: "#10b981" },
-  { label: "Indigo", value: "#6366f1" }
-];
+/** Generate a short unique id for new sections */
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
 
-const FONTS = [
-  { label: "Inter (Modern)", value: "Inter, sans-serif" },
-  { label: "Playfair (Elegant)", value: "'Playfair Display', serif" },
-  { label: "Outfit (Geometric)", value: "Outfit, sans-serif" },
-  { label: "Lora (Classic)", value: "Lora, serif" }
-];
+/**
+ * SectionCard — A collapsible, draggable card for editing a custom section.
+ * Contains: title input, description textarea, optional image upload, and delete button.
+ */
+function SectionCard({ section, onUpdate, onRemove }) {
+  const [isOpen, setIsOpen] = useState(true);
+
+  return (
+    <Reorder.Item
+      value={section}
+      className="bg-white border border-gray-200 shadow-sm overflow-hidden"
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      {/* Header: drag handle + title preview + collapse + delete */}
+      <div className="flex items-center gap-2 px-3 py-3 border-b border-gray-100 bg-gray-50/50">
+        <div className="cursor-grab active:cursor-grabbing p-1 text-gray-300 hover:text-gray-500 transition-colors">
+          <GripVertical className="w-4 h-4" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-bold text-gray-900 truncate">
+            {section.title || "Untitled Section"}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onRemove(section.id)}
+          className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Body: editable fields */}
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 space-y-4">
+              {/* Section Title */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <Type className="w-3 h-3" />
+                  Section Title
+                </label>
+                <input
+                  type="text"
+                  value={section.title || ""}
+                  onChange={(e) => onUpdate(section.id, "title", e.target.value)}
+                  placeholder="E.g. About Me, Our Services, Portfolio..."
+                  className="w-full h-11 bg-gray-50 border border-gray-200 px-3 text-[13px] text-gray-900 font-medium focus:bg-white focus:outline-none focus:border-gray-900 transition-colors"
+                />
+              </div>
+
+              {/* Section Description */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <AlignLeft className="w-3 h-3" />
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={section.description || ""}
+                  onChange={(e) => onUpdate(section.id, "description", e.target.value)}
+                  placeholder="Write the content for this section..."
+                  className="w-full bg-gray-50 border border-gray-200 p-3 text-[13px] text-gray-900 font-medium focus:bg-white focus:outline-none focus:border-gray-900 transition-colors resize-none"
+                />
+              </div>
+
+              {/* Section Image (optional) */}
+              <div>
+                <label className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <ImageLucide className="w-3 h-3" />
+                  Image (optional)
+                </label>
+                {section.image ? (
+                  <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group">
+                    <img src={section.image} alt={section.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onUpdate(section.id, "image", "")}
+                        className="w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-transform active:scale-95"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <ImageUploadZone
+                    label="Add Image"
+                    aspectRatio="video"
+                    value=""
+                    onChange={(val) => { if (val) onUpdate(section.id, "image", val); }}
+                  />
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Reorder.Item>
+  );
+}
 
 export default function StudioEditor() {
   const { slug } = useParams();
@@ -102,12 +215,31 @@ export default function StudioEditor() {
 
   const visibleNavItems = NAV_ITEMS.filter(item => {
     if (item.id === "profile") return true;
-    if (item.id === "appearance") return true;
     if (item.id === "links") return !allowedFields.length || allowedFields.includes("socials");
     if (item.id === "gallery") return !allowedFields.length || allowedFields.includes("gallery");
     if (item.id === "sections") return !allowedFields.length || allowedFields.includes("custom_sections");
     return true;
   });
+
+  // ── Custom Sections helpers ──
+  const customSections = currentData.custom_sections || [];
+
+  const addSection = useCallback(() => {
+    const next = [...customSections, { id: uid(), title: "", description: "", image: "" }];
+    setValue("custom_sections", next, { shouldDirty: true });
+  }, [customSections, setValue]);
+
+  const removeSection = useCallback((id) => {
+    setValue("custom_sections", customSections.filter(s => s.id !== id), { shouldDirty: true });
+  }, [customSections, setValue]);
+
+  const updateSection = useCallback((id, field, value) => {
+    setValue(
+      "custom_sections",
+      customSections.map(s => s.id === id ? { ...s, [field]: value } : s),
+      { shouldDirty: true }
+    );
+  }, [customSections, setValue]);
 
   return (
     <div className="flex flex-col md:flex-row h-[100dvh] w-full bg-[#FAFAFA] overflow-hidden font-sans relative">
@@ -405,71 +537,66 @@ export default function StudioEditor() {
             );
           })()}
 
-          {/* SECTIONS TAB */}
-          {activeTab === "sections" && (() => {
-            const allowedSections = activeTemplate?.allowedSections || [];
-            if (allowedSections.length === 0) {
-              return (
-                <div className="flex flex-col items-center justify-center h-40 opacity-50 text-sm font-medium">
-                  No custom sections available for this template.
-                </div>
-              );
-            }
-            return (
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Template Sections</h3>
-                {allowedSections.map(section => (
-                  <div key={section.id} className="bg-white border border-gray-200 p-4 shadow-sm flex items-center justify-between group cursor-pointer hover:border-gray-300 transition-colors">
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-900">{section.label}</h4>
-                      <p className="text-[11px] text-gray-500 mt-1">Configure {section.label.toLowerCase()} content</p>
-                    </div>
-                    <button type="button" className="text-[12px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
-                      Edit
-                    </button>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
-
-          {/* APPEARANCE TAB */}
-          {activeTab === "appearance" && (
-            <div className="space-y-8">
-              <div className="bg-white border border-gray-200 rounded-none p-6 shadow-sm">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-6">Theme Color</h2>
-                <div className="flex flex-wrap gap-4">
-                  {THEME_COLORS.map(color => (
-                    <button
-                      key={color.value}
-                      type="button"
-                      onClick={() => setValue("appearance.themeColor", color.value, { shouldDirty: true })}
-                      className={`w-12 h-12 rounded-full border-2 transition-all ${currentData.appearance?.themeColor === color.value ? "border-gray-900 scale-110 shadow-md" : "border-transparent hover:scale-105"}`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.label}
-                    />
-                  ))}
-                </div>
-                {errors.appearance?.themeColor && <p className="text-[10px] text-red-500 font-medium mt-2">{errors.appearance.themeColor.message}</p>}
+          {/* SECTIONS TAB — Full section builder */}
+          {activeTab === "sections" && (
+            <div className="space-y-6">
+              {/* Header + Add button */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Sections</h3>
+                <button
+                  type="button"
+                  onClick={addSection}
+                  className="flex items-center gap-1.5 text-[12px] font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-3 py-2 transition-colors active:scale-95"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Section
+                </button>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-none p-6 shadow-sm">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 mb-6">Typography</h2>
-                <div className="flex flex-col gap-3">
-                  {FONTS.map(font => (
-                    <button
-                      key={font.value}
-                      type="button"
-                      onClick={() => setValue("appearance.font", font.value, { shouldDirty: true })}
-                      className={`w-full p-4 border text-left transition-all ${currentData.appearance?.font === font.value ? "border-gray-900 bg-gray-50" : "border-gray-200 hover:border-gray-400"}`}
-                      style={{ fontFamily: font.value }}
-                    >
-                      <span className="text-[15px] font-medium text-gray-900">{font.label}</span>
-                      <span className="block text-[12px] text-gray-500 mt-1">The quick brown fox jumps over the lazy dog.</span>
-                    </button>
-                  ))}
+              {customSections.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-gray-200 bg-gray-50/50">
+                  <Layout className="w-10 h-10 text-gray-300 mb-3" />
+                  <p className="text-sm font-bold text-gray-500 mb-1">No sections yet</p>
+                  <p className="text-[12px] text-gray-400 text-center max-w-[220px] mb-4">Add custom sections to showcase your content — about, services, portfolio, anything you want.</p>
+                  <button
+                    type="button"
+                    onClick={addSection}
+                    className="flex items-center gap-1.5 text-[12px] font-bold text-white bg-gray-900 hover:bg-black px-4 py-2.5 transition-colors active:scale-95"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Create First Section
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <Reorder.Group
+                  axis="y"
+                  values={customSections}
+                  onReorder={(newOrder) => setValue("custom_sections", newOrder, { shouldDirty: true })}
+                  className="space-y-4"
+                >
+                  <AnimatePresence initial={false}>
+                    {customSections.map((section) => (
+                      <SectionCard
+                        key={section.id}
+                        section={section}
+                        onUpdate={updateSection}
+                        onRemove={removeSection}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </Reorder.Group>
+              )}
+
+              {customSections.length > 0 && customSections.length < 8 && (
+                <button
+                  type="button"
+                  onClick={addSection}
+                  className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-gray-200 text-gray-400 hover:text-gray-600 hover:border-gray-300 text-[12px] font-bold transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Another Section
+                </button>
+              )}
             </div>
           )}
 
@@ -511,9 +638,14 @@ export default function StudioEditor() {
                         label="Add Photo"
                         aspectRatio="square"
                         value=""
+                        multiple={true}
                         onChange={(val) => {
                           if (val) {
-                            setValue("gallery", [...gallery, val], { shouldDirty: true });
+                            const newImages = Array.isArray(val) ? val : [val];
+                            // Only add up to maxImages
+                            const spacesLeft = maxImages - gallery.length;
+                            const imagesToAdd = newImages.slice(0, spacesLeft);
+                            setValue("gallery", [...gallery, ...imagesToAdd], { shouldDirty: true });
                           }
                         }}
                       />
@@ -527,12 +659,8 @@ export default function StudioEditor() {
       </div>
 
       {/* ── RIGHT PANE: Live Template Preview ── */}
-      <div className="flex-1 h-full relative overflow-hidden bg-gray-100 flex flex-col items-center justify-center p-0 md:p-8">
-        <div className="w-full h-full md:max-w-[420px] md:max-h-[900px] bg-white md:rounded-3xl md:shadow-2xl md:ring-1 md:ring-black/5 overflow-hidden relative z-10 flex flex-col transform md:scale-[0.85] lg:scale-[0.95] xl:scale-100 origin-center transition-transform">
-          <div className="flex-1 h-full overflow-hidden relative">
-            <TemplateRegistry templateId={templateId} profileData={currentData} isEditMode={true} />
-          </div>
-        </div>
+      <div className="flex-1 h-full relative overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-gray-100 flex flex-col items-center justify-start">
+        <TemplateRegistry templateId={templateId} profileData={currentData} isEditMode={true} />
       </div>
     </div>
   );

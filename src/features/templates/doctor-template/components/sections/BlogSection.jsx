@@ -103,18 +103,18 @@ export function BlogSection() {
               onClick={() => toggleExpand(post.id)}
               className={`bg-white p-5 rounded-[22px] border-[0.667px] transition-all cursor-pointer ${
                 isExpanded 
-                  ? "border-[var(--primary-color, #4682b4)] shadow-[0px_8px_24px_rgba(70,130,180,0.18)]" 
-                  : "border-[var(--primary-color, #4682b4)] drop-shadow-[0px_2px_7px_rgba(70,130,180,0.1)] hover:border-[#3b6d96] hover:-translate-y-0.5"
+                  ? "border-[var(--primary-color,#4682b4)] shadow-[0px_8px_24px_rgba(70,130,180,0.18)]" 
+                  : "border-[var(--primary-color,#4682b4)] drop-shadow-[0px_2px_7px_rgba(70,130,180,0.1)] hover:border-[#3b6d96] hover:-translate-y-0.5"
               }`}
             >
               {/* Header Badges */}
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[var(--primary-color, #4682b4)] text-[11px] bg-[rgba(70,130,180,0.08)] px-2.5 py-1 rounded-full">
+                  <span className="font-semibold text-[var(--primary-color,#4682b4)] text-[11px] bg-[rgba(70,130,180,0.08)] px-2.5 py-1 rounded-full">
                     {post.category}
                   </span>
                   <span className="text-[11px] text-[rgba(70,130,180,0.6)] flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-[var(--primary-color, #4682b4)]" />
+                    <Clock className="w-3 h-3 text-[var(--primary-color,#4682b4)]" />
                     {post.readTime}
                   </span>
                 </div>
@@ -122,7 +122,7 @@ export function BlogSection() {
               </div>
 
               {/* Title */}
-              <h3 className="font-poppins font-semibold text-[15px] text-[var(--primary-color, #4682b4)] mb-2 leading-snug">
+              <h3 className="font-poppins font-semibold text-[15px] text-[var(--primary-color,#4682b4)] mb-2 leading-snug">
                 {post.title}
               </h3>
 
@@ -144,17 +144,17 @@ export function BlogSection() {
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="pt-2 pb-4 text-[#334155] border-t border-[var(--primary-color, #4682b4)20] mt-3 flex flex-col gap-4">
+                    <div className="pt-2 pb-4 text-[#334155] border-t border-[var(--primary-color,#4682b4)20] mt-3 flex flex-col gap-4">
                       {/* Intro Lead */}
-                      <p className="text-[13px] leading-relaxed text-[var(--primary-color, #4682b4)] bg-[var(--primary-color, #4682b4)0a] p-3.5 rounded-[14px] border border-[var(--primary-color, #4682b4)2e]">
+                      <p className="text-[13px] leading-relaxed text-[var(--primary-color,#4682b4)] bg-[var(--primary-color,#4682b4)0a] p-3.5 rounded-[14px] border border-[var(--primary-color,#4682b4)2e]">
                         {post.content.intro}
                       </p>
 
                       {/* Sections */}
                       {post.content.sections.map((sec, sIdx) => (
                         <div key={sIdx} className="flex flex-col gap-2">
-                          <h4 className="font-semibold text-[var(--primary-color, #4682b4)] text-[13.5px] flex items-center gap-1.5">
-                            <BookOpen className="w-3.5 h-3.5 text-[var(--primary-color, #4682b4)]" />
+                          <h4 className="font-semibold text-[var(--primary-color,#4682b4)] text-[13.5px] flex items-center gap-1.5">
+                            <BookOpen className="w-3.5 h-3.5 text-[var(--primary-color,#4682b4)]" />
                             {sec.heading}
                           </h4>
                           {sec.paragraphs.map((p, pIdx) => (
@@ -166,7 +166,7 @@ export function BlogSection() {
                             <ul className="flex flex-col gap-1.5 mt-1 pl-1">
                               {sec.points.map((pt, ptIdx) => (
                                 <li key={ptIdx} className="text-[12px] text-[rgba(70,130,180,0.85)] flex items-start gap-2 leading-relaxed">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--primary-color, #4682b4)] shrink-0 mt-0.5" />
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--primary-color,#4682b4)] shrink-0 mt-0.5" />
                                   <span>{pt}</span>
                                 </li>
                               ))}
@@ -177,9 +177,9 @@ export function BlogSection() {
 
                       {/* Doctor advice highlight */}
                       {post.content.doctorTip && (
-                        <div className="bg-[var(--primary-color, #4682b4)12] p-3.5 rounded-[14px] border border-[var(--primary-color, #4682b4)25] flex items-start gap-2.5">
-                          <AlertCircle className="w-4 h-4 text-[var(--primary-color, #4682b4)] shrink-0 mt-0.5" />
-                          <div className="text-[12px] text-[var(--primary-color, #4682b4)] leading-relaxed">
+                        <div className="bg-[var(--primary-color,#4682b4)12] p-3.5 rounded-[14px] border border-[var(--primary-color,#4682b4)25] flex items-start gap-2.5">
+                          <AlertCircle className="w-4 h-4 text-[var(--primary-color,#4682b4)] shrink-0 mt-0.5" />
+                          <div className="text-[12px] text-[var(--primary-color,#4682b4)] leading-relaxed">
                             <span className="font-semibold block mb-0.5">Le conseil du médecin :</span>
                             <span className="text-[rgba(70,130,180,0.85)]">{post.content.doctorTip}</span>
                           </div>
@@ -198,7 +198,7 @@ export function BlogSection() {
                     e.stopPropagation();
                     toggleExpand(post.id);
                   }}
-                  className="text-[13px] font-semibold text-[var(--primary-color, #4682b4)] flex items-center gap-1.5 hover:gap-2 transition-all"
+                  className="text-[13px] font-semibold text-[var(--primary-color,#4682b4)] flex items-center gap-1.5 hover:gap-2 transition-all"
                 >
                   {isExpanded ? (
                     <>

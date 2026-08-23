@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence, animate } from "framer-motion";
 import { staggerContainer, fadeInUp } from "../../utils/animations";
 import { InteractiveHoverButton } from "../ui/InteractiveHoverButton";
+import EditableImage from "@/components/ui/EditableImage";
+import EditableText from "@/components/ui/EditableText";
+import { useEditorStore } from "@/features/editor/store/useEditorStore";
 
 function AnimatedCounter({ from = 0, to, duration = 1, delay = 0, suffix = "" }) {
   const [count, setCount] = useState(from);
@@ -21,7 +24,8 @@ function AnimatedCounter({ from = 0, to, duration = 1, delay = 0, suffix = "" })
   return <>{formatted}{suffix}</>;
 }
 
-export function HeroSection({ profile }) {
+export function HeroSection({ profile, isEditMode }) {
+  const setProfileData = useEditorStore((s) => s.setProfileData);
   const [activeTab, setActiveTab] = useState("about");
 
   const tabs = [
@@ -55,16 +59,17 @@ export function HeroSection({ profile }) {
   };
 
   return (
-    <div className="bg-[var(--primary-color, #4682b4)] relative w-full flex flex-col pb-[32px]">
+    <div className="bg-[var(--primary-color,#4682b4)] relative w-full flex flex-col pb-[32px]">
       <div className="relative w-full h-[160px]">
-        {profile.bannerUrl ? (
-          <img src={profile.bannerUrl} alt="Banner" className="absolute inset-0 w-full h-full object-cover" />
-        ) : (
-          <div className="absolute inset-0 bg-[#f0f5fa]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(70,130,180,0.1)] to-[rgba(70,130,180,0.8)]" />
-        
-
+        <EditableImage
+          src={profile.bannerUrl || ""}
+          alt="Banner"
+          isEditMode={isEditMode}
+          onChange={(val) => setProfileData({ bannerUrl: val })}
+          className="absolute inset-0 w-full h-full object-cover"
+          containerClassName="absolute inset-0"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgba(70,130,180,0.1)] to-[rgba(70,130,180,0.8)] pointer-events-none" />
       </div>
       
       <div className="px-5 w-full relative">
@@ -77,10 +82,16 @@ export function HeroSection({ profile }) {
             style={{ borderRadius: "46% 54% 39% 61% / 54% 42% 58% 46%" }}
           >
             <div 
-              className="w-[104px] h-[104px] overflow-hidden bg-[#f0f5fa]"
+              className="w-[104px] h-[104px] overflow-hidden bg-[#F8FAFC]"
               style={{ borderRadius: "46% 54% 39% 61% / 54% 42% 58% 46%" }}
             >
-              <img src={profile.avatarUrl} alt={profile.fullName} className="w-full h-full object-cover" />
+              <EditableImage
+                src={profile.avatarUrl || ""}
+                alt={profile.fullName}
+                isEditMode={isEditMode}
+                onChange={(val) => setProfileData({ avatarUrl: val })}
+                className="w-full h-full object-cover"
+              />
             </div>
           </motion.div>
           
@@ -105,9 +116,14 @@ export function HeroSection({ profile }) {
             transition={{ delay: 0.2 }}
             className="flex items-center justify-between w-full mb-1"
           >
-            <h1 className="font-poppins font-bold text-[22px] text-white leading-tight">
-              {profile.fullName}
-            </h1>
+            <EditableText
+              as="h1"
+              value={profile.fullName || ""}
+              onChange={(val) => setProfileData({ name: val })}
+              isEditMode={isEditMode}
+              placeholder="Doctor Name"
+              className="font-poppins font-bold text-[22px] text-white leading-tight"
+            />
             <div className="flex items-center gap-2.5">
               {profile.phones?.[0] && (
                 <motion.a 
@@ -147,14 +163,21 @@ export function HeroSection({ profile }) {
             </div>
           </motion.div>
           
-          <motion.p 
+          <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-[14px] font-medium text-[rgba(255,255,255,0.92)] mb-3.5"
+            className="mb-3.5 w-full"
           >
-            {profile.title}
-          </motion.p>
+            <EditableText
+              as="p"
+              value={profile.title || ""}
+              onChange={(val) => setProfileData({ role: val })}
+              isEditMode={isEditMode}
+              placeholder="Specialty / Title"
+              className="text-[14px] font-medium text-[rgba(255,255,255,0.92)]"
+            />
+          </motion.div>
           
           <motion.div 
             variants={staggerContainer}
@@ -184,7 +207,7 @@ export function HeroSection({ profile }) {
                 key={tab.id}
                 whileTap={{ scale: 0.95 }} 
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 rounded-[8px] py-1.5 font-semibold text-[12px] transition-all ${activeTab === tab.id ? "bg-white text-[var(--primary-color, #4682b4)] drop-shadow-[0px_1px_2px_rgba(0,0,0,0.1)]" : "text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)]"}`}
+                className={`flex-1 rounded-[8px] py-1.5 font-semibold text-[12px] transition-all ${activeTab === tab.id ? "bg-white text-[var(--primary-color,#4682b4)] drop-shadow-[0px_1px_2px_rgba(0,0,0,0.1)]" : "text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.1)]"}`}
               >
                 {tab.label}
               </motion.button>

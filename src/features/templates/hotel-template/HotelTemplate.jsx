@@ -119,7 +119,7 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-white sm:rounded-[32px] sm:border sm:border-[var(--hotel-cappuccino)]/20 overflow-clip sm:shadow-[0px_20px_60px_-15px_rgba(59,42,34,0.12)] flex flex-col relative min-h-screen sm:min-h-[auto]"
+        className="w-full max-w-[440px] bg-white overflow-clip flex flex-col relative min-h-screen sm:rounded-[32px] sm:border sm:border-[var(--hotel-cappuccino)]/20 sm:shadow-[0px_20px_60px_-15px_rgba(59,42,34,0.12)] sm:min-h-[auto]"
       >
         <HotelBackground className="pb-3 sm:pb-4">
           <div className="relative z-10">
@@ -219,7 +219,7 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
           </section>
 
           <Suspense fallback={null}>
-            <BottomAction profile={profile} />
+            <BottomAction profile={profile} isEditMode={isEditMode} />
           </Suspense>
         </HotelBackground>
       </motion.div>
