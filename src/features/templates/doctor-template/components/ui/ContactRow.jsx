@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import EditableText from "@/components/ui/EditableText";
 
-export function ContactRow({ icon: Icon, label, value, actionLabel, href }) {
+export function ContactRow({ icon: Icon, label, value, actionLabel, href, isEditMode, onChange }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -17,7 +18,19 @@ export function ContactRow({ icon: Icon, label, value, actionLabel, href }) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-medium text-[rgba(70,130,180,0.55)] mb-0.5">{label}</p>
-        <p className="text-[13px] font-semibold text-[var(--primary-color,#4682b4)] truncate">{value}</p>
+        <div className="text-[13px] font-semibold text-[var(--primary-color,#4682b4)] truncate">
+          {isEditMode ? (
+            <EditableText
+              as="span"
+              value={value || ""}
+              onChange={onChange}
+              isEditMode={isEditMode}
+              className="outline-none"
+            />
+          ) : (
+            value
+          )}
+        </div>
       </div>
       <div className="flex gap-1.5">
         <motion.a 

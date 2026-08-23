@@ -4,7 +4,10 @@ import { ArrowRight, ChevronUp, Clock, BookOpen, CheckCircle2, AlertCircle } fro
 import { SectionHeader } from "../ui/SectionHeader";
 import { staggerContainer, fadeInUp } from "../../utils/animations";
 
-const blogPosts = [
+import EditableText from "@/components/ui/EditableText";
+import { useEditorStore } from "@/features/editor/store/useEditorStore";
+
+const defaultBlogPosts = [
   {
     id: "fibrillation-auriculaire",
     category: "Cardiologie",
@@ -72,8 +75,10 @@ const blogPosts = [
   }
 ];
 
-export function BlogSection() {
+export function BlogSection({ profile, isEditMode }) {
   const [expandedId, setExpandedId] = useState(null);
+
+  const setProfileData = useEditorStore((state) => state.setProfileData);
 
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -91,8 +96,10 @@ export function BlogSection() {
         <SectionHeader subtitle="Actualités santé" title="Le Blog" />
       </motion.div>
       <div className="mt-8 flex flex-col gap-4">
-        {blogPosts.map((post) => {
+        {defaultBlogPosts.map((post, idx) => {
           const isExpanded = expandedId === post.id;
+          const currentTitle = profile?.profileData?.[`blog_${idx}_title`] || post.title;
+          const currentExcerpt = profile?.profileData?.[`blog_${idx}_excerpt`] || post.excerpt;
 
           return (
             <motion.article 
@@ -122,15 +129,29 @@ export function BlogSection() {
               </div>
 
               {/* Title */}
-              <h3 className="font-poppins font-semibold text-[15px] text-[var(--primary-color,#4682b4)] mb-2 leading-snug">
-                {post.title}
-              </h3>
+              <div className="font-poppins font-semibold text-[15px] text-[var(--primary-color,#4682b4)] mb-2 leading-snug" onClick={(e) => { if (isEditMode) e.stopPropagation(); }}>
+                <EditableText
+                  as="h3"
+                  value={currentTitle}
+                  onChange={(val) => setProfileData({ [`blog_${idx}_title`]: val })}
+                  isEditMode={isEditMode}
+                  placeholder="Titre de l'article"
+                  className="outline-none"
+                />
+              </div>
 
               {/* Excerpt (hidden when expanded) */}
               {!isExpanded && (
-                <p className="text-[13px] text-[rgba(70,130,180,0.65)] mb-4 line-clamp-2 leading-relaxed">
-                  {post.excerpt}
-                </p>
+                <div className="text-[13px] text-[rgba(70,130,180,0.65)] mb-4 line-clamp-2 leading-relaxed" onClick={(e) => { if (isEditMode) e.stopPropagation(); }}>
+                  <EditableText
+                    as="p"
+                    value={currentExcerpt}
+                    onChange={(val) => setProfileData({ [`blog_${idx}_excerpt`]: val })}
+                    isEditMode={isEditMode}
+                    placeholder="Extrait"
+                    className="outline-none"
+                  />
+                </div>
               )}
 
               {/* Expanded Rich Article Content */}

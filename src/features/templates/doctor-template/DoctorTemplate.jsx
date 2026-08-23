@@ -58,6 +58,17 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
     fullName: profileData?.name || rawProfile?.fullName || mockProfile.fullName,
     title: profileData?.role || rawProfile?.title || mockProfile.title,
     about: profileData?.bio || rawProfile?.about || mockProfile.about,
+    education: profileData?.education || rawProfile?.education || mockProfile.education,
+    awards: profileData?.awards || rawProfile?.awards || mockProfile.awards,
+    experience: profileData?.kpiExp || rawProfile?.experience || mockProfile.experience,
+    patients: profileData?.kpiPatients || rawProfile?.patients || mockProfile.patients,
+    satisfaction: profileData?.kpiSatisfaction || rawProfile?.satisfaction || mockProfile.satisfaction,
+    badge1: profileData?.badge1 || "Cardiologie",
+    badge2: profileData?.badge2 || "Soins Préventifs",
+    badge3: profileData?.badge3 || "ECG",
+    emails: profileData?.email ? [profileData.email] : (rawProfile?.emails || mockProfile.emails),
+    phones: profileData?.phone ? [profileData.phone] : (rawProfile?.phones || mockProfile.phones),
+    location: profileData?.location || rawProfile?.location || mockProfile.location,
     avatarUrl: profileData?.avatarUrl || rawProfile?.avatarUrl || mockProfile.avatarUrl,
     bannerUrl: profileData?.bannerUrl || rawProfile?.bannerUrl || mockProfile.bannerUrl,
     gallery: profileData?.gallery?.length ? profileData.gallery : (rawProfile?.gallery || mockProfile.gallery),
@@ -66,6 +77,7 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
           .filter(platform => profileData.socials[platform])
           .map(platform => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href: profileData.socials[platform] }))
       : (rawProfile?.socials || mockProfile.socials),
+    profileData: profileData || {} // Pass down raw editor state for arrays like services
   };
   // In Edit Mode, skip the loading animation so the preview renders instantly.
   const [isLoading, setIsLoading] = useState(!isEditMode);
@@ -102,7 +114,7 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
         {/* Below the fold - Lazy Loaded chunk by chunk */}
         <Suspense fallback={<SectionFallback />}>
           <OfficeHoursSection />
-          <ServicesSection />
+          <ServicesSection profile={profile} isEditMode={isEditMode} />
           
           <motion.section 
             initial="hidden"
@@ -124,14 +136,14 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
             <DynamicSection key={section.id} section={section} />
           ))}
 
-          <TestimonialsSection />
-          <BlogSection />
+          <TestimonialsSection profile={profile} isEditMode={isEditMode} />
+          <BlogSection profile={profile} isEditMode={isEditMode} />
           <ContactFormSection />
           <DigitalCardQrSection profile={profile} />
           <NewsletterSignupSection />
         </Suspense>
 
-        {/* Footer Area */}www
+        {/* Footer Area */}
         <section className="bg-[#F8FAFC] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
            <p className="font-semibold text-[var(--primary-color,#4682b4)] mb-1">{profile.fullName}</p>
            <p className="mb-4 text-[11px]">Numéro d'Ordre: {profile.orderNumber || "123456"}</p>

@@ -185,13 +185,24 @@ export function HeroSection({ profile, isEditMode }) {
             animate="visible"
             className="flex gap-1.5 mb-5 flex-wrap"
           >
-            {["Cardiologie", "Soins Préventifs", "ECG"].map((tag) => (
+            {[
+              { key: 'badge1', val: profile.badge1 },
+              { key: 'badge2', val: profile.badge2 },
+              { key: 'badge3', val: profile.badge3 }
+            ].map((badge) => (
               <motion.span 
-                key={tag}
+                key={badge.key}
                 variants={fadeInUp}
-                className="bg-[rgba(255,255,255,0.14)] border-[0.667px] border-[rgba(255,255,255,0.22)] rounded-full px-[10px] py-[3px] font-medium text-[11px] text-white"
+                className="bg-[rgba(255,255,255,0.14)] border-[0.667px] border-[rgba(255,255,255,0.22)] rounded-full px-[10px] py-[3px] font-medium text-[11px] text-white flex items-center min-w-[30px]"
               >
-                {tag}
+                <EditableText
+                  as="span"
+                  value={badge.val}
+                  onChange={(val) => setProfileData({ [badge.key]: val })}
+                  isEditMode={isEditMode}
+                  placeholder="Badge"
+                  className="outline-none"
+                />
               </motion.span>
             ))}
           </motion.div>
@@ -224,7 +235,17 @@ export function HeroSection({ profile, isEditMode }) {
                 transition={{ duration: 0.2 }}
                 className="text-[13px] text-[rgba(255,255,255,0.88)] leading-relaxed whitespace-pre-line"
               >
-                {profile[activeTab]}
+                <EditableText
+                  as="div"
+                  value={profile[activeTab] || ""}
+                  onChange={(val) => {
+                    const keyMap = { about: 'bio', education: 'education', awards: 'awards' };
+                    setProfileData({ [keyMap[activeTab]]: val });
+                  }}
+                  isEditMode={isEditMode}
+                  placeholder={`Entrez votre ${activeTab}...`}
+                  className="outline-none"
+                />
               </motion.div>
             </AnimatePresence>
           </div>
@@ -236,20 +257,50 @@ export function HeroSection({ profile, isEditMode }) {
             className="flex w-full mt-6 pt-5 border-t-[0.667px] border-[rgba(255,255,255,0.2)]"
           >
             <div className="flex-1 flex flex-col items-start">
-              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
-                <AnimatedCounter to={14} delay={0.7} suffix="+" />
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight flex items-center">
+                {isEditMode ? (
+                  <EditableText
+                    as="span"
+                    value={profile.experience}
+                    onChange={(val) => setProfileData({ kpiExp: val })}
+                    isEditMode={isEditMode}
+                    className="outline-none"
+                  />
+                ) : (
+                  <AnimatedCounter to={parseInt(profile.experience) || 14} delay={0.7} suffix="+" />
+                )}
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Ans Exp.</span>
             </div>
             <div className="flex-1 flex flex-col items-start border-l-[0.667px] border-[rgba(255,255,255,0.2)] pl-4">
-              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
-                <AnimatedCounter to={2800} delay={1.5} suffix="+" />
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight flex items-center">
+                {isEditMode ? (
+                  <EditableText
+                    as="span"
+                    value={profile.patients}
+                    onChange={(val) => setProfileData({ kpiPatients: val })}
+                    isEditMode={isEditMode}
+                    className="outline-none"
+                  />
+                ) : (
+                  <AnimatedCounter to={parseInt(profile.patients?.replace(/\D/g,'')) || 2800} delay={1.5} suffix="+" />
+                )}
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Patients</span>
             </div>
             <div className="flex-1 flex flex-col items-start border-l-[0.667px] border-[rgba(255,255,255,0.2)] pl-4">
-              <span className="font-poppins font-bold text-[18px] text-white leading-tight">
-                <AnimatedCounter to={98} delay={2.3} suffix="%" />
+              <span className="font-poppins font-bold text-[18px] text-white leading-tight flex items-center">
+                {isEditMode ? (
+                  <EditableText
+                    as="span"
+                    value={profile.satisfaction}
+                    onChange={(val) => setProfileData({ kpiSatisfaction: val })}
+                    isEditMode={isEditMode}
+                    className="outline-none"
+                  />
+                ) : (
+                  <AnimatedCounter to={parseInt(profile.satisfaction) || 98} delay={2.1} suffix="%" />
+                )}
               </span>
               <span className="text-[11px] text-[rgba(255,255,255,0.7)] mt-0.5">Satisfaction</span>
             </div>
