@@ -10,6 +10,8 @@ import { GlobalLoader } from "@/components/ui/GlobalLoader";
 
 const LandingPage = React.lazy(() => import("@/features/marketing/LandingPage"));
 const ProductsPage = React.lazy(() => import("@/features/products/ProductsPage"));
+const ProductsRoute = React.lazy(() => import("@/features/products/ProductsRoute"));
+const CheckoutPage = React.lazy(() => import("@/features/products/CheckoutPage"));
 const OnboardingPage = React.lazy(() => import("@/features/onboarding/OnboardingPage"));
 const PublicProfileRoute = React.lazy(() => import("@/app/routes/public-profile"));
 const StudioEditor = React.lazy(() => import("@/features/editor/StudioEditor"));
@@ -50,7 +52,8 @@ export default function AppRouter() {
           }
         />
         <Route path="/products" element={<ProductsPage />} />
-        <Route path="/products/:category" element={<ProductsPage />} />
+        <Route path="/products/:slug" element={<ProductsRoute />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/profile/:slug" element={<PublicProfileRoute />} />
         <Route
           path="/profile/:slug/edit"

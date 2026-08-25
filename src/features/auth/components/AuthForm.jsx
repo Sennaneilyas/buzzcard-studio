@@ -13,6 +13,8 @@ import { supabase } from "@/lib/supabase";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useAuthStore } from "../store/useAuthStore";
+import { getSafeReturnTo } from "../utils/returnTo";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -53,35 +55,37 @@ export default function AuthForm() {
   const setError = useAuthStore((s) => s.setError);
   const navigate = useNavigate();
   const isSignup = searchParams.get("mode") !== "login";
+  const requestedReturnTo = searchParams.get("returnTo");
+  const returnTo = getSafeReturnTo(requestedReturnTo);
+  const authRedirectUrl = `${window.location.origin}/auth?returnTo=${encodeURIComponent(returnTo)}`;
 
   const currentSchema = isSignup
     ? (authMethod === "magic-link" ? magicLinkSignupSchema : signupSchema)
     : (authMethod === "magic-link" ? magicLinkSchema : loginSchema);
 
-  const { register, handleSubmit: hookFormSubmit, formState: { errors }, reset, watch } = useForm({
+  const { register, handleSubmit: hookFormSubmit, formState: { errors }, reset } = useForm({
     resolver: zodResolver(currentSchema),
     mode: "onTouched"
   });
-
-  const agreedToTerms = watch("agreedToTerms");
 
   useEffect(() => {
     reset();
     setMessage(null);
   }, [isSignup, authMethod, reset]);
 
+  // ── Redirect to the requested internal route when authenticated ──
   useEffect(() => {
     if (user) {
-      navigate("/onboarding", { replace: true });
+      navigate(returnTo, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, returnTo]);
 
   const handleOAuth = async (provider) => {
     setLoading(true);
     setMessage(null);
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/onboarding` },
+      options: { redirectTo: authRedirectUrl },
     });
     if (error) {
       setMessage({ type: "error", text: error.message });
@@ -98,7 +102,7 @@ export default function AuthForm() {
       const { error } = await supabase.auth.signInWithOtp({
         email: data.email,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          emailRedirectTo: authRedirectUrl,
           shouldCreateUser: isSignup,
           ...(isSignup && {
             data: {
@@ -117,7 +121,7 @@ export default function AuthForm() {
           email: data.email,
           password: data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/onboarding`,
+            emailRedirectTo: authRedirectUrl,
             data: {
               first_name: data.firstName,
               last_name: data.lastName,
@@ -143,7 +147,9 @@ export default function AuthForm() {
 
   const switchMode = () => {
     setMessage(null);
-    navigate(`/auth?mode=${isSignup ? "login" : "signup"}`);
+    const params = new URLSearchParams({ mode: isSignup ? "login" : "signup" });
+    if (requestedReturnTo) params.set("returnTo", returnTo);
+    navigate(`/auth?${params.toString()}`);
   };
 
   // ─────────── Marketing Panel ───────────
