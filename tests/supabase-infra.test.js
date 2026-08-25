@@ -10,7 +10,7 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !ANON_KEY || !SERVICE_ROLE_KEY) {
   throw new Error(
-    "Missing env vars. Check tests/.env.test.local has SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY",
+    "Missing env vars. Check project-root .env.test.local has SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY",
   );
 }
 
@@ -199,10 +199,49 @@ describe("Supabase infrastructure smoke tests", () => {
 
   describe("RLS — orders", () => {
     let createdOrderId;
+    let otherOrderId;
+    let product;
+    let variant;
+
+    beforeAll(async () => {
+      const { data: productData, error: productError } = await admin
+        .from("products")
+        .select("id, name, base_price")
+        .eq("is_active", true)
+        .limit(1)
+        .single();
+      if (productError) throw productError;
+      product = productData;
+
+      const { data: variantData } = await admin
+        .from("product_variants")
+        .select("id, name, sku, price")
+        .eq("product_id", product.id)
+        .eq("is_active", true)
+        .order("is_default", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      variant = variantData;
+
+      const { data: otherOrder, error: otherOrderError } = await admin
+        .from("orders")
+        .insert({
+          user_id: userB.id,
+          shipping_address: { city: "Rabat", country: "MA" },
+          total_amount: variant?.price ?? product.base_price,
+        })
+        .select("id")
+        .single();
+      if (otherOrderError) throw otherOrderError;
+      otherOrderId = otherOrder.id;
+    });
 
     afterAll(async () => {
       if (createdOrderId) {
         await admin.from("orders").delete().eq("id", createdOrderId);
+      }
+      if (otherOrderId) {
+        await admin.from("orders").delete().eq("id", otherOrderId);
       }
     });
 
@@ -236,6 +275,55 @@ describe("Supabase infrastructure smoke tests", () => {
       const { data, error } = await clientA.from("orders").select("*");
       expect(error).toBeNull();
       expect(data.every((order) => order.user_id === userA.id)).toBe(true);
+    });
+
+    it("a user can create a configured item for their own order", async () => {
+      const unitPrice = Number(variant?.price ?? product.base_price);
+      const { data, error } = await clientA
+        .from("order_items")
+        .insert({
+          order_id: createdOrderId,
+          product_id: product.id,
+          variant_id: variant?.id ?? null,
+          sku: variant?.sku ?? null,
+          product_name: product.name,
+          variant_name: variant?.name ?? null,
+          quantity: 2,
+          unit_price: unitPrice,
+          line_total: unitPrice * 2,
+          configuration: { type: "profile", profile_id: userA.id },
+          customization: { design: "standard" },
+        })
+        .select()
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.product_name).toBe(product.name);
+      expect(data.quantity).toBe(2);
+      expect(data.configuration.type).toBe("profile");
+    });
+
+    it("a user cannot create or view items belonging to another user's order", async () => {
+      const unitPrice = Number(variant?.price ?? product.base_price);
+      const { error: insertError } = await clientA.from("order_items").insert({
+        order_id: otherOrderId,
+        product_id: product.id,
+        variant_id: variant?.id ?? null,
+        sku: variant?.sku ?? null,
+        product_name: product.name,
+        variant_name: variant?.name ?? null,
+        quantity: 1,
+        unit_price: unitPrice,
+        line_total: unitPrice,
+      });
+      expect(insertError).not.toBeNull();
+
+      const { data, error } = await clientA
+        .from("order_items")
+        .select("*")
+        .eq("order_id", otherOrderId);
+      expect(error).toBeNull();
+      expect(data).toEqual([]);
     });
 
     it("there is no UPDATE policy — a user cannot edit an existing order", async () => {

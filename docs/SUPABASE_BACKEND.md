@@ -1,6 +1,6 @@
 # BuzzCard Studio — Supabase Backend Context
 
-**Last updated:** 2026-07-27
+**Last updated:** 2026-08-21
 **Supersedes:** any earlier backend notes in `PROJECT_CONTEXT.md` or `SETUP.md` that conflict with this document.
 
 **Project:** `buzzcard-studio` · region `eu-central-1` (Frankfurt) · Free tier
@@ -58,6 +58,13 @@ Extends `auth.users` 1:1 via shared UUID primary key.
 ### `orders`
 `id`, `user_id` (FK → auth.users, SET NULL), `status` (pending/paid/shipped/delivered), `shipping_address` JSONB, `total_amount`, `created_at`. SELECT + INSERT policies only — **no UPDATE policy exists on purpose**, orders are immutable once placed from the user's side.
 
+### `order_items`
+Immutable checkout line snapshots linked to `orders` with `ON DELETE CASCADE`. Each row stores `product_id`, optional `variant_id`, SKU, product/variant names, quantity, unit price, and line total. Snapshot names and prices deliberately remain on the item so catalogue edits do not rewrite order history. Product and variant deletes are restricted while referenced by an order.
+
+Per-item `configuration` JSONB stores the NFC destination/content configuration, while `customization` JSONB stores custom design data. Both default to an empty object. Authenticated users have SELECT + INSERT access only, scoped through the owning order; anonymous users have no table grants.
+
+**Production checkout guardrail:** the current INSERT policy verifies order ownership, but prices and snapshot fields still come from the authenticated client. Before enabling real order submission or payment, move order creation behind a server-side transaction/RPC that reloads catalogue prices and stock. Do not treat client-submitted `unit_price` or `line_total` as authoritative.
+
 ### `templates`
 `id`, `slug` (UNIQUE), `name`, `category` (CHECK: personal / review_card / bracelet), `trial_days` DEFAULT 7, `thumbnail_url`, `is_active`, `created_at`. Publicly readable where `is_active = true`.
 
@@ -69,8 +76,8 @@ Same shape as `social_links` — child tables, not JSONB arrays, deliberately (s
 **"Max 4" is a UI-enforced rule, not a DB constraint** — deliberate trade-off, see §7.
 
 ### Indexes
-Every FK has an explicit index (Postgres does not auto-index FK columns, only PKs):
-`idx_social_links_profile_id`, `idx_orders_user_id`, `idx_profile_phones_profile_id`, `idx_profile_emails_profile_id`, `idx_profiles_template_id`.
+Every commerce FK has an explicit index (Postgres does not auto-index FK columns, only PKs):
+`idx_orders_user_id`, `idx_order_items_order_id`, `idx_order_items_product_id`, and `idx_order_items_variant_id`.
 
 ---
 
@@ -106,6 +113,17 @@ No schema special-casing needed. A WhatsApp entry is just a `social_links` row w
 ---
 
 ## 4. Storage
+
+### Product catalogue
+
+The public catalogue is stored in four RLS-enabled tables:
+
+- `product_categories` — ordered catalogue categories; public read is limited to active rows.
+- `products` — product copy, base price, stock, configuration metadata, features, and active/featured flags; public read is limited to active products in active categories.
+- `product_variants` — SKU, color/material, variant price/stock, and default selection; public read is limited to active variants of active products.
+- `product_media` — ordered product/variant media using `is_primary` and `position`; public read is limited to media belonging to active products and active variants.
+
+Product files live in the public `product-images` bucket. Database rows store `storage_path`; the frontend generates public URLs with `supabase.storage.from("product-images").getPublicUrl(storagePath)`.
 
 ### `avatars` bucket
 Public, MIME `image/png|jpeg|webp`, 2MB limit. Path convention: `{user_id}/filename`. Policies: public SELECT removed deliberately (see §7 — public URL access doesn't need it, and it was leaking the ability to enumerate user IDs via bucket listing). INSERT/UPDATE restricted to own folder.
@@ -163,9 +181,9 @@ Known rough edge (not yet hit in this project): adding a password to an account 
 
 ## 9. Testing
 
-`tests/supabase-infra.test.js` (Vitest, hits the live project directly — not mocked) currently covers, with all 16 tests passing green:
+`tests/supabase-infra.test.js` (Vitest, hits the live project directly — not mocked) currently covers:
 - Schema + `handle_new_user` trigger
-- RLS on `profiles`, `social_links`, `orders` (including real cross-user denial proof, not just "no error")
+- RLS on `profiles`, `social_links`, `orders`, and `order_items` (including real cross-user denial proof, not just "no error")
 - Storage folder-ownership on `avatars`
 
 **Not yet covered** (same ownership-proof pattern needs extending to):
