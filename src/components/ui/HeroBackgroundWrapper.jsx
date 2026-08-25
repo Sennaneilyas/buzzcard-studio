@@ -123,6 +123,7 @@ void main() {
 
 const GradientPlane = ({ color1, color2, speed = 1, noiseScale = 1.5 }) => {
     const meshRef = useRef(null);
+    const materialRef = useRef(null);
     const uniforms = useMemo(
         () => ({
             uTime: { value: 0 },
@@ -135,20 +136,24 @@ const GradientPlane = ({ color1, color2, speed = 1, noiseScale = 1.5 }) => {
     );
 
     useFrame((state) => {
+        const material = materialRef.current;
+        if (!material) return;
         const { clock, size } = state;
+        const frameUniforms = material.uniforms;
         // Optimized: only update time
-        uniforms.uTime.value = clock.getElapsedTime() * speed;
+        frameUniforms.uTime.value = clock.getElapsedTime() * speed;
         // avoid object reallocation in frame loop
-        if (uniforms.uResolution.value.x !== size.width || uniforms.uResolution.value.y !== size.height) {
-            uniforms.uResolution.value.set(size.width, size.height);
+        if (frameUniforms.uResolution.value.x !== size.width || frameUniforms.uResolution.value.y !== size.height) {
+            frameUniforms.uResolution.value.set(size.width, size.height);
         }
-        uniforms.uNoiseScale.value = noiseScale;
+        frameUniforms.uNoiseScale.value = noiseScale;
     });
 
     return (
         <mesh ref={meshRef} scale={[2, 2, 1]}>
             <planeGeometry args={[2, 2]} />
             <shaderMaterial
+                ref={materialRef}
                 vertexShader={vertexShader}
                 fragmentShader={fragmentShader}
                 uniforms={uniforms}

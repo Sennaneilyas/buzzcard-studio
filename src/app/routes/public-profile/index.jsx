@@ -1,4 +1,3 @@
-import React, { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Edit3, Eye } from "lucide-react";

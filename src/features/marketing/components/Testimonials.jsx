@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import { StaggerTestimonials } from "@/components/ui/stagger-testimonials";
 

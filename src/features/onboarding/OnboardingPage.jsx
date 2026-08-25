@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthStore, useProfile } from "@/features/auth";
@@ -8,8 +8,6 @@ import {
   UserCircle,
   Share2,
   Rocket,
-  ArrowRight,
-  CheckCircle,
   Home,
   Edit3,
   Zap,
@@ -46,10 +44,6 @@ export default function OnboardingPage() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [isSuccess, setIsSuccess] = useState(false);
-  const spotlightRef = React.useRef(null);
-
-  const handleMouseMove = () => {};
-
   const methods = useForm({
     resolver: zodResolver(onboardingSchema),
     mode: "onTouched",
@@ -63,7 +57,7 @@ export default function OnboardingPage() {
     }
   });
 
-  const { trigger, watch } = methods;
+  const { trigger, getValues } = methods;
 
   const rawDisplayName =
     user?.user_metadata?.full_name ||
@@ -90,7 +84,7 @@ export default function OnboardingPage() {
     if (activeTabIndex < ONBOARDING_STEPS.length - 1) {
       setActiveTabIndex(activeTabIndex + 1);
     } else {
-      const finalData = watch();
+      const finalData = getValues();
       setEditorProfile({
         ...finalData,
         avatarUrl: "",
@@ -223,7 +217,7 @@ export default function OnboardingPage() {
                           <StepSocials />
                         ) : (
                           <StepLaunch
-                            data={watch()}
+                            data={getValues()}
                             selectedTemplateId={selectedTemplateId}
                           />
                         )}

@@ -212,7 +212,7 @@ export default function Pricing() {
           </h3>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 max-w-5xl mx-auto">
-            {PREMIUM_TEMPLATES.map((tpl, i) => (
+            {PREMIUM_TEMPLATES.map((tpl) => (
               <motion.div
                 key={tpl.name}
                 whileHover={{ scale: 1.05, y: -5 }}

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Sparkles, Mail, Phone, User, CheckCircle2, Share2 } from "lucide-react";
+import { Sparkles, Mail, Phone, User, Share2 } from "lucide-react";
 import { getTemplateById } from "@/config/templates";
-import { SOCIAL_PLATFORMS } from "./StepSocials";
+import { SOCIAL_PLATFORMS } from "./socialPlatforms";
 import { SiInstagram, SiX } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
 

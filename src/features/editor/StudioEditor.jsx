@@ -1,11 +1,11 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, Layout, User, Share2, ImageIcon, Plus, Loader2, GripVertical, Trash2, Type, AlignLeft, Image as ImageLucide, ChevronDown, ChevronUp } from "lucide-react";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
 import { Reorder, AnimatePresence, motion } from "framer-motion";
 import TemplateRegistry from "@/config/TemplateRegistry";
 import { getTemplateById } from "@/config/templates";
-import { SOCIAL_PLATFORMS } from "@/features/onboarding/steps/StepSocials";
+import { SOCIAL_PLATFORMS } from "@/features/onboarding/steps/socialPlatforms";
 import ImageUploadZone from "@/components/ui/ImageUploadZone";
 import { useUpdateProfile } from "@/features/editor/api/useUpdateProfile";
 import { useForm } from "react-hook-form";
@@ -222,7 +222,10 @@ export default function StudioEditor() {
   });
 
   // ── Custom Sections helpers ──
-  const customSections = currentData.custom_sections || [];
+  const customSections = useMemo(
+    () => currentData.custom_sections || [],
+    [currentData.custom_sections],
+  );
 
   const addSection = useCallback(() => {
     const next = [...customSections, { id: uid(), title: "", description: "", image: "" }];

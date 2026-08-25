@@ -1,22 +1,13 @@
-import React, { Suspense, useMemo } from "react";
+import { lazy, memo, Suspense } from "react";
 import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { TEMPLATE_LOADERS } from "@/lib/prefetch";
 
-/**
- * Cache of initialized React.lazy components to prevent recreating them on each render.
- */
-const lazyComponentCache = new Map();
-
-function getLazyTemplate(templateId) {
-  const targetId = TEMPLATE_LOADERS[templateId] ? templateId : "buzz-template";
-
-  if (!lazyComponentCache.has(targetId)) {
-    const loader = TEMPLATE_LOADERS[targetId];
-    lazyComponentCache.set(targetId, React.lazy(loader));
-  }
-
-  return lazyComponentCache.get(targetId);
-}
+const LAZY_TEMPLATES = Object.fromEntries(
+  Object.entries(TEMPLATE_LOADERS).map(([templateId, loader]) => [
+    templateId,
+    lazy(loader),
+  ]),
+);
 
 /**
  * TemplateRegistry dynamically renders the correct template component based on the provided templateId.
@@ -28,19 +19,17 @@ function TemplateRegistry({
   isEditMode = false,
   onPreviewClick,
 }) {
-  const TemplateComponent = useMemo(() => getLazyTemplate(templateId), [templateId]);
+  const TemplateComponent =
+    LAZY_TEMPLATES[templateId] || LAZY_TEMPLATES["buzz-template"];
+  const appearanceStyles = {};
 
-  const appearanceStyles = useMemo(() => {
-    const styles = {};
-    if (profileData?.appearance?.themeColor) {
-      styles["--primary-color"] = profileData.appearance.themeColor;
-      styles["--hotel-cappuccino"] = profileData.appearance.themeColor;
-    }
-    if (profileData?.appearance?.font) {
-      styles["fontFamily"] = profileData.appearance.font;
-    }
-    return styles;
-  }, [profileData?.appearance?.themeColor, profileData?.appearance?.font]);
+  if (profileData?.appearance?.themeColor) {
+    appearanceStyles["--primary-color"] = profileData.appearance.themeColor;
+    appearanceStyles["--hotel-cappuccino"] = profileData.appearance.themeColor;
+  }
+  if (profileData?.appearance?.font) {
+    appearanceStyles.fontFamily = profileData.appearance.font;
+  }
 
   return (
     <div style={appearanceStyles} className="w-full h-full">
@@ -56,4 +45,4 @@ function TemplateRegistry({
   );
 }
 
-export default React.memo(TemplateRegistry);
+export default memo(TemplateRegistry);

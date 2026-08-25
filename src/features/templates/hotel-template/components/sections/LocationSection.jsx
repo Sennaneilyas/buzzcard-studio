@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, Navigation, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Mail, ArrowUpRight } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import { SectionHeader } from "../ui/SectionHeader";
 import { SectionWrapper } from "../ui/SectionWrapper";

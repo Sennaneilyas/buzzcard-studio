@@ -49,7 +49,7 @@ const mockProfile = {
   ]
 };
 
-export default function DoctorTemplate({ profile: rawProfile, profileData, isEditMode, onPreviewClick }) {
+export default function DoctorTemplate({ profile: rawProfile, profileData, isEditMode }) {
   // Merge editor flat data on top of the rich mock, so user edits appear instantly.
   const profile = {
     ...mockProfile,
@@ -167,4 +167,3 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
     </div>
   );
 }
-

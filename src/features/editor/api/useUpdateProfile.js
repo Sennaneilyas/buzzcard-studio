@@ -28,7 +28,7 @@ export function useUpdateProfile() {
 
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Invalidate queries to update public profile view if needed
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       toast.success("Profile saved successfully!", {

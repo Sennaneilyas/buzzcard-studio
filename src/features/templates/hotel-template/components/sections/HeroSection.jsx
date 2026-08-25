@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { letterReveal, staggerFast } from "../../utils/animations";
 import EditableImage from "@/components/ui/EditableImage";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
@@ -15,8 +14,6 @@ export function HeroSection({ profile, isEditMode }) {
 
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.4, 0.8]);
-
-  const nameLetters = (profile.name || "").split("");
 
   return (
     <section

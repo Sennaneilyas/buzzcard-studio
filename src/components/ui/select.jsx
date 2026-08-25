@@ -37,7 +37,7 @@ function useProximityHover(containerRef) {
   const [activeIndex, setActiveIndex] = useState(null);
   const [itemRects, setItemRects] = useState([]);
   const itemRectsRef = useRef([]);
-  const sessionRef = useRef(0);
+  const [session, setSession] = useState(0);
   const rafIdRef = useRef(null);
 
   const registerItem = useCallback((index, element) => {
@@ -85,7 +85,7 @@ function useProximityHover(containerRef) {
     });
   }, [containerRef]);
 
-  const handleMouseEnter = useCallback(() => { sessionRef.current += 1; }, []);
+  const handleMouseEnter = useCallback(() => { setSession((current) => current + 1); }, []);
   const handleMouseLeave = useCallback(() => {
     if (rafIdRef.current !== null) { cancelAnimationFrame(rafIdRef.current); rafIdRef.current = null; }
     setActiveIndex(null);
@@ -94,7 +94,7 @@ function useProximityHover(containerRef) {
   useEffect(() => { return () => { if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current); }; }, []);
 
   return {
-    activeIndex, setActiveIndex, itemRects, sessionRef,
+    activeIndex, setActiveIndex, itemRects, session,
     handlers: { onMouseMove: handleMouseMove, onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave },
     registerItem, measureItems,
   };
@@ -114,9 +114,15 @@ function Select({ children, value, defaultValue, onValueChange, disabled = false
   const [open, setOpen] = useState(false);
   const currentValue = value !== undefined ? value : internalValue;
   const triggerRef = useRef(null);
-  const labelMap = useRef(new Map());
-  const [, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
+  const [labels, setLabels] = useState(() => new Map());
+  const registerLabel = useCallback((itemValue, label) => {
+    setLabels((current) => {
+      if (current.get(itemValue) === label) return current;
+      const next = new Map(current);
+      next.set(itemValue, label);
+      return next;
+    });
+  }, []);
 
   const onChange = useCallback((v) => {
     if (value === undefined) setInternalValue(v);
@@ -126,7 +132,7 @@ function Select({ children, value, defaultValue, onValueChange, disabled = false
   }, [value, onValueChange]);
 
   return (
-    <SelectContext.Provider value={{ value: currentValue, onChange, open, setOpen, disabled, triggerRef, labelMap }}>
+    <SelectContext.Provider value={{ value: currentValue, onChange, open, setOpen, disabled, triggerRef, labels, registerLabel }}>
       {children}
       {name && <input type="hidden" name={name} value={currentValue} required={required} />}
     </SelectContext.Provider>
@@ -151,8 +157,8 @@ const triggerVariants = cva(
 
 const SelectTrigger = forwardRef(
   ({ className, variant, icon: Icon, placeholder = "Select…", error, ...props }, ref) => {
-    const { value, open, setOpen, disabled, triggerRef, labelMap } = useSelectContext();
-    const label = value ? labelMap.current.get(value) ?? value : undefined;
+    const { value, open, setOpen, disabled, triggerRef, labels } = useSelectContext();
+    const label = value ? labels.get(value) ?? value : undefined;
 
     return (
       <div className="flex flex-col gap-1">
@@ -192,7 +198,7 @@ const SelectContent = forwardRef(
     const containerRef = useRef(null);
     const [triggerRect, setTriggerRect] = useState(null);
 
-    const { activeIndex, setActiveIndex, itemRects, sessionRef, handlers, registerItem, measureItems } = useProximityHover(containerRef);
+    const { activeIndex, setActiveIndex, itemRects, session, handlers, registerItem, measureItems } = useProximityHover(containerRef);
     const [focusedIndex, setFocusedIndex] = useState(null);
     const [checkedIndex, setCheckedIndex] = useState(undefined);
 
@@ -287,7 +293,7 @@ const SelectContent = forwardRef(
             </AnimatePresence>
             <AnimatePresence>
               {activeRect && (
-                <motion.div key={sessionRef.current} className={`absolute ${shape.bg} bg-white/30 pointer-events-none`}
+                <motion.div key={session} className={`absolute ${shape.bg} bg-white/30 pointer-events-none`}
                   initial={{ opacity: 0, top: checkedRect?.top ?? activeRect.top, left: checkedRect?.left ?? activeRect.left, width: checkedRect?.width ?? activeRect.width, height: checkedRect?.height ?? activeRect.height }}
                   animate={{ opacity: 1, top: activeRect.top, left: activeRect.left, width: activeRect.width, height: activeRect.height }}
                   exit={{ opacity: 0, transition: { duration: 0.06 } }} transition={{ ...springs.fast, opacity: { duration: 0.08 } }} />
@@ -315,15 +321,15 @@ const SelectItem = forwardRef(
     const selectCtx = useSelectContext();
     const contentCtx = useContext(SelectContentContext);
     const internalRef = useRef(null);
-    const hasMounted = useRef(false);
+    const { registerLabel } = selectCtx;
 
-    useEffect(() => { hasMounted.current = true; }, []);
-    useEffect(() => { if (typeof children === "string") selectCtx.labelMap.current.set(value, children); }, [value, children, selectCtx.labelMap]);
+    useEffect(() => {
+      if (typeof children === "string") registerLabel(value, children);
+    }, [value, children, registerLabel]);
     useEffect(() => { contentCtx?.registerItem(index, internalRef.current); return () => contentCtx?.registerItem(index, null); }, [index, contentCtx]);
 
     const isActive = contentCtx?.activeIndex === index;
     const isChecked = selectCtx.value === value;
-    const skipAnimation = !hasMounted.current;
 
     return (
       <div
@@ -345,7 +351,7 @@ const SelectItem = forwardRef(
         <AnimatePresence>
           {isChecked && (
             <motion.svg key="check" width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-mint" initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 1 }}>
-              <motion.path d="M4 12L9 17L20 6" initial={{ pathLength: skipAnimation ? 1 : 0 }} animate={{ pathLength: 1, transition: { duration: 0.08, ease: "easeOut" } }} exit={{ pathLength: 0, transition: { duration: 0.04, ease: "easeIn" } }} />
+              <motion.path d="M4 12L9 17L20 6" initial={{ pathLength: 0 }} animate={{ pathLength: 1, transition: { duration: 0.08, ease: "easeOut" } }} exit={{ pathLength: 0, transition: { duration: 0.04, ease: "easeIn" } }} />
             </motion.svg>
           )}
         </AnimatePresence>
@@ -370,4 +376,4 @@ const SelectSeparator = forwardRef(
 );
 SelectSeparator.displayName = "SelectSeparator";
 
-export { Select, SelectTrigger, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectSeparator, triggerVariants };
+export { Select, SelectTrigger, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectSeparator };

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { LazyMotion, domAnimation, m } from "framer-motion";
 
 const Card = ({ number, title, description, rotate, translateY, className = "" }) => {

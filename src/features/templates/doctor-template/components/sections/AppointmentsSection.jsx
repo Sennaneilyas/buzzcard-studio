@@ -50,7 +50,7 @@ export function AppointmentsSection() {
     return date.toLocaleDateString("fr-FR", { weekday: 'short', day: 'numeric', month: 'short' });
   };
 
-  const handleBook = (data) => {
+  const handleBook = () => {
     // API call could go here
     nextStep();
   };
@@ -182,4 +182,3 @@ export function AppointmentsSection() {
     </motion.section>
   );
 }
-

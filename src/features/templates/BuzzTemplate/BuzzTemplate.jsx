@@ -38,7 +38,6 @@ export default function BuzzTemplate({
   onDeleteReply,
   onReportReview,
   isEditMode,
-  onPreviewClick,
 }) {
   // Merge flat editor store data on top of the profile object so preview updates instantly.
   const profile = profileData

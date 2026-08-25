@@ -89,7 +89,7 @@ export function BookingSection({ profile }) {
     return date.toLocaleDateString("fr-FR", { weekday: 'short', day: 'numeric', month: 'short' });
   };
 
-  const handleBook = (data) => {
+  const handleBook = () => {
     // API Call goes here
     nextStep();
   };

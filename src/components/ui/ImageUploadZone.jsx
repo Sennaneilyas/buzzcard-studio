@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { UploadCloud, Image as ImageIcon, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { UploadCloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function ImageUploadZone({ 

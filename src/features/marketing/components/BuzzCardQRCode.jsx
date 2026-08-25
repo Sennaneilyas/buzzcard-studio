@@ -19,7 +19,8 @@ export default function BuzzCardQRCode({ profile = {}, onClose }) {
   const profileUrl = `https://buzzcard.ma/profile/${slug}`;
 
   useEffect(() => {
-    if (!qrRef.current) return;
+    const qrContainer = qrRef.current;
+    if (!qrContainer) return;
 
     qrCodeRef.current = new QRCodeStyling({
       width: 260,
@@ -62,14 +63,11 @@ export default function BuzzCardQRCode({ profile = {}, onClose }) {
       },
     });
 
-    const currentRef = qrRef.current;
-    currentRef.innerHTML = "";
-    qrCodeRef.current.append(currentRef);
+    qrContainer.innerHTML = "";
+    qrCodeRef.current.append(qrContainer);
 
     return () => {
-      if (currentRef) {
-        currentRef.innerHTML = "";
-      }
+      qrContainer.innerHTML = "";
     };
   }, [profileUrl]);
 

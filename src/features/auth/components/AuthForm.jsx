@@ -70,7 +70,6 @@ export default function AuthForm() {
 
   useEffect(() => {
     reset();
-    setMessage(null);
   }, [isSignup, authMethod, reset]);
 
   // ── Redirect to the requested internal route when authenticated ──

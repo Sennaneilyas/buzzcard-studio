@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Wifi } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import CircularSpinText from "@/components/ui/CircularSpinText";
 import { TextReveal } from "@/components/ui/cascade-text";
 
