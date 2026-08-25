@@ -56,7 +56,7 @@ export default function CustomBuzzCardPreview({
             </div>
           )}
           <div className={`absolute bottom-[12%] left-[6%] max-w-[58%] ${isBlack ? "text-white" : "text-black"}`}>
-            <p className="truncate font-heading text-[4.8cqw] font-bold uppercase leading-none tracking-[0.02em] lg:text-[5cqw]">
+            <p className="truncate font-heading text-[5.4cqw] font-bold uppercase leading-none tracking-[0.02em] lg:text-[4.4cqw]">
               {name || ""}
             </p>
             <p className="mt-[1.2cqw] truncate font-inter text-[3.69cqw] font-light italic leading-none">
