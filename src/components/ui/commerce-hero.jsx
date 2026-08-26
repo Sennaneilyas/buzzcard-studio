@@ -64,7 +64,7 @@ export function CommerceHero({ categories }) {
           </div>
         </motion.div>
 
-        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {categories.map((category, index) => (
             <motion.article
               key={category.title}
@@ -72,18 +72,18 @@ export function CommerceHero({ categories }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.55, delay: index * 0.08, ease: "easeOut" }}
-              className="group relative min-h-[280px] overflow-hidden rounded-[2rem] border border-ink/5 bg-white shadow-[0_18px_50px_rgba(0,35,102,0.07)] sm:min-h-[320px]"
+              className="group relative aspect-square overflow-hidden rounded-[1.5rem] border border-ink/5 bg-white shadow-[0_18px_50px_rgba(0,35,102,0.07)] sm:aspect-auto sm:min-h-[320px] sm:rounded-[2rem]"
             >
               <Link
                 to={category.href}
                 className="absolute inset-0 z-10 overflow-hidden rounded-[inherit] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-navy"
                 aria-label={`Explore ${category.title}`}
               >
-                <h3 className="relative z-10 px-5 pt-7 text-center font-heading text-2xl font-bold tracking-[-0.04em] text-navy transition-colors duration-300 group-hover:text-ink sm:text-3xl">
+                <h3 className="relative z-10 px-2 pt-4 text-center font-heading text-lg font-bold tracking-[-0.04em] text-navy transition-colors duration-300 group-hover:text-ink sm:px-5 sm:pt-7 sm:text-3xl">
                   {category.title}
                 </h3>
 
-                <div className="absolute inset-x-5 bottom-12 top-16 flex items-center justify-center">
+                <div className="absolute inset-x-3 bottom-7 top-10 flex items-center justify-center sm:inset-x-5 sm:bottom-12 sm:top-16">
                   <img
                     src={category.image}
                     alt=""
@@ -94,11 +94,11 @@ export function CommerceHero({ categories }) {
                 </div>
 
                 <div
-                  className="absolute -bottom-px -right-px size-20 rounded-tl-[1.75rem] bg-cloud sm:size-24"
+                  className="absolute -bottom-px -right-px size-14 rounded-tl-[1.25rem] bg-cloud sm:size-24 sm:rounded-tl-[1.75rem]"
                   aria-hidden="true"
                 >
-                  <span className="absolute bottom-3 right-3 grid size-12 place-items-center rounded-full bg-mint text-ink shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-navy group-hover:text-white sm:bottom-4 sm:right-4">
-                    <ArrowUpRight className="size-5" />
+                  <span className="absolute bottom-2 right-2 grid size-9 place-items-center rounded-full bg-mint text-ink shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:bg-navy group-hover:text-white sm:bottom-4 sm:right-4 sm:size-12">
+                    <ArrowUpRight className="size-4 sm:size-5" />
                   </span>
                 </div>
               </Link>
