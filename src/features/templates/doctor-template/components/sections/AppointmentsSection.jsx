@@ -138,7 +138,7 @@ export function AppointmentsSection() {
                       {...register("name")}
                       className={`w-full pl-10 pr-3.5 py-3 sm:py-2.5 bg-white border rounded-[13px] text-[16px] sm:text-[13px] focus:outline-none transition-all ${
                         errors.name ? "border-red-300 focus:border-red-500" : "border-[var(--primary-color,#4682b4)2e] focus:border-[var(--primary-color,#4682b4)]"
-                      }`} ww
+                      }`}
                     />
                     {errors.name && <p className="text-[10px] text-red-500 font-medium absolute -bottom-4 left-1">{errors.name.message}</p>}
                   </div>

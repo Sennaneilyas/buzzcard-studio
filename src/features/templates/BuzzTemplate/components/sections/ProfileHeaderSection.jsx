@@ -31,7 +31,7 @@ export default function ProfileHeaderSection({ coverImage, quote, isEditMode }) 
             onChange={(val) => setProfileData({ quote: val })}
             isEditMode={isEditMode}
             placeholder="Add your favorite quote..."
-            className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-sm font-bold italic text-center leading-normal font-serif relative z-10 before:content-['\201C'] after:content-['\201D']"
+            className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] text-sm font-bold italic text-center leading-normal font-serif relative z-10 before:content-['“'] after:content-['”']"
           />
         </div>
       )}

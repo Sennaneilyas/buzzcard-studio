@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { Check, Zap, Crown, Building2 } from "lucide-react";
-import thumbHotel from "@/assets/templates/thumb_hotel.png";
-import thumbDoctor from "@/assets/templates/thumb_doctor.png";
-import thumbCoiffeur from "@/assets/templates/thumb_coiffeur.png";
-import thumbBuzz from "@/assets/templates/thumb_buzz.png";
+import thumbHotel from "@/assets/templates/thumb_hotel.webp";
+import thumbDoctor from "@/assets/templates/thumb_doctor.webp";
+import thumbCoiffeur from "@/assets/templates/thumb_coiffeur.webp";
+import thumbBuzz from "@/assets/templates/thumb_buzz.webp";
 
 const PREMIUM_TEMPLATES = [
   { name: "Luxury Hotel", image: thumbHotel },

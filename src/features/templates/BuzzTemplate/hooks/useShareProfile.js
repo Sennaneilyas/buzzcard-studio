@@ -5,15 +5,10 @@ import { useCallback, useState } from "react";
  * falling back to clipboard copy. Returns a screen-reader announcement
  * string so callers can surface an aria-live message.
  */
-export function useShareProfile(onSave) {
+export function useShareProfile() {
   const [srMessage, setSrMessage] = useState("");
 
   const share = useCallback(async () => {
-    if (onSave) {
-      onSave();
-      return;
-    }
-
     try {
       if (navigator.share) {
         await navigator.share({
@@ -30,7 +25,7 @@ export function useShareProfile(onSave) {
         setSrMessage("Action indisponible");
       }
     }
-  }, [onSave]);
+  }, []);
 
   return { srMessage, share };
 }

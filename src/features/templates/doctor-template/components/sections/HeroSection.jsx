@@ -36,26 +36,16 @@ export function HeroSection({ profile, isEditMode }) {
 
   const handleScrollToAppointments = () => {
     const el = document.getElementById("appointments-section");
-    if (el) {
-      const targetY = el.getBoundingClientRect().top + window.pageYOffset - 16;
-      const startY = window.pageYOffset;
-      const distance = targetY - startY;
-      const duration = 750;
-      let startTime = null;
+    if (!el) return;
 
-      const easeInOutCubic = (t) =>
-        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-      const step = (currentTime) => {
-        if (!startTime) startTime = currentTime;
-        const progress = Math.min((currentTime - startTime) / duration, 1);
-        window.scrollTo(0, startY + distance * easeInOutCubic(progress));
-        if (progress < 1) {
-          requestAnimationFrame(step);
-        }
-      };
-      requestAnimationFrame(step);
-    }
+    el.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
   };
 
   return (
@@ -102,6 +92,7 @@ export function HeroSection({ profile, isEditMode }) {
             className="flex gap-2 mb-2"
           >
             <InteractiveHoverButton 
+              type="button"
               text="Prendre RDV"
               onClick={handleScrollToAppointments}
               className="text-[13px] h-[36px]"
@@ -310,4 +301,3 @@ export function HeroSection({ profile, isEditMode }) {
     </div>
   );
 }
-

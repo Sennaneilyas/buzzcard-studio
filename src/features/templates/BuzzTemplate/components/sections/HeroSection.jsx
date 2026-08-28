@@ -45,9 +45,9 @@ export default function HeroSection({ profile, isEditMode }) {
 
   return (
     <article
-      className={`relative z-50 w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-md ${GLASS_SHADOW} -mt-[39px] pt-[47px] pb-[18px] flex flex-col items-center gap-[6px]`}
+      className={`relative z-50 w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-md ${GLASS_SHADOW} -mt-[39px] pt-[52px] pb-[18px] flex flex-col items-center gap-[6px]`}
     >
-      <div className="absolute -top-[39px] left-1/2 -translate-x-1/2 w-[78px] h-[78px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-md">
+      <div className="absolute -top-[44px] left-1/2 -translate-x-1/2 w-[90px] h-[90px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-md">
         <EditableImage
           src={profile.avatarUrl || profile.avatar_url || ""}
           alt={`Avatar de ${profile.fullName ?? ""}`}
@@ -71,7 +71,7 @@ export default function HeroSection({ profile, isEditMode }) {
         value={profile.role || profile.profession || profile.company || ""}
         onChange={(val) => setProfileData({ role: val })}
         isEditMode={isEditMode}
-        placeholder="Profession / Company"
+        placeholder="Profession & Company"
         className="text-neutral-950 text-xs text-center italic leading-normal px-4 [font-family:'Georgia',serif]"
       />
 

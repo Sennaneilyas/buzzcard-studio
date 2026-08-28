@@ -1,6 +1,15 @@
 import { motion } from "framer-motion";
+import PhoneMockupBasic from "@/components/ui/phone-mockups-1";
 import { TEMPLATES } from "@/config/templates";
 import { prefetchTemplate } from "@/lib/prefetch";
+
+const templateImages = TEMPLATES.map((template) => ({
+  id: template.id,
+  src: template.thumbnail,
+  alt: `${template.name} digital profile template`,
+  label: template.name,
+  category: template.category,
+}));
 
 export default function TemplateShowcase() {
   return (
@@ -35,36 +44,17 @@ export default function TemplateShowcase() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {TEMPLATES.map((tpl, i) => (
-            <motion.div
-              key={tpl.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.7, delay: i * 0.15, ease: "easeOut" }}
-              onMouseEnter={() => prefetchTemplate(tpl.id)}
-              className="group flex flex-col cursor-pointer"
-            >
-              <div className="relative rounded-[2rem] overflow-hidden aspect-[9/16] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-ink/5 bg-white mb-6">
-                <img
-                  src={tpl.thumbnail}
-                  alt={tpl.name}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  loading="lazy"
-                />
-                {/* Minimalist overlay on hover */}
-                <div className="absolute inset-0 bg-ink/0 group-hover:bg-ink/5 transition-colors duration-500" />
-              </div>
-              <div className="px-2 text-center sm:text-left">
-                <h3 className="text-lg font-bold text-ink">{tpl.name}</h3>
-                <p className="text-xs text-ink/40 uppercase tracking-widest mt-1.5 font-semibold">
-                  {tpl.category}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <PhoneMockupBasic
+            images={templateImages}
+            onItemIntent={(item) => prefetchTemplate(item.id)}
+          />
+        </motion.div>
       </div>
     </section>
   );

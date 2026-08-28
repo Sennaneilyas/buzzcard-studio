@@ -3,7 +3,7 @@ import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
 
 /**
- * "-- Description --" bio card.
+ * "À propos" bio card.
  */
 export default function DescriptionSection({ description, isEditMode }) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
@@ -19,7 +19,7 @@ export default function DescriptionSection({ description, isEditMode }) {
         id="description-title"
         className="relative z-[2] font-bold italic text-neutral-950 text-base text-center leading-normal mb-[10px] [font-family:'Georgia',serif]"
       >
-        -- Description --
+        À propos
       </h2>
 
       <EditableText

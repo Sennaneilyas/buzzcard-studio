@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserRoundPlus, Check, Share2, X, Copy, CheckCheck, Mail, MessageSquare } from "lucide-react";
+import { UserRoundPlus, Check, Share2, QrCode, X, Copy, CheckCheck, Mail, MessageSquare } from "lucide-react";
+import { QrCodePopup } from "./QrCodePopup";
 
 export function BottomAction({ profile, isEditMode = false }) {
   const [saved, setSaved] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "https://buzzcard.ma";
@@ -41,6 +43,25 @@ export function BottomAction({ profile, isEditMode = false }) {
     navigator.clipboard.writeText(shareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleShare = async () => {
+    const isMobileViewport = window.matchMedia("(max-width: 639px)").matches;
+
+    if (isMobileViewport && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+
+    setShowShareModal(true);
   };
 
   const socialSharePlatforms = [
@@ -100,12 +121,17 @@ export function BottomAction({ profile, isEditMode = false }) {
 
   return (
     <>
-      {/* Sticky Bottom Action Container */}
+      {/* Viewport-anchored bottom action container */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
-        className={`sticky px-4 w-full z-40 mt-auto pointer-events-none ${isEditMode ? "bottom-4" : "bottom-3.5 sm:bottom-4"}`}
+        className="relative z-40 mt-auto w-full shrink-0 px-4 pt-2 pointer-events-none"
+        style={{
+          paddingBottom: isEditMode
+            ? "16px"
+            : "max(14px, env(safe-area-inset-bottom))",
+        }}
       >
         <div className="bg-[var(--primary-color,#4682b4)]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(70,130,180,0.28)] border border-white/20 flex items-center gap-1.5 pointer-events-auto">
           <motion.button
@@ -142,14 +168,29 @@ export function BottomAction({ profile, isEditMode = false }) {
 
           <motion.button
             whileTap={{ scale: 0.94 }}
-            onClick={() => setShowShareModal(true)}
+            onClick={handleShare}
             aria-label="Partager ce profil"
             className="w-[40px] h-[40px] bg-white/15 hover:bg-white/25 text-white rounded-[11px] flex items-center justify-center shrink-0 transition-colors border border-white/20"
           >
             <Share2 className="w-[16px] h-[16px]" strokeWidth={2} />
           </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setShowQrCode(true)}
+            aria-label="Afficher le QR code du profil"
+            className="w-[40px] h-[40px] bg-white/15 hover:bg-white/25 text-white rounded-[11px] flex items-center justify-center shrink-0 transition-colors border border-white/20"
+          >
+            <QrCode className="w-[17px] h-[17px]" strokeWidth={2} />
+          </motion.button>
         </div>
       </motion.div>
+
+      <QrCodePopup
+        open={showQrCode}
+        onClose={() => setShowQrCode(false)}
+        profile={profile}
+      />
 
       {/* Share Modal Sheet */}
       <AnimatePresence>
@@ -249,6 +290,4 @@ export function BottomAction({ profile, isEditMode = false }) {
     </>
   );
 }
-
-
 

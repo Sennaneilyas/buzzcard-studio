@@ -1,15 +1,19 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UserRoundPlus, Check, Share2, Copy, CheckCheck } from "lucide-react";
+import { UserRoundPlus, Check, Share2, QrCode, Copy, CheckCheck } from "lucide-react";
 import { SiWhatsapp, SiFacebook, SiX } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
+import { QrCodePopup } from "./QrCodePopup";
+import { resolveProfileUrl } from "../../utils/profileUrl";
 
 export function BottomAction({ profile, isEditMode = false }) {
   const [saved, setSaved] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showQrCode, setShowQrCode] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "https://buzzcard.ma";
+  const shareUrl = resolveProfileUrl(profile);
+  const shareTitle = `${profile?.fullName || "BuzzCard"} · ${profile?.title || ""}`;
   const shareText = `Découvrez la carte digitale de ${profile?.fullName || ""} (${profile?.title || ""}) :`;
 
   const handleSaveContact = useCallback(() => {
@@ -47,6 +51,25 @@ export function BottomAction({ profile, isEditMode = false }) {
     }, 1500);
   };
 
+  const handleShare = async () => {
+    const isMobileViewport = window.matchMedia("(max-width: 639px)").matches;
+
+    if (isMobileViewport && navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+
+    setShowShareMenu((isOpen) => !isOpen);
+  };
+
   const socialSharePlatforms = [
     {
       name: "WhatsApp",
@@ -81,14 +104,21 @@ export function BottomAction({ profile, isEditMode = false }) {
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
-      className={`sticky px-4 w-full z-50 mt-auto pointer-events-none ${isEditMode ? "bottom-4" : "bottom-3.5 sm:bottom-4"}`}
-    >
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, type: "spring", stiffness: 220, damping: 22 }}
+        className="relative z-50 mt-auto w-full shrink-0 px-4 pt-2 pointer-events-none"
+        style={{
+          paddingBottom: isEditMode
+            ? "16px"
+            : "max(14px, env(safe-area-inset-bottom))",
+        }}
+      >
       <div className="bg-[#1A1A1A]/95 backdrop-blur-md rounded-[15px] p-1 shadow-[0_6px_22px_rgba(0,0,0,0.25)] border border-white/10 flex items-center gap-1.5 pointer-events-auto relative">
         <motion.button
+          type="button"
           whileTap={{ scale: 0.98 }}
           onClick={handleSaveContact}
           className="flex-1 h-[40px] bg-white text-[#1A1A1A] rounded-[11px] flex items-center justify-center gap-1.5 font-semibold text-[13px] shadow-sm hover:bg-gray-100 transition-colors"
@@ -123,8 +153,9 @@ export function BottomAction({ profile, isEditMode = false }) {
         {/* Share Button & Radial Menu Wrapper */}
         <div className="relative">
           <motion.button
+            type="button"
             whileTap={{ scale: 0.94 }}
-            onClick={() => setShowShareMenu(!showShareMenu)}
+            onClick={handleShare}
             aria-label="Partager ce profil"
             className={`w-[40px] h-[40px] rounded-[11px] flex items-center justify-center shrink-0 transition-colors border ${
               showShareMenu 
@@ -190,7 +221,24 @@ export function BottomAction({ profile, isEditMode = false }) {
             )}
           </AnimatePresence>
         </div>
+
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.94 }}
+          onClick={() => setShowQrCode(true)}
+          aria-label="Afficher le QR code du profil"
+          className="w-[40px] h-[40px] rounded-[11px] flex items-center justify-center shrink-0 bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-colors"
+        >
+          <QrCode className="w-[17px] h-[17px]" strokeWidth={2} />
+        </motion.button>
       </div>
-    </motion.div>
+      </motion.div>
+
+      <QrCodePopup
+        open={showQrCode}
+        onClose={() => setShowQrCode(false)}
+        profile={profile}
+      />
+    </>
   );
 }

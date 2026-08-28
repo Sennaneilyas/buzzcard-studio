@@ -1,6 +1,5 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
-import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { HeroSection } from "./components/sections/HeroSection";
 import { ContactStripSection } from "./components/sections/ContactStripSection";
 import { SectionHeader } from "./components/ui/SectionHeader";
@@ -9,7 +8,6 @@ import { DynamicSection } from "@/components/ui/DynamicSection";
 
 // Lazy loaded components (Below the fold)
 const OfficeHoursSection = lazy(() => import("./components/sections/OfficeHoursSection").then(m => ({ default: m.OfficeHoursSection })));
-const DigitalCardQrSection = lazy(() => import("./components/sections/DigitalCardQrSection").then(m => ({ default: m.DigitalCardQrSection })));
 const ServicesSection = lazy(() => import("./components/sections/ServicesSection").then(m => ({ default: m.ServicesSection })));
 const GalleryGrid = lazy(() => import("./components/ui/GalleryGrid").then(m => ({ default: m.GalleryGrid })));
 const AppointmentsSection = lazy(() => import("./components/sections/AppointmentsSection").then(m => ({ default: m.AppointmentsSection })));
@@ -79,86 +77,67 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
       : (rawProfile?.socials || mockProfile.socials),
     profileData: profileData || {} // Pass down raw editor state for arrays like services
   };
-  // In Edit Mode, skip the loading animation so the preview renders instantly.
-  const [isLoading, setIsLoading] = useState(!isEditMode);
-
-  useEffect(() => {
-    if (isEditMode) return;
-    // Simulate initial network fetch delay for the main wrapper
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [isEditMode]);
-
-  if (isLoading) {
-    return (
-      <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-center font-['Inter']">
-        <GlobalLoader />
-      </div>
-    );
-  }
-
   return (
-    <div className="relative w-full min-h-[100dvh] bg-[#e6edf5] flex justify-center items-start font-['Inter'] antialiased selection:bg-[var(--primary-color,#4682b4)] selection:text-white sm:py-6">
+    <div className="relative flex h-[100dvh] w-full items-stretch justify-center overflow-hidden bg-[#e6edf5] font-['Inter'] antialiased selection:bg-[var(--primary-color,#4682b4)] selection:text-white sm:p-6">
       <motion.div 
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-[440px] bg-[#F8FAFC] overflow-hidden flex flex-col pb-3 relative min-h-screen sm:pb-4 sm:rounded-[32px] sm:border sm:border-[var(--primary-color,#4682b4)15] sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.12),0px_2px_14px_0px_rgba(70,130,180,0.06)] sm:min-h-[auto]"
+        className="relative flex h-full min-h-0 w-full max-w-[440px] flex-col overflow-hidden bg-[#F8FAFC] sm:rounded-[32px] sm:border sm:border-[var(--primary-color,#4682b4)15] sm:shadow-[0px_16px_48px_0px_rgba(70,130,180,0.12),0px_2px_14px_0px_rgba(70,130,180,0.06)]"
       >
-        {/* Above the fold - Loaded synchronously */}
-        <HeroSection profile={profile} isEditMode={isEditMode} />
-        <ContactStripSection profile={profile} isEditMode={isEditMode} />
+        <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {/* Above the fold - Loaded synchronously */}
+          <HeroSection profile={profile} isEditMode={isEditMode} />
+          <ContactStripSection profile={profile} isEditMode={isEditMode} />
 
-        {/* Below the fold - Lazy Loaded chunk by chunk */}
-        <Suspense fallback={<SectionFallback />}>
-          <OfficeHoursSection />
-          <ServicesSection profile={profile} isEditMode={isEditMode} />
+          {/* Below the fold - Lazy Loaded chunk by chunk */}
+          <Suspense fallback={<SectionFallback />}>
+            <OfficeHoursSection />
+            <ServicesSection profile={profile} isEditMode={isEditMode} />
           
-          <motion.section 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={fadeInUp}
-            className="bg-[#F8FAFC] px-5 py-12 w-full"
-          >
-            <SectionHeader subtitle="Notre clinique" title="Galerie" />
-            <div className="mt-8">
-              <GalleryGrid images={profile.gallery} />
-            </div>
-          </motion.section>
+            <motion.section
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={fadeInUp}
+              className="bg-[#F8FAFC] px-5 py-12 w-full"
+            >
+              <SectionHeader subtitle="Notre clinique" title="Galerie" />
+              <div className="mt-8">
+                <GalleryGrid images={profile.gallery} />
+              </div>
+            </motion.section>
 
-          <AppointmentsSection />
+            <AppointmentsSection />
 
-          {/* Custom Sections from the editor */}
-          {(profile.custom_sections || []).map((section) => (
-            <DynamicSection key={section.id} section={section} />
-          ))}
+            {/* Custom Sections from the editor */}
+            {(profile.custom_sections || []).map((section) => (
+              <DynamicSection key={section.id} section={section} />
+            ))}
 
-          <TestimonialsSection profile={profile} isEditMode={isEditMode} />
-          <BlogSection profile={profile} isEditMode={isEditMode} />
-          <ContactFormSection />
-          <DigitalCardQrSection profile={profile} />
-          <NewsletterSignupSection />
-        </Suspense>
+            <TestimonialsSection profile={profile} isEditMode={isEditMode} />
+            <BlogSection profile={profile} isEditMode={isEditMode} />
+            <ContactFormSection />
+            <NewsletterSignupSection />
+          </Suspense>
 
-        {/* Footer Area */}
-        <section className="bg-[#F8FAFC] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
-           <p className="font-semibold text-[var(--primary-color,#4682b4)] mb-1">{profile.fullName}</p>
-           <p className="mb-4 text-[11px]">Numéro d'Ordre: {profile.orderNumber || "123456"}</p>
-           <div className="flex justify-center gap-4 mb-5">
-             <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Mentions légales</a>
-             <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Confidentialité</a>
-           </div>
-           
-           <div className="flex flex-col items-center gap-2 border-t border-[var(--primary-color,#4682b4)15] pt-5 w-[80%] mx-auto">
-             <p className="text-[10px] uppercase tracking-widest text-[rgba(70,130,180,0.6)] font-semibold">Propulsé par</p>
-             <div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
-               <img src="/justlogo.png" alt="Buzzcard" className="h-4 object-contain filter grayscale" />
+          {/* Footer Area */}
+          <section className="bg-[#F8FAFC] px-5 py-8 text-center text-[12px] text-[rgba(70,130,180,0.55)] flex flex-col items-center">
+             <p className="font-semibold text-[var(--primary-color,#4682b4)] mb-1">{profile.fullName}</p>
+             <p className="mb-4 text-[11px]">Numéro d'Ordre: {profile.orderNumber || "123456"}</p>
+             <div className="flex justify-center gap-4 mb-5">
+               <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Mentions légales</a>
+               <a href="#" className="hover:text-[var(--primary-color,#4682b4)] transition-colors">Confidentialité</a>
              </div>
-           </div>
-        </section>
+
+             <div className="flex flex-col items-center gap-2 border-t border-[var(--primary-color,#4682b4)15] pt-5 w-[80%] mx-auto">
+               <p className="text-[10px] uppercase tracking-widest text-[rgba(70,130,180,0.6)] font-semibold">Propulsé par</p>
+               <div className="opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+                 <img src="/justlogo.png" alt="Buzzcard" className="h-4 object-contain filter grayscale" />
+               </div>
+             </div>
+          </section>
+        </main>
         
         <Suspense fallback={null}>
           <BottomAction profile={profile} isEditMode={isEditMode} />

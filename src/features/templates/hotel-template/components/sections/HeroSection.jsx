@@ -4,10 +4,11 @@ import EditableImage from "@/components/ui/EditableImage";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
 
-export function HeroSection({ profile, isEditMode }) {
+export function HeroSection({ profile, isEditMode, scrollContainerRef }) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
+    container: scrollContainerRef,
     target: heroRef,
     offset: ["start start", "end start"],
   });
@@ -18,7 +19,7 @@ export function HeroSection({ profile, isEditMode }) {
   return (
     <section
       ref={heroRef}
-      className="relative w-full h-[320px] sm:h-[360px] overflow-hidden"
+      className="relative min-h-[220px] w-full aspect-[3/2] overflow-hidden"
     >
       {/* Parallax Background Image */}
       <motion.div
@@ -30,18 +31,19 @@ export function HeroSection({ profile, isEditMode }) {
           alt={profile.name}
           isEditMode={isEditMode}
           onChange={(val) => setProfileData({ bannerUrl: val })}
-          containerClassName="absolute inset-0 w-full h-[130%]"
+          containerClassName="absolute inset-0 h-full w-full"
         />
       </motion.div>
 
       {/* Gradient Overlay (Top to Bottom) */}
       <motion.div
         style={{ opacity: overlayOpacity }}
-        className="absolute inset-0 bg-gradient-to-b from-[var(--hotel-espresso)]/40 via-[var(--hotel-latte)]/40 to-[var(--hotel-latte)]"
+        className="absolute inset-0 bg-gradient-to-b from-[var(--hotel-espresso)]/45 via-transparent to-transparent"
       />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-[var(--hotel-espresso)]/90 via-[var(--hotel-espresso)]/55 to-transparent" />
 
       {/* Hero Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-end pb-14 px-6 z-10">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-end px-6 pb-7 sm:pb-9">
         {/* Avatar / Logo */}
         {profile.avatarUrl && (
           <motion.div
@@ -53,9 +55,9 @@ export function HeroSection({ profile, isEditMode }) {
               type: "spring",
               stiffness: 200,
             }}
-            className="mb-4"
+            className="mb-2.5"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden relative border border-[var(--hotel-cappuccino)]/30">
+            <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-[var(--hotel-cappuccino)]/30 bg-white shadow-xl sm:h-20 sm:w-20">
               <EditableImage
                 src={profile.avatarUrl || ""}
                 alt={`${profile.name} Logo`}
@@ -72,7 +74,7 @@ export function HeroSection({ profile, isEditMode }) {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="flex items-center gap-1 mb-3"
+          className="mb-2 flex items-center gap-1.5"
         >
           {Array.from({ length: profile.stars || 5 }).map((_, i) => (
             <motion.span
@@ -84,7 +86,7 @@ export function HeroSection({ profile, isEditMode }) {
                 type: "spring",
                 stiffness: 300,
               }}
-              className="hotel-star text-lg"
+              className="hotel-star text-lg sm:text-xl"
             >
               ★
             </motion.span>
@@ -97,8 +99,12 @@ export function HeroSection({ profile, isEditMode }) {
           onChange={(val) => setProfileData({ name: val })}
           isEditMode={isEditMode}
           placeholder="Hotel Name"
-          className="text-center text-[var(--hotel-espresso)] leading-tight font-hotel-display font-semibold px-4 w-full"
-          style={{ fontSize: "clamp(1.8rem, 6vw, 2.5rem)", wordBreak: "break-word" }}
+          className="w-full px-4 text-center font-hotel-display font-semibold leading-tight text-[var(--hotel-ivory)]"
+          style={{
+            fontSize: "clamp(1.55rem, 5.5vw, 2.2rem)",
+            textShadow: "0 2px 14px rgba(0, 0, 0, 0.55)",
+            wordBreak: "break-word",
+          }}
         />
       </div>
     </section>

@@ -26,7 +26,6 @@ export default function BuzzTemplate({
   gallery = [],
   reviews = [],
   currentUser = null,
-  onSave,
   onQrCode,
   onReview,
   isLoggedIn = false,
@@ -96,21 +95,28 @@ export default function BuzzTemplate({
   }, []);
 
   return (
-    <div className="relative w-full h-full min-h-[100dvh] md:min-h-full overflow-hidden bg-[#f4f5f7] flex flex-col">
+    <div
+      className={`relative w-full min-h-0 overflow-hidden bg-[#f4f5f7] flex flex-col ${
+        isEditMode ? "h-full" : "h-[100dvh]"
+      }`}
+    >
       <BuzzCardBackground />
 
-      <main className="relative z-10 flex-1 w-full mx-auto max-w-[430px] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <main className="relative z-10 min-h-0 flex-1 w-full mx-auto max-w-[430px] overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex flex-col gap-4 pb-6">
           <ProfileHeaderSection coverImage={profile.coverImage || profile.banner_url} quote={profile.quote} isEditMode={isEditMode} />
 
           <div className="flex flex-col gap-4 px-5 sm:px-6">
             <HeroSection profile={profile} isEditMode={isEditMode} />
+            <DescriptionSection
+              description={profile.bio || profile.description}
+              isEditMode={isEditMode}
+            />
             <SocialLinksSection socials={activeSocials} isEditMode={isEditMode} />
             <GallerySection gallery={profile.gallery || gallery} shouldReduceMotion={shouldReduceMotion} isEditMode={isEditMode} />
             {(profile.custom_sections || profileData?.custom_sections || []).map((section) => (
               <DynamicSection key={section.id} section={section} theme="dark" />
             ))}
-            <DescriptionSection description={profile.bio || profile.description} isEditMode={isEditMode} />
           </div>
         </div>
       </main>
@@ -118,7 +124,6 @@ export default function BuzzTemplate({
       <BottomNav
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onSave={onSave}
         onQrCode={handleQrCode}
         onReview={handleReview}
         shouldReduceMotion={shouldReduceMotion}

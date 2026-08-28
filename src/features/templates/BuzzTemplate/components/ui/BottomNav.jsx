@@ -1,34 +1,33 @@
 import React, { useCallback, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { UserRoundPlus, QrCode, MessageSquare } from "lucide-react";
+import { Share2, QrCode, MessageSquare } from "lucide-react";
 import { GLASS_SHADOW } from "../../utils/constants";
 import { useShareProfile } from "../../hooks/useShareProfile";
 
 /**
- * Fixed bottom tab bar: Enregistrer (share/save profile), QR Code, Avis.
+ * Viewport-anchored bottom tab bar: Partager, QR Code, Avis.
  */
 function BottomNav({
   activeTab,
   setActiveTab,
-  onSave,
   onQrCode,
   onReview,
   shouldReduceMotion,
 }) {
-  const { srMessage, share } = useShareProfile(onSave);
+  const { srMessage, share } = useShareProfile();
 
-  const handleSave = useCallback(async () => {
-    setActiveTab("enregistrer");
+  const handleShare = useCallback(async () => {
+    setActiveTab("partager");
     await share();
   }, [setActiveTab, share]);
 
   const items = useMemo(
     () => [
       {
-        id: "enregistrer",
-        label: "Enregistrer",
-        icon: UserRoundPlus,
-        action: handleSave,
+        id: "partager",
+        label: "Partager",
+        icon: Share2,
+        action: handleShare,
       },
       {
         id: "qrcode",
@@ -49,12 +48,12 @@ function BottomNav({
         },
       },
     ],
-    [handleSave, onReview, onQrCode, setActiveTab]
+    [handleShare, onReview, onQrCode, setActiveTab]
   );
 
   return (
     <nav
-      className="sticky bottom-0 z-50 w-full shrink-0 mt-auto"
+      className="relative z-50 mt-auto w-full shrink-0"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Navigation principale"
     >

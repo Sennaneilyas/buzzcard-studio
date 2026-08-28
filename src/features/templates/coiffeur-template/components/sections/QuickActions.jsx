@@ -3,16 +3,21 @@ import { FaInstagram, FaTiktok, FaMapLocationDot, FaEnvelope } from "react-icons
 import { scaleIn, staggerContainer } from "../../utils/animations";
 
 export function QuickActions({ profile }) {
+  const getSocialUrl = (platform) =>
+    profile.socials?.find(
+      (social) => social.platform?.toLowerCase() === platform.toLowerCase(),
+    )?.href;
+
   const actions = [
     {
       icon: <FaInstagram className="w-5 h-5" />,
       label: "Instagram",
-      href: profile.socials?.find(s => s.platform === "Instagram")?.href || "https://instagram.com/",
+      href: getSocialUrl("Instagram") || "https://instagram.com/",
     },
     {
       icon: <FaTiktok className="w-5 h-5" />,
       label: "TikTok",
-      href: profile.socials?.find(s => s.platform === "TikTok")?.href || "https://tiktok.com/",
+      href: getSocialUrl("TikTok") || "https://tiktok.com/",
     },
     {
       icon: <FaMapLocationDot className="w-5 h-5" />,
