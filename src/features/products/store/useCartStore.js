@@ -7,6 +7,85 @@ import {
   isClassiqueProduct,
 } from "../checkout/configuration";
 
+const CHECKOUT_STORAGE_KEY = "buzzcard-checkout";
+
+const isQuotaExceededError = (error) => (
+  error?.name === "QuotaExceededError"
+  || error?.name === "NS_ERROR_DOM_QUOTA_REACHED"
+  || error?.code === 22
+  || error?.code === 1014
+);
+
+const getPersistableLogoUrl = (customization = {}) => {
+  const logoUrl = customization.logoUrl || customization.logoPreviewUrl || "";
+  return /^https?:\/\//i.test(logoUrl) ? logoUrl : "";
+};
+
+export const createCheckoutStorage = (persistentStorage, fallbackStorage) => {
+  let hasWarned = false;
+
+  const warnOnce = (message) => {
+    if (hasWarned) return;
+    hasWarned = true;
+    console.warn(`[checkout] ${message}`);
+  };
+
+  return {
+    getItem: (name) => {
+      try {
+        const fallbackValue = fallbackStorage?.getItem(name);
+        if (fallbackValue !== null && fallbackValue !== undefined) return fallbackValue;
+      } catch {
+        // Continue with persistent storage when session storage is unavailable.
+      }
+
+      return persistentStorage.getItem(name);
+    },
+    setItem: (name, value) => {
+      try {
+        persistentStorage.setItem(name, value);
+        try {
+          fallbackStorage?.removeItem(name);
+        } catch {
+          // A successful persistent write is sufficient.
+        }
+        return;
+      } catch (error) {
+        if (!isQuotaExceededError(error)) throw error;
+      }
+
+      try {
+        persistentStorage.removeItem(name);
+        persistentStorage.setItem(name, value);
+        try {
+          fallbackStorage?.removeItem(name);
+        } catch {
+          // The compact checkout is already persisted locally.
+        }
+        warnOnce("Local storage was full. The previous checkout cache was replaced with a compact version.");
+        return;
+      } catch {
+        // Fall back to session storage below.
+      }
+
+      try {
+        fallbackStorage?.setItem(name, value);
+        warnOnce("Local storage is full. Checkout will be preserved for this browser session only.");
+      } catch {
+        warnOnce("Browser storage is full. Checkout will continue in memory for this session.");
+      }
+    },
+    removeItem: (name) => {
+      persistentStorage.removeItem(name);
+      try {
+        fallbackStorage?.removeItem(name);
+      } catch {
+        // Persistent checkout removal already succeeded.
+      }
+    },
+  };
+};
+
 export const createCartStore = (set) => ({
   items: [],
   checkoutStep: "configuration",
@@ -183,46 +262,57 @@ export const createCartStore = (set) => ({
 
 export const prepareCheckoutForStorage = (state) => ({
   checkoutStep: state.checkoutStep,
-  items: state.items.map((item) => ({
-    ...item,
-    customization: {
-      ...item.customization,
-      file: null,
-    },
-  })),
+  items: state.items.map((item) => {
+    const persistableLogoUrl = getPersistableLogoUrl(item.customization);
+
+    return {
+      ...item,
+      customization: {
+        ...item.customization,
+        file: null,
+        logoUrl: persistableLogoUrl,
+        logoPreviewUrl: "",
+      },
+    };
+  }),
 });
 
 export const migrateCheckoutState = (persistedState = {}) => ({
   ...persistedState,
   checkoutStep: persistedState.checkoutStep ?? "configuration",
-  items: (persistedState.items ?? []).map((item) => ({
-    ...item,
-    configurationType: item.configurationType ?? "profile",
-    customizationMode: item.customizationMode ?? "none",
-    configuration: isClassiqueProduct(item.slug)
-      ? {
-          ...getDefaultConfiguration(item.configurationType ?? "profile"),
-          color: "black",
-          ...item.configuration,
-        }
-      : item.configuration ?? getDefaultConfiguration(item.configurationType ?? "profile"),
-    customization: {
-      ...getDefaultCustomization(),
-      ...(isClassiqueProduct(item.slug) && !item.customization?.designType
-        ? { designType: getClassiqueDesignType(item.variant) }
-        : {}),
-      ...item.customization,
-      displayName: item.customization?.displayName ?? item.customization?.businessName ?? "",
-      logoUrl: item.customization?.logoUrl ?? item.customization?.logoPreviewUrl ?? "",
-      file: null,
-    },
-  })),
+  items: (persistedState.items ?? []).map((item) => {
+    const persistableLogoUrl = getPersistableLogoUrl(item.customization);
+
+    return {
+      ...item,
+      configurationType: item.configurationType ?? "profile",
+      customizationMode: item.customizationMode ?? "none",
+      configuration: isClassiqueProduct(item.slug)
+        ? {
+            ...getDefaultConfiguration(item.configurationType ?? "profile"),
+            color: "black",
+            ...item.configuration,
+          }
+        : item.configuration ?? getDefaultConfiguration(item.configurationType ?? "profile"),
+      customization: {
+        ...getDefaultCustomization(),
+        ...(isClassiqueProduct(item.slug) && !item.customization?.designType
+          ? { designType: getClassiqueDesignType(item.variant) }
+          : {}),
+        ...item.customization,
+        displayName: item.customization?.displayName ?? item.customization?.businessName ?? "",
+        logoUrl: persistableLogoUrl,
+        logoPreviewUrl: "",
+        file: null,
+      },
+    };
+  }),
 });
 
 export const useCartStore = create(persist(createCartStore, {
-  name: "buzzcard-checkout",
-  storage: createJSONStorage(() => localStorage),
-  version: 2,
+  name: CHECKOUT_STORAGE_KEY,
+  storage: createJSONStorage(() => createCheckoutStorage(localStorage, sessionStorage)),
+  version: 3,
   partialize: prepareCheckoutForStorage,
   migrate: migrateCheckoutState,
 }));

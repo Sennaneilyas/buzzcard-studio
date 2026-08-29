@@ -1,5 +1,5 @@
 import { createStore } from "zustand/vanilla";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   getDefaultConfiguration,
   getClassiqueDesignType,
@@ -7,6 +7,7 @@ import {
   validateCustomization,
 } from "../src/features/products/checkout/configuration";
 import {
+  createCheckoutStorage,
   createCartStore,
   migrateCheckoutState,
   prepareCheckoutForStorage,
@@ -120,6 +121,7 @@ describe("checkout product configuration", () => {
     const restored = migrateCheckoutState(JSON.parse(serialized));
 
     expect(restored.checkoutStep).toBe("delivery");
+    expect(serialized).not.toContain("data:image");
     expect(restored.items[0]).toMatchObject({
       productId: "product",
       quantity: 2,
@@ -131,11 +133,83 @@ describe("checkout product configuration", () => {
         businessName: "BuzzCard Studio",
         displayName: "BuzzCard Studio",
         secondaryText: "Tap to connect",
-        logoPreviewUrl: "data:image/webp;base64,preview",
-        logoUrl: "data:image/webp;base64,preview",
+        logoPreviewUrl: "",
+        logoUrl: "",
         file: null,
       },
     });
+  });
+
+  it("preserves remote logo URLs without persisting browser image data", () => {
+    const persisted = prepareCheckoutForStorage({
+      checkoutStep: "configuration",
+      items: [{
+        customization: {
+          file: { browserOnly: true },
+          logoUrl: "https://example.com/logo.webp",
+          logoPreviewUrl: "data:image/webp;base64,preview",
+        },
+      }],
+    });
+
+    expect(persisted.items[0].customization).toMatchObject({
+      file: null,
+      logoUrl: "https://example.com/logo.webp",
+      logoPreviewUrl: "",
+    });
+  });
+
+  it("recovers from a full local storage checkout cache", () => {
+    const values = new Map([["buzzcard-checkout", "oversized checkout"]]);
+    let firstWrite = true;
+    const persistentStorage = {
+      getItem: (key) => values.get(key) ?? null,
+      setItem: (key, value) => {
+        if (firstWrite) {
+          firstWrite = false;
+          throw Object.assign(new Error("Storage full"), { name: "QuotaExceededError" });
+        }
+        values.set(key, value);
+      },
+      removeItem: (key) => values.delete(key),
+    };
+    const fallbackStorage = {
+      getItem: () => null,
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    };
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const storage = createCheckoutStorage(persistentStorage, fallbackStorage);
+
+    expect(() => storage.setItem("buzzcard-checkout", "compact checkout")).not.toThrow();
+    expect(values.get("buzzcard-checkout")).toBe("compact checkout");
+    expect(warning).toHaveBeenCalledOnce();
+
+    warning.mockRestore();
+  });
+
+  it("uses session storage when the local quota remains exhausted", () => {
+    const fallbackValues = new Map();
+    const persistentStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw Object.assign(new Error("Storage full"), { name: "QuotaExceededError" });
+      },
+      removeItem: vi.fn(),
+    };
+    const fallbackStorage = {
+      getItem: (key) => fallbackValues.get(key) ?? null,
+      setItem: (key, value) => fallbackValues.set(key, value),
+      removeItem: (key) => fallbackValues.delete(key),
+    };
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const storage = createCheckoutStorage(persistentStorage, fallbackStorage);
+
+    expect(() => storage.setItem("buzzcard-checkout", "session checkout")).not.toThrow();
+    expect(storage.getItem("buzzcard-checkout")).toBe("session checkout");
+    expect(warning).toHaveBeenCalledOnce();
+
+    warning.mockRestore();
   });
 
   it("migrates the Classique card to a separate persisted color configuration", () => {
