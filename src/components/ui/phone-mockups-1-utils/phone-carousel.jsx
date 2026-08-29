@@ -47,25 +47,41 @@ function IPhoneStatusBar() {
   );
 }
 
-function PhoneFrame({ item, priority = false }) {
+export function PhoneMockupFrame({ children, className = "w-full", ...props }) {
   return (
-    <div className="relative aspect-[9/19] w-full rounded-[2.75rem] bg-[#111318] p-[7px] shadow-[0_32px_70px_-28px_rgba(12,13,16,0.55)] ring-1 ring-white/20">
+    <div
+      className={`relative aspect-[9/19] rounded-[2.75rem] bg-[#111318] p-[7px] shadow-[0_32px_70px_-28px_rgba(12,13,16,0.55)] ring-1 ring-white/20 ${className}`}
+      {...props}
+    >
       <span className="absolute -left-[3px] top-24 h-12 w-[3px] rounded-l-full bg-[#2b2e35]" />
       <span className="absolute -left-[3px] top-40 h-16 w-[3px] rounded-l-full bg-[#2b2e35]" />
       <span className="absolute -right-[3px] top-32 h-20 w-[3px] rounded-r-full bg-[#2b2e35]" />
 
       <div className="relative h-full overflow-hidden rounded-[2.35rem] bg-white">
         <div className="absolute inset-x-0 bottom-0 top-[30px] overflow-hidden">
-          <img
-            src={item.src}
-            alt={item.alt}
-            className="h-full w-full object-cover object-top"
-            loading={priority ? "eager" : "lazy"}
-            fetchPriority={priority ? "high" : "auto"}
-            draggable={false}
-          />
+          {children}
         </div>
         <IPhoneStatusBar />
+        <div className="pointer-events-none absolute left-1/2 top-[5px] z-30 h-5 w-[31%] -translate-x-1/2 rounded-full bg-[#08090b] shadow-sm">
+          <span className="absolute right-2 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-[#17212b] ring-1 ring-white/5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PhoneFrame({ item, priority = false }) {
+  return (
+    <PhoneMockupFrame>
+      <div className="relative size-full">
+        <img
+          src={item.src}
+          alt={item.alt}
+          className="h-full w-full object-cover object-top"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          draggable={false}
+        />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 to-transparent" />
         <div className="pointer-events-none absolute inset-x-5 bottom-5 text-left text-white">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
@@ -73,11 +89,8 @@ function PhoneFrame({ item, priority = false }) {
           </p>
           <p className="mt-1 text-lg font-bold leading-tight">{item.label}</p>
         </div>
-        <div className="pointer-events-none absolute left-1/2 top-[5px] z-30 h-5 w-[31%] -translate-x-1/2 rounded-full bg-[#08090b] shadow-sm">
-          <span className="absolute right-2 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-[#17212b] ring-1 ring-white/5" />
-        </div>
       </div>
-    </div>
+    </PhoneMockupFrame>
   );
 }
 

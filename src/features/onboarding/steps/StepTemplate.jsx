@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -6,6 +6,75 @@ import { getTemplatesByCategory } from "@/config/templates";
 import { prefetchTemplate } from "@/lib/prefetch";
 import { Check, Eye, X, Filter, Crown } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { PhoneMockupFrame } from "@/components/ui/phone-mockups-1-utils/phone-carousel";
+
+const TEMPLATE_PREVIEW_WIDTH = 390;
+
+function ResponsiveTemplatePreview({ template }) {
+  const viewportRef = useRef(null);
+  const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+
+    const updateViewportSize = () => {
+      const nextSize = {
+        width: Math.round(viewport.clientWidth),
+        height: Math.round(viewport.clientHeight),
+      };
+
+      setViewportSize((currentSize) => (
+        currentSize.width === nextSize.width && currentSize.height === nextSize.height
+          ? currentSize
+          : nextSize
+      ));
+    };
+
+    updateViewportSize();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateViewportSize);
+      return () => window.removeEventListener("resize", updateViewportSize);
+    }
+
+    const resizeObserver = new ResizeObserver(updateViewportSize);
+    resizeObserver.observe(viewport);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const scale = viewportSize.width > 0
+    ? viewportSize.width / TEMPLATE_PREVIEW_WIDTH
+    : 1;
+  const iframeHeight = viewportSize.height > 0
+    ? viewportSize.height / scale
+    : 0;
+
+  return (
+    <div ref={viewportRef} className="size-full overflow-hidden bg-white">
+      {template.previewUrl ? (
+        <iframe
+          src={template.previewUrl}
+          className="block max-w-none border-0 bg-white"
+          style={{
+            width: `${TEMPLATE_PREVIEW_WIDTH}px`,
+            height: `${iframeHeight}px`,
+            opacity: viewportSize.width > 0 ? 1 : 0,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+          }}
+          title={template.name}
+        />
+      ) : (
+        <img
+          src={template.thumbnail}
+          alt={template.name}
+          className="block size-full object-cover object-top"
+        />
+      )}
+    </div>
+  );
+}
 
 export default function StepTemplate({ selectedId, onSelect }) {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -191,26 +260,14 @@ export default function StepTemplate({ selectedId, onSelect }) {
                   <X className="w-6 h-6" />
                 </button>
 
-                {/* Lightbox Content and Button Wrapper */}
-                <div className="relative w-full flex flex-col items-center max-h-[85vh]">
-                  <div 
-                    className="w-full h-full overflow-y-auto custom-scrollbar rounded-[2.5rem] pointer-events-auto shadow-2xl"
+                {/* Scrollable template inside the shared iPhone frame */}
+                <div className="relative flex w-full flex-col items-center">
+                  <PhoneMockupFrame
+                    className="pointer-events-auto w-[min(82vw,37dvh,360px)]"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {previewTemplate.previewUrl ? (
-                      <iframe 
-                        src={previewTemplate.previewUrl} 
-                        className="w-full h-[850px] sm:h-[950px] block border-0 bg-white"
-                        title={previewTemplate.name}
-                      />
-                    ) : (
-                      <img
-                        src={previewTemplate.thumbnail}
-                        alt={previewTemplate.name}
-                        className="w-full h-auto block"
-                      />
-                    )}
-                  </div>
+                    <ResponsiveTemplatePreview template={previewTemplate} />
+                  </PhoneMockupFrame>
 
                   {/* Floating Select Button */}
                   <button
