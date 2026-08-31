@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import {
   AuthForm,
   ForgotPasswordPage,
@@ -27,6 +27,13 @@ const CoiffeurTemplate = React.lazy(() =>
 const HotelTemplate = React.lazy(() =>
   import("@/features/templates/hotel-template/HotelTemplate"),
 );
+
+// Admin Routes
+const AdminProtectedRoute = React.lazy(() => import("@/features/admin/components/AdminProtectedRoute"));
+const AdminLayout = React.lazy(() => import("@/features/admin/components/AdminLayout"));
+const AdminDashboardPage = React.lazy(() => import("@/features/admin/AdminDashboardPage"));
+const AdminOrdersPage = React.lazy(() => import("@/features/admin/AdminOrdersPage"));
+const AdminProductsPage = React.lazy(() => import("@/features/admin/AdminProductsPage"));
 
 export default function AppRouter() {
   return (
@@ -67,6 +74,17 @@ export default function AppRouter() {
         <Route path="/template-doctor" element={<DoctorTemplate />} />
         <Route path="/template-coiffeur" element={<CoiffeurTemplate />} />
         <Route path="/template-hotel" element={<HotelTemplate />} />
+        {/* ── Admin Routes ── */}
+        <Route path="/admin" element={<AdminProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
   );

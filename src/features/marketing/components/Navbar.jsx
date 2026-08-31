@@ -160,6 +160,14 @@ export default function Navbar() {
           >
             {user ? (
               <div className="flex items-center gap-3 relative" ref={profileRef}>
+                {user?.app_metadata?.is_admin && (
+                  <PrefetchLink
+                    to="/admin/dashboard"
+                    className="hidden lg:flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-navy to-ink text-white text-sm font-semibold shadow-lg hover:shadow-xl hover:scale-102 transition-all duration-300 border border-white/20"
+                  >
+                    Dashboard
+                  </PrefetchLink>
+                )}
                 {/* User Profile Pill */}
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -386,6 +394,20 @@ export default function Navbar() {
               <div className="mt-auto flex flex-col gap-3">
                 {user ? (
                   <>
+                    {user?.app_metadata?.is_admin && (
+                      <PrefetchLink
+                        to="/admin/dashboard"
+                        onClick={() => setMobileOpen(false)}
+                        className="
+                          block text-center px-4 py-3 text-sm font-bold text-white
+                          bg-gradient-to-r from-navy to-ink rounded-xl shadow-md
+                          transition-all duration-200
+                          hover:shadow-lg
+                        "
+                      >
+                        Admin Portal
+                      </PrefetchLink>
+                    )}
                     <PrefetchLink
                       to="/dashboard"
                       onClick={() => setMobileOpen(false)}
