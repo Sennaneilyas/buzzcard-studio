@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { mapProduct } from "@/features/products/api/products";
 
 /**
- * Fetches ALL products (including inactive) for the admin products panel.
+ * Fetches ALL products for the admin products panel.
  */
 export async function fetchAdminProducts() {
   const { data, error } = await supabase

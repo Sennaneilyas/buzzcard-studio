@@ -1,59 +1,105 @@
-import { Outlet, NavLink } from "react-router-dom";
-import { LayoutDashboard, ShoppingBag, Package, LogOut } from "lucide-react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  LogOut,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
+const NAV_SECTIONS = [
+  {
+    label: "Overview",
+    links: [
+      { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Store",
+    links: [
+      { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
+      { to: "/admin/products", label: "Products", icon: Package },
+    ],
+  },
+];
+
 export default function AdminLayout() {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    navigate("/");
   };
 
-  const links = [
-    { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
-    { to: "/admin/products", label: "Products", icon: Package },
-  ];
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-ink/10 flex flex-col fixed inset-y-0 left-0 z-50">
-        <div className="p-6 border-b border-ink/10 flex items-center justify-center">
-          <div className="text-xl font-bold bg-gradient-to-r from-navy to-ink bg-clip-text text-transparent">
-            Admin Portal
+    <div className="min-h-screen bg-[#F7F8FA] flex">
+
+      <aside className="w-56 bg-white border-r border-black/[0.06] flex flex-col fixed inset-y-0 left-0 z-50">
+
+        {/* Logo */}
+        <div className="px-5 pt-6 pb-5 border-b border-black/[0.05]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center shrink-0">
+              <img
+                src="/justlogo.png"
+                alt="BuzzCard"
+                className="w-5 h-5 object-contain brightness-0 invert"
+              />
+            </div>
+            <div className="leading-tight">
+              <p className="text-[14px] font-bold text-black tracking-tight">BuzzCard</p>
+              <p className="text-[10px] font-medium text-black/30 uppercase tracking-widest">Admin</p>
+            </div>
           </div>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
-                  isActive
-                    ? "bg-navy text-white shadow-md shadow-navy/20"
-                    : "text-ink/60 hover:text-navy hover:bg-ink/5"
-                }`
-              }
-            >
-              <link.icon className="w-5 h-5" />
-              {link.label}
-            </NavLink>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 pb-4 space-y-5 overflow-y-auto">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label}>
+              {/* Section label */}
+              <p className="px-2 mb-1.5 text-[11px] font-medium text-black/30 uppercase tracking-widest">
+                {section.label}
+              </p>
+
+              {/* Links */}
+              <div className="space-y-0.5">
+                {section.links.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 ${
+                        isActive
+                          ? "bg-black text-white"
+                          : "text-black/55 hover:text-black hover:bg-black/[0.05]"
+                      }`
+                    }
+                  >
+                    <link.icon className="w-4 h-4 shrink-0" />
+                    {link.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
-        <div className="p-4 border-t border-ink/10">
+
+        {/* Footer — Sign out */}
+        <div className="px-3 pb-5 border-t border-black/[0.06] pt-3">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-600 rounded-xl hover:bg-red-50 transition-colors font-medium"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13.5px] font-medium text-black/40 hover:text-black/70 hover:bg-black/[0.04] transition-all duration-150"
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-4 h-4 shrink-0" />
+            Sign out
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64 overflow-auto">
-        <div className="p-8 max-w-7xl mx-auto min-h-screen">
+      {/* ── Main Content ──────────────────────────────────────────────── */}
+      <main className="flex-1 ml-56 overflow-auto">
+        <div className="p-8 max-w-6xl mx-auto min-h-screen">
           <Outlet />
         </div>
       </main>

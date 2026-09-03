@@ -1,289 +1,247 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
-  GripVertical,
   Star,
   Eye,
   EyeOff,
+  Search,
+  Package,
   Tag,
+  ChevronRight,
 } from "lucide-react";
 import {
   useAdminProducts,
-  useAdminCategories,
   useToggleProductFeatured,
   useToggleProductActive,
-  useToggleCategoryActive,
-  useSaveCategoryPositions,
 } from "./hooks/useAdminProducts";
+import CategoriesPanel from "./components/CategoriesPanel";
+import ProductStatsRow from "./components/ProductStatsRow";
 
-// ── Toggle Switch ─────────────────────────────────────────────
+// ─── Toggle Switch ─────────────────────────────────────────────────────────────
 function Toggle({ checked, onChange, disabled }) {
   return (
     <button
       role="switch"
       aria-checked={checked}
       disabled={disabled}
-      onClick={() => onChange(!checked)}
-      className={`relative w-10 h-5.5 rounded-full transition-colors duration-200 shrink-0 ${
-        checked ? "bg-navy" : "bg-ink/20"
-      } disabled:opacity-50`}
+      onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
+      className={`relative inline-flex w-9 h-5 rounded-full transition-colors duration-200 shrink-0 focus:outline-none focus:ring-2 focus:ring-navy/30 focus:ring-offset-1 ${
+        checked ? "bg-navy" : "bg-ink/15"
+      } disabled:opacity-40`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-          checked ? "translate-x-[18px]" : "translate-x-0"
+        className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+          checked ? "translate-x-4" : "translate-x-0"
         }`}
       />
     </button>
   );
 }
 
-// ── Category Row ───────────────────────────────────────────────
-function CategoryRow({ cat, onDragStart, onDragOver, onDrop, isDraggingOver }) {
-  const { mutate: toggleActive, isPending } = useToggleCategoryActive();
+// ─── Product Card ──────────────────────────────────────────────────────────────
+function AdminProductCard({ product }) {
+  const { mutate: toggleFeatured, isPending: featPending } = useToggleProductFeatured();
+  const { mutate: toggleActive, isPending: activePending } = useToggleProductActive();
+
+  const isOutOfStock = product.stockCount === 0 || product.stock === "out_of_stock";
 
   return (
-    <div
-      draggable
-      onDragStart={() => onDragStart(cat.id)}
-      onDragOver={(e) => { e.preventDefault(); onDragOver(cat.id); }}
-      onDrop={() => onDrop(cat.id)}
-      className={`flex items-center gap-3 px-4 py-3 bg-white rounded-xl border transition-all cursor-grab active:cursor-grabbing ${
-        isDraggingOver
-          ? "border-navy/40 bg-navy/5 scale-[1.01]"
-          : "border-ink/8 hover:border-ink/15"
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.18 }}
+      className={`group flex items-center gap-4 p-3 pr-4 rounded-2xl border transition-all duration-200 ${
+        product.isActive
+          ? "bg-white border-ink/8 hover:border-ink/15 hover:shadow-sm"
+          : "bg-ink/[0.015] border-ink/5 opacity-55"
       }`}
     >
-      <GripVertical className="w-4 h-4 text-ink/25 shrink-0" />
-      <Tag className="w-4 h-4 text-ink/40 shrink-0" />
-      <span className="flex-1 font-medium text-sm text-navy truncate">
-        {cat.name}
-      </span>
-      <span className="text-xs text-ink/35 font-mono">pos {cat.position}</span>
-      <Toggle
-        checked={cat.is_active}
-        onChange={(val) =>
-          toggleActive({ categoryId: cat.id, isActive: val })
-        }
-        disabled={isPending}
-      />
-    </div>
-  );
-}
-
-// ── Product Row ────────────────────────────────────────────────
-function ProductRow({ product }) {
-  const { mutate: toggleFeatured, isPending: featPending } =
-    useToggleProductFeatured();
-  const { mutate: toggleActive, isPending: activePending } =
-    useToggleProductActive();
-
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white rounded-xl border border-ink/8 hover:border-ink/15 transition-all">
-      {/* Image */}
-      <div className="w-10 h-10 rounded-lg overflow-hidden bg-ink/5 shrink-0">
+      {/* Thumbnail */}
+      <div className="w-14 h-14 rounded-xl overflow-hidden bg-cloud shrink-0 relative">
         {product.image ? (
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-ink/20">
-            <Tag className="w-4 h-4" />
+          <div className="w-full h-full flex items-center justify-center">
+            <Package className="w-5 h-5 text-ink/20" />
+          </div>
+        )}
+        {product.isFeatured && (
+          <div className="absolute top-1 right-1 w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center shadow">
+            <Star className="w-2.5 h-2.5 text-white" fill="currentColor" />
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm text-navy truncate">{product.name}</p>
-        <p className="text-xs text-ink/40 mt-0.5">
-          {product.categoryName} · {product.basePrice} MAD
-        </p>
+        <div className="flex items-center gap-2 min-w-0">
+          <p className="font-semibold text-sm text-navy truncate">{product.name}</p>
+          {product.badge && (
+            <span className="shrink-0 text-[10px] font-bold px-2 py-0.5 bg-mint/20 text-ink/60 rounded-full">
+              {product.badge}
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-ink/40 mt-0.5 truncate">{product.description}</p>
+        <div className="flex items-center gap-3 mt-1.5">
+          <span className="text-xs font-bold text-navy tabular-nums">
+            {product.basePrice} MAD
+          </span>
+          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+            isOutOfStock ? "bg-red-50 text-red-500" : "bg-emerald-50 text-emerald-600"
+          }`}>
+            {isOutOfStock ? "Rupture" : `${product.stockCount} en stock`}
+          </span>
+        </div>
       </div>
 
-      {/* Stock badge */}
-      <span
-        className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-          product.stockCount > 0
-            ? "bg-emerald-50 text-emerald-700"
-            : "bg-red-50 text-red-600"
-        }`}
-      >
-        {product.stockCount > 0 ? `${product.stockCount} in stock` : "Out"}
-      </span>
-
-      {/* Featured toggle */}
-      <button
-        onClick={() =>
-          toggleFeatured({ productId: product.id, isFeatured: !product.isFeatured })
-        }
-        disabled={featPending}
-        title={product.isFeatured ? "Unpin from top" : "Pin to top"}
-        className={`transition-colors disabled:opacity-50 ${
-          product.isFeatured ? "text-amber-500" : "text-ink/20 hover:text-amber-400"
-        }`}
-      >
-        <Star className="w-4 h-4" fill={product.isFeatured ? "currentColor" : "none"} />
-      </button>
-
-      {/* Active toggle */}
-      <Toggle
-        checked={product.isActive}
-        onChange={(val) =>
-          toggleActive({ productId: product.id, isActive: val })
-        }
-        disabled={activePending}
-      />
-    </div>
+      {/* Actions */}
+      <div className="flex items-center gap-3 shrink-0">
+        <button
+          onClick={() => toggleFeatured({ productId: product.id, isFeatured: !product.isFeatured })}
+          disabled={featPending}
+          title={product.isFeatured ? "Retirer du haut" : "Épingler en haut"}
+          className={`transition-all duration-200 disabled:opacity-40 ${
+            product.isFeatured
+              ? "text-amber-400 scale-110"
+              : "text-ink/20 hover:text-amber-300"
+          }`}
+        >
+          <Star className="w-4 h-4" fill={product.isFeatured ? "currentColor" : "none"} />
+        </button>
+        <button
+          onClick={() => toggleActive({ productId: product.id, isActive: !product.isActive })}
+          disabled={activePending}
+          title={product.isActive ? "Masquer" : "Afficher"}
+          className={`transition-colors duration-200 disabled:opacity-40 ${
+            product.isActive
+              ? "text-ink/30 hover:text-ink/60"
+              : "text-ink/20 hover:text-emerald-500"
+          }`}
+        >
+          {product.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+        </button>
+      </div>
+    </motion.div>
   );
 }
 
-// ── Main Page ──────────────────────────────────────────────────
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function AdminProductsPage() {
-  const { data: products, isLoading: prodLoading } = useAdminProducts();
-  const { data: categories, isLoading: catLoading } = useAdminCategories();
-  const { mutate: savePositions } = useSaveCategoryPositions();
+  const { data: products, isLoading } = useAdminProducts();
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [localCategories, setLocalCategories] = useState(null);
-  const dragItem = useRef(null);
-  const [dragOverId, setDragOverId] = useState(null);
+  const allProducts = products ?? [];
 
-  const displayedCategories = localCategories ?? categories ?? [];
+  // Filter by category + search
+  const visibleProducts = allProducts.filter((p) => {
+    const matchesCategory =
+      selectedCategorySlug === "all" || p.category === selectedCategorySlug;
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch =
+      !q || `${p.name} ${p.description} ${p.badge ?? ""}`.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
 
-  const filteredProducts =
-    selectedCategory === "all"
-      ? (products ?? [])
-      : (products ?? []).filter((p) => p.category === selectedCategory);
-
-  // ── Drag-and-Drop ──
-  const handleDragStart = (id) => {
-    dragItem.current = id;
-  };
-
-  const handleDragOver = (id) => {
-    setDragOverId(id);
-  };
-
-  const handleDrop = (targetId) => {
-    setDragOverId(null);
-    if (!dragItem.current || dragItem.current === targetId) return;
-
-    const cats = [...displayedCategories];
-    const fromIdx = cats.findIndex((c) => c.id === dragItem.current);
-    const toIdx = cats.findIndex((c) => c.id === targetId);
-    if (fromIdx === -1 || toIdx === -1) return;
-
-    // Reorder
-    const [moved] = cats.splice(fromIdx, 1);
-    cats.splice(toIdx, 0, moved);
-
-    // Reassign positions
-    const updated = cats.map((c, i) => ({ ...c, position: i + 1 }));
-    setLocalCategories(updated);
-
-    // Persist to Supabase
-    savePositions(updated.map(({ id, position }) => ({ id, position })));
-    dragItem.current = null;
-  };
-
-  const isLoading = prodLoading || catLoading;
+  // Featured products always sort to top
+  const sortedProducts = [...visibleProducts].sort((a, b) => {
+    if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
+    return 0;
+  });
 
   return (
     <div>
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-navy">Products</h1>
-        <p className="text-ink/50 mt-1 text-sm">
-          Manage your store catalogue, display order, and visibility.
+        <p className="text-sm text-ink/40 mt-1">
+          Manage your store catalogue, visibility, and display order.
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="w-6 h-6 text-ink/30 animate-spin" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-6 items-start">
-          {/* ── Left Panel: Categories ── */}
-          <div className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-ink/5">
-              <h2 className="font-bold text-navy text-base">Categories</h2>
-              <p className="text-xs text-ink/40 mt-0.5">
-                Drag to reorder. Toggle to show/hide.
-              </p>
-            </div>
-            <div className="p-4 space-y-2">
-              {displayedCategories.map((cat) => (
-                <CategoryRow
-                  key={cat.id}
-                  cat={cat}
-                  onDragStart={handleDragStart}
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  isDraggingOver={dragOverId === cat.id}
+      {/* ── Quick Stats ── */}
+      <ProductStatsRow products={allProducts} />
+
+      {/* ── Main Layout ── */}
+      <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr] gap-5 items-start">
+
+        {/* Left — Categories (own component) */}
+        <CategoriesPanel
+          selectedSlug={selectedCategorySlug}
+          onSelect={setSelectedCategorySlug}
+          products={allProducts}
+        />
+
+        {/* Right — Products Panel */}
+        <div className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden">
+          {/* Search + meta */}
+          <div className="px-5 py-4 border-b border-ink/5">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 relative">
+                <Search className="w-3.5 h-3.5 text-ink/30 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products…"
+                  className="w-full pl-9 pr-4 py-2 text-sm bg-ink/[0.03] border border-ink/8 rounded-xl placeholder:text-ink/30 focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy/20 transition-all"
                 />
-              ))}
-              {displayedCategories.length === 0 && (
-                <p className="text-center text-ink/30 text-sm py-8">
-                  No categories found
-                </p>
-              )}
+              </div>
+              <span className="text-xs text-ink/35 whitespace-nowrap shrink-0">
+                {sortedProducts.length} result{sortedProducts.length !== 1 ? "s" : ""}
+              </span>
             </div>
+            {selectedCategorySlug !== "all" && (
+              <div className="flex items-center gap-1.5 mt-2.5 text-xs text-ink/40">
+                <Tag className="w-3 h-3" />
+                <span>{selectedCategorySlug}</span>
+                <ChevronRight className="w-3 h-3 opacity-50" />
+                <span className="text-navy font-medium">{sortedProducts.length} products</span>
+              </div>
+            )}
           </div>
 
-          {/* ── Right Panel: Products ── */}
-          <div className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-ink/5 flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h2 className="font-bold text-navy text-base">Products</h2>
-                <p className="text-xs text-ink/40 mt-0.5">
-                  ⭐ Pin to feature · Toggle to show/hide.
-                </p>
+          {/* Products List */}
+          <div className="p-4 space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-5 h-5 text-ink/30 animate-spin" />
               </div>
-              {/* Category filter */}
-              <div className="flex items-center gap-1.5 bg-ink/[0.04] rounded-xl p-1 flex-wrap">
-                <button
-                  onClick={() => setSelectedCategory("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    selectedCategory === "all"
-                      ? "bg-white text-navy shadow-sm"
-                      : "text-ink/50 hover:text-ink"
-                  }`}
-                >
-                  All
-                </button>
-                {displayedCategories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.slug)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      selectedCategory === cat.slug
-                        ? "bg-white text-navy shadow-sm"
-                        : "text-ink/50 hover:text-ink"
-                    }`}
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {sortedProducts.length === 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-16 text-center"
                   >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 space-y-2 max-h-[640px] overflow-y-auto">
-              {filteredProducts.length === 0 ? (
-                <p className="text-center text-ink/30 text-sm py-12">
-                  No products in this category
-                </p>
-              ) : (
-                filteredProducts.map((product) => (
-                  <ProductRow key={product.id} product={product} />
-                ))
-              )}
-            </div>
+                    <div className="w-12 h-12 rounded-2xl bg-ink/[0.04] flex items-center justify-center mb-3">
+                      <Package className="w-5 h-5 text-ink/20" />
+                    </div>
+                    <p className="text-sm font-medium text-ink/40">No products found</p>
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="mt-2 text-xs text-navy hover:underline"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </motion.div>
+                ) : (
+                  sortedProducts.map((product) => (
+                    <AdminProductCard key={product.id} product={product} />
+                  ))
+                )}
+              </AnimatePresence>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
