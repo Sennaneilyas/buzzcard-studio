@@ -47,7 +47,7 @@ function formatDate(dateStr) {
  *  - isLoading (boolean)
  *  - compact (boolean): tighter padding when embedded inside a card
  */
-export default function RecentOrdersTable({ orders = [], isLoading, compact = false }) {
+export default function RecentOrdersTable({ orders = [], isLoading, compact = false, onRowClick }) {
   const navigate = useNavigate();
   const recent = orders.slice(0, 5);
 
@@ -100,7 +100,8 @@ export default function RecentOrdersTable({ orders = [], isLoading, compact = fa
             {recent.map((order) => (
               <tr
                 key={order.id}
-                className="hover:bg-ink/[0.01] transition-colors"
+                onClick={() => onRowClick?.(order)}
+                className={`transition-colors ${onRowClick ? "cursor-pointer hover:bg-ink/[0.02]" : "hover:bg-ink/[0.01]"}`}
               >
                 <td className={`${px} ${pyTd}`}>
                   <p className="font-medium text-navy text-xs truncate max-w-[140px]">

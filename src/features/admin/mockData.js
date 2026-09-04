@@ -46,8 +46,30 @@ export const MOCK_ORDERS = [
     customer_phone: "+212661234567",
     created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
     order_items: [
-      { id: "oi-1", product_name: "Carte NFC", variant_name: "Noir", quantity: 2, unit_price: 149 },
-      { id: "oi-2", product_name: "Plaque Avis Google", variant_name: null, quantity: 1, unit_price: 51 },
+      { 
+        id: "oi-1", 
+        product_name: "Carte NFC", 
+        variant_name: "Noir", 
+        quantity: 2, 
+        unit_price: 149,
+        customization: {
+          designType: "custom",
+          displayName: "Youssef El Mansouri",
+          profession: "Directeur Général",
+          businessName: "TechAtlas",
+          logoUrl: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+        }
+      },
+      { 
+        id: "oi-2", 
+        product_name: "Plaque Avis Google", 
+        variant_name: null, 
+        quantity: 1, 
+        unit_price: 51,
+        configuration: {
+          reviewDestination: "https://g.page/r/example"
+        }
+      },
     ],
   },
   {
@@ -59,7 +81,17 @@ export const MOCK_ORDERS = [
     customer_phone: "+212698765432",
     created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
     order_items: [
-      { id: "oi-3", product_name: "Bracelet NFC", variant_name: "Blanc", quantity: 1, unit_price: 149 },
+      { 
+        id: "oi-3", 
+        product_name: "Bracelet NFC", 
+        variant_name: "Blanc", 
+        quantity: 1, 
+        unit_price: 149,
+        customization: {
+          designType: "standard",
+          displayName: "Salma Benali"
+        }
+      },
     ],
   },
   {
@@ -71,8 +103,30 @@ export const MOCK_ORDERS = [
     customer_phone: "+212677889900",
     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     order_items: [
-      { id: "oi-4", product_name: "BuzzCards", variant_name: "Classique", quantity: 4, unit_price: 149 },
-      { id: "oi-5", product_name: "Carte WhatsApp NFC", variant_name: null, quantity: 2, unit_price: 76 },
+      { 
+        id: "oi-4", 
+        product_name: "BuzzCards", 
+        variant_name: "Classique", 
+        quantity: 4, 
+        unit_price: 149,
+        customization: {
+          designType: "custom",
+          displayName: "Amine Tazi",
+          businessName: "Studio Tazi",
+          logoUrl: "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+          designNotes: "Make it minimalist."
+        }
+      },
+      { 
+        id: "oi-5", 
+        product_name: "Carte WhatsApp NFC", 
+        variant_name: null, 
+        quantity: 2, 
+        unit_price: 76,
+        configuration: {
+          whatsappDestination: "+212677889900"
+        }
+      },
     ],
   },
   {
@@ -84,7 +138,17 @@ export const MOCK_ORDERS = [
     customer_phone: "+212654321098",
     created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     order_items: [
-      { id: "oi-6", product_name: "Carte NFC Transparente", variant_name: null, quantity: 1, unit_price: 229 },
+      { 
+        id: "oi-6", 
+        product_name: "Carte NFC Transparente", 
+        variant_name: null, 
+        quantity: 1, 
+        unit_price: 229,
+        customization: {
+          designType: "standard",
+          displayName: "Nadia Cherkaoui"
+        }
+      },
     ],
   },
   {
@@ -96,7 +160,16 @@ export const MOCK_ORDERS = [
     customer_phone: "+212612345678",
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     order_items: [
-      { id: "oi-7", product_name: "Mini Plaque Avis Google", variant_name: null, quantity: 1, unit_price: 99 },
+      { 
+        id: "oi-7", 
+        product_name: "Mini Plaque Avis Google", 
+        variant_name: null, 
+        quantity: 1, 
+        unit_price: 99,
+        configuration: {
+          reviewDestination: "Business Address"
+        }
+      },
     ],
   },
 ];

@@ -334,10 +334,13 @@ function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
   );
 }
 
+import OrderDetailsModal from "./components/OrderDetailsModal";
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const [period, setPeriod] = useState("30d");
   const [chartType, setChartType] = useState("area");
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const { data: stats, isLoading: statsLoading } = useAdminStats(period);
   const { data: ordersTime, isLoading: timeLoading } =
@@ -630,7 +633,12 @@ export default function AdminDashboardPage() {
 
               {/* ── Recent Orders (compact, embedded) ── */}
               <div className="mt-5 pt-5 border-t border-ink/5">
-                <RecentOrdersTable orders={orders ?? []} isLoading={ordersLoading} compact />
+                <RecentOrdersTable 
+                  orders={orders ?? []} 
+                  isLoading={ordersLoading} 
+                  compact 
+                  onRowClick={(order) => setSelectedOrder(order)}
+                />
               </div>
 
               {/* Summary strip */}
@@ -720,7 +728,7 @@ export default function AdminDashboardPage() {
                   value:
                     (stats?.totalProfiles ?? 0) -
                     (stats?.publishedProfiles ?? 0),
-                  color: "#f1f5f9",
+                  color: "#899499",
                 },
               ]}
             />
@@ -745,6 +753,11 @@ export default function AdminDashboardPage() {
           </div>
         </div>
       </div>
+      
+      <OrderDetailsModal 
+        order={selectedOrder} 
+        onClose={() => setSelectedOrder(null)} 
+      />
     </div>
   );
 }

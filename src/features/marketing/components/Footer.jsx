@@ -61,7 +61,7 @@ export default function Footer() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.6 }}
             className="w-10 h-10 mx-auto mb-8 flex items-center justify-center"
           >
@@ -76,7 +76,7 @@ export default function Footer() {
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-center max-w-3xl mx-auto"
           >
@@ -112,7 +112,7 @@ export default function Footer() {
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mt-24 sm:mt-32 text-left"
           >

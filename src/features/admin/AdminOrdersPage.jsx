@@ -88,10 +88,13 @@ function formatDate(dateStr) {
   });
 }
 
+import OrderDetailsModal from "./components/OrderDetailsModal";
+
 export default function AdminOrdersPage() {
   const { data: orders, isLoading } = useAdminOrders();
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateOrderStatus();
   const [filter, setFilter] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const filtered =
     filter === "all"
@@ -157,7 +160,8 @@ export default function AdminOrdersPage() {
                 {filtered.map((order) => (
                   <tr
                     key={order.id}
-                    className="hover:bg-ink/[0.015] transition-colors"
+                    onClick={() => setSelectedOrder(order)}
+                    className="hover:bg-ink/[0.015] transition-colors cursor-pointer"
                   >
                     {/* Customer */}
                     <td className="px-5 py-4">
@@ -204,7 +208,7 @@ export default function AdminOrdersPage() {
                     </td>
 
                     {/* Action */}
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-3">
                         <StatusDropdown
                           orderId={order.id}
@@ -234,6 +238,11 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+      
+      <OrderDetailsModal 
+        order={selectedOrder} 
+        onClose={() => setSelectedOrder(null)} 
+      />
     </div>
   );
 }
