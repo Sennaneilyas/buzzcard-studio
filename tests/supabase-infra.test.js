@@ -28,7 +28,9 @@ const stamp = Date.now();
 
 let userA; // the "owner" in ownership tests
 let userB; // an unrelated second user, used to prove cross-user access is actually blocked
+let userC; // starts without a profile, then exercises the complete profile lifecycle
 let clientA; // authenticated as userA, via the anon key (exactly like a real browser session)
+let clientC; // authenticated as userC
 
 async function createTestUser(label) {
   const { data, error } = await admin.auth.admin.createUser({
@@ -44,47 +46,74 @@ describe("Supabase infrastructure smoke tests", () => {
   beforeAll(async () => {
     userA = await createTestUser("a");
     userB = await createTestUser("b");
-
-    // let the on_auth_user_created trigger commit before tests query it
-    await new Promise((r) => setTimeout(r, 500));
+    userC = await createTestUser("c");
 
     clientA = createClient(SUPABASE_URL, ANON_KEY);
-    const { error } = await clientA.auth.signInWithPassword({
+    const { error: clientAError } = await clientA.auth.signInWithPassword({
       email: userA.email,
       password: PASSWORD,
     });
-    if (error) throw error;
+    if (clientAError) throw clientAError;
+
+    clientC = createClient(SUPABASE_URL, ANON_KEY);
+    const { error: clientCError } = await clientC.auth.signInWithPassword({
+      email: userC.email,
+      password: PASSWORD,
+    });
+    if (clientCError) throw clientCError;
+
+    // Most existing infrastructure tests need profile-owned records. Seed A and
+    // B explicitly because auth signup intentionally no longer creates them.
+    const { error: seedError } = await admin.from("profiles").insert([
+      {
+        id: userA.id,
+        username: `infra-a-${stamp}`,
+        full_name: "Infrastructure User A",
+        template_id: "buzz-template",
+      },
+      {
+        id: userB.id,
+        username: `infra-b-${stamp}`,
+        full_name: "Infrastructure User B",
+        template_id: "buzz-template",
+      },
+    ]);
+    if (seedError) throw seedError;
   });
 
   afterAll(async () => {
     // cleanup runs even if a test above failed, so the project stays clean
     await admin.storage
       .from("avatars")
-      .remove([`${userA?.id}/smoke-test.png`, `${userB?.id}/smoke-test.png`]);
+      .remove([
+        `${userA?.id}/smoke-test.png`,
+        `${userB?.id}/smoke-test.png`,
+        `${userC?.id}/smoke-test.png`,
+      ]);
+    await admin.storage.from("profile-media").remove([
+      `profiles/${userA?.id}/templates/buzz-template/gallery/smoke-test.png`,
+      `profiles/${userB?.id}/templates/buzz-template/gallery/smoke-test.png`,
+      `profiles/${userA?.id}/templates/buzz-template/gallery/rejected.svg`,
+    ]);
     if (userA?.id) await admin.auth.admin.deleteUser(userA.id);
     if (userB?.id) await admin.auth.admin.deleteUser(userB.id);
+    if (userC?.id) await admin.auth.admin.deleteUser(userC.id);
   });
 
-  describe("Schema + trigger", () => {
-    it("signing up auto-creates a profiles row via the handle_new_user trigger", async () => {
+  describe("Schema + optional profile creation", () => {
+    it("an auth user can exist without a profile", async () => {
       const { data, error } = await admin
         .from("profiles")
-        .select("*")
-        .eq("id", userA.id)
-        .single();
+        .select("id")
+        .eq("id", userC.id);
 
       expect(error).toBeNull();
-      expect(data.username).toBeTruthy();
-      expect(data.tier).toBe("free"); // confirms column defaults applied
+      expect(data).toEqual([]);
     });
   });
 
-  describe("RLS — profiles", () => {
-    it("anon (logged-out) can read profiles", async () => {
-      const { data, error } = await anon.from("profiles").select("*").limit(1);
-      expect(error).toBeNull();
-      expect(Array.isArray(data)).toBe(true);
-    });
+  describe.sequential("RLS + lifecycle — profiles", () => {
+    let firstPublishedAt;
 
     it("anon cannot insert a profile", async () => {
       const { error } = await anon.from("profiles").insert({
@@ -95,7 +124,85 @@ describe("Supabase infrastructure smoke tests", () => {
       expect(error).not.toBeNull();
     });
 
-    it("a user can update their own profile", async () => {
+    it("a user cannot create a profile for another authenticated user", async () => {
+      const { error } = await clientA.from("profiles").insert({
+        id: userC.id,
+        username: `infra-hijack-${stamp}`,
+        full_name: "Should Fail",
+        template_id: "buzz-template",
+      });
+
+      expect(error).not.toBeNull();
+    });
+
+    it("a user can create exactly one draft profile for themselves", async () => {
+      const { data, error } = await clientC
+        .from("profiles")
+        .insert({
+          id: userC.id,
+          username: `infra-c-${stamp}`,
+          full_name: "Infrastructure User C",
+          profile_label: "My BuzzCard",
+          template_id: "buzz-template",
+          template_data: { headline: "Integration test profile" },
+        })
+        .select()
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.id).toBe(userC.id);
+      expect(data.status).toBe("draft");
+      expect(data.first_published_at).toBeNull();
+      expect(data.lifecycle_status).toBe("trial");
+      expect(data.template_data).toEqual({ headline: "Integration test profile" });
+    });
+
+    it("duplicate profile creation fails at the primary-key constraint", async () => {
+      const { error } = await clientC.from("profiles").insert({
+        id: userC.id,
+        username: `infra-c-duplicate-${stamp}`,
+        full_name: "Duplicate Profile",
+        template_id: "hotel-template",
+      });
+
+      expect(error).not.toBeNull();
+      expect(error.code).toBe("23505");
+    });
+
+    it("the owner can read their own draft profile", async () => {
+      const { data, error } = await clientC
+        .from("profiles")
+        .select("id, status")
+        .eq("id", userC.id)
+        .single();
+
+      expect(error).toBeNull();
+      expect(data).toEqual({ id: userC.id, status: "draft" });
+    });
+
+    it("another authenticated user cannot read someone else's draft", async () => {
+      const { data, error } = await clientA
+        .from("profiles")
+        .select("id")
+        .eq("id", userC.id)
+        .maybeSingle();
+
+      expect(error).toBeNull();
+      expect(data).toBeNull();
+    });
+
+    it("anonymous users cannot read a draft profile", async () => {
+      const { data, error } = await anon
+        .from("profiles")
+        .select("id")
+        .eq("id", userC.id)
+        .maybeSingle();
+
+      expect(error).toBeNull();
+      expect(data).toBeNull();
+    });
+
+    it("a user can update their own draft profile", async () => {
       const { data, error } = await clientA
         .from("profiles")
         .update({ bio: "Updated by integration test" })
@@ -125,6 +232,66 @@ describe("Supabase infrastructure smoke tests", () => {
         .eq("id", userB.id)
         .single();
       expect(check.bio).not.toBe("Should not apply");
+    });
+
+    it("the first draft-to-published transition records first_published_at", async () => {
+      const { data, error } = await clientC
+        .from("profiles")
+        .update({ status: "published" })
+        .eq("id", userC.id)
+        .select("status, first_published_at")
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.status).toBe("published");
+      expect(data.first_published_at).toBeTruthy();
+      firstPublishedAt = data.first_published_at;
+    });
+
+    it("anonymous users can read a published profile", async () => {
+      const { data, error } = await anon
+        .from("profiles")
+        .select("id, status")
+        .eq("id", userC.id)
+        .single();
+
+      expect(error).toBeNull();
+      expect(data).toEqual({ id: userC.id, status: "published" });
+    });
+
+    it("unpublish, republish, template edits, and direct edits preserve first_published_at", async () => {
+      const { data: draftAgain, error: unpublishError } = await clientC
+        .from("profiles")
+        .update({ status: "draft" })
+        .eq("id", userC.id)
+        .select("status, first_published_at")
+        .single();
+
+      expect(unpublishError).toBeNull();
+      expect(draftAgain.status).toBe("draft");
+      expect(draftAgain.first_published_at).toBe(firstPublishedAt);
+
+      const { data: republished, error: republishError } = await clientC
+        .from("profiles")
+        .update({ status: "published", template_id: "hotel-template" })
+        .eq("id", userC.id)
+        .select("status, template_id, first_published_at")
+        .single();
+
+      expect(republishError).toBeNull();
+      expect(republished.status).toBe("published");
+      expect(republished.template_id).toBe("hotel-template");
+      expect(republished.first_published_at).toBe(firstPublishedAt);
+
+      const { data: protectedTimestamp, error: timestampError } = await clientC
+        .from("profiles")
+        .update({ first_published_at: "2000-01-01T00:00:00.000Z" })
+        .eq("id", userC.id)
+        .select("first_published_at")
+        .single();
+
+      expect(timestampError).toBeNull();
+      expect(protectedTimestamp.first_published_at).toBe(firstPublishedAt);
     });
   });
 
@@ -194,6 +361,149 @@ describe("Supabase infrastructure smoke tests", () => {
       expect(data.length).toBe(0); // RLS silently blocked it, 0 rows affected
 
       await admin.from("social_links").delete().eq("id", seeded.id); // manual cleanup since userA's attempt didn't touch it
+    });
+  });
+
+  describe("RLS — profile child rows follow publication", () => {
+    const seeded = {};
+
+    beforeAll(async () => {
+      const { error: publishError } = await admin
+        .from("profiles")
+        .update({ status: "published" })
+        .eq("id", userC.id);
+      if (publishError) throw publishError;
+
+      const childRows = await Promise.all([
+        admin
+          .from("social_links")
+          .insert([
+            {
+              profile_id: userA.id,
+              platform: "draft-visibility",
+              url: "https://example.com/draft-social",
+            },
+            {
+              profile_id: userC.id,
+              platform: "published-visibility",
+              url: "https://example.com/published-social",
+            },
+          ])
+          .select("id, profile_id"),
+        admin
+          .from("profile_phones")
+          .insert([
+            { profile_id: userA.id, phone_number: "+212600000001" },
+            { profile_id: userC.id, phone_number: "+212600000002" },
+          ])
+          .select("id, profile_id"),
+        admin
+          .from("profile_emails")
+          .insert([
+            { profile_id: userA.id, email: `draft-${stamp}@buzzcard.test` },
+            { profile_id: userC.id, email: `published-${stamp}@buzzcard.test` },
+          ])
+          .select("id, profile_id"),
+        admin
+          .from("profile_reviews")
+          .insert([
+            {
+              profile_id: userA.id,
+              reviewer_id: userB.id,
+              rating: 4,
+              comment: "Draft visibility review",
+            },
+            {
+              profile_id: userC.id,
+              reviewer_id: userB.id,
+              rating: 5,
+              comment: "Published visibility review",
+            },
+          ])
+          .select("id, profile_id"),
+      ]);
+
+      for (const result of childRows) {
+        if (result.error) throw result.error;
+      }
+
+      [seeded.socials, seeded.phones, seeded.emails, seeded.reviews] =
+        childRows.map((result) => result.data);
+
+      const draftReview = seeded.reviews.find(
+        (row) => row.profile_id === userA.id,
+      );
+      const publishedReview = seeded.reviews.find(
+        (row) => row.profile_id === userC.id,
+      );
+      const { data: replies, error: repliesError } = await admin
+        .from("profile_review_replies")
+        .insert([
+          {
+            review_id: draftReview.id,
+            author_id: userA.id,
+            comment: "Draft visibility reply",
+          },
+          {
+            review_id: publishedReview.id,
+            author_id: userC.id,
+            comment: "Published visibility reply",
+          },
+        ])
+        .select("id, review_id");
+      if (repliesError) throw repliesError;
+      seeded.replies = replies;
+    });
+
+    it.each([
+      ["social_links", "socials"],
+      ["profile_phones", "phones"],
+      ["profile_emails", "emails"],
+      ["profile_reviews", "reviews"],
+    ])("anonymous users see only published-parent rows in %s", async (table, key) => {
+      const draftRow = seeded[key].find((row) => row.profile_id === userA.id);
+      const publishedRow = seeded[key].find(
+        (row) => row.profile_id === userC.id,
+      );
+
+      const { data, error } = await anon
+        .from(table)
+        .select("id")
+        .in("id", [draftRow.id, publishedRow.id]);
+
+      expect(error).toBeNull();
+      expect(data).toEqual([{ id: publishedRow.id }]);
+    });
+
+    it("anonymous users cannot read replies attached to draft profiles", async () => {
+      const { data, error } = await anon
+        .from("profile_review_replies")
+        .select("id")
+        .in("id", seeded.replies.map((reply) => reply.id));
+
+      const publishedReview = seeded.reviews.find(
+        (row) => row.profile_id === userC.id,
+      );
+      const publishedReply = seeded.replies.find(
+        (reply) => reply.review_id === publishedReview.id,
+      );
+
+      expect(error).toBeNull();
+      expect(data).toEqual([{ id: publishedReply.id }]);
+    });
+
+    it("the authenticated owner can still read draft child rows", async () => {
+      const draftSocial = seeded.socials.find(
+        (row) => row.profile_id === userA.id,
+      );
+      const { data, error } = await clientA
+        .from("social_links")
+        .select("id")
+        .eq("id", draftSocial.id)
+        .single();
+
+      expect(error).toBeNull();
+      expect(data.id).toBe(draftSocial.id);
     });
   });
 
@@ -364,6 +674,94 @@ describe("Supabase infrastructure smoke tests", () => {
         .upload(`${userB.id}/smoke-test.png`, file);
 
       expect(error).not.toBeNull();
+    });
+  });
+
+  describe.sequential("Storage — profile media", () => {
+    const ownPath = () =>
+      `profiles/${userA.id}/templates/buzz-template/gallery/smoke-test.png`;
+    const otherPath = () =>
+      `profiles/${userB.id}/templates/buzz-template/gallery/smoke-test.png`;
+
+    it("uses a public bucket with centralized MIME and size limits", async () => {
+      const { data, error } = await admin.storage.getBucket("profile-media");
+
+      expect(error).toBeNull();
+      expect(data.public).toBe(true);
+      expect(data.file_size_limit).toBe(5 * 1024 * 1024);
+      expect(data.allowed_mime_types).toEqual([
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+      ]);
+    });
+
+    it("lets an authenticated owner upload into their own profile path", async () => {
+      const file = new Blob(["profile-media-bytes"], { type: "image/png" });
+      const { error } = await clientA.storage
+        .from("profile-media")
+        .upload(ownPath(), file, { upsert: false });
+
+      expect(error).toBeNull();
+    });
+
+    it("serves the canonical profile-media URL without authentication", async () => {
+      const { data } = clientA.storage
+        .from("profile-media")
+        .getPublicUrl(ownPath());
+
+      const response = await fetch(data.publicUrl);
+      expect(response.ok).toBe(true);
+    });
+
+    it("lets the owner replace their own object", async () => {
+      const replacement = new Blob(["replacement-image-bytes"], {
+        type: "image/png",
+      });
+      const { error } = await clientA.storage
+        .from("profile-media")
+        .update(ownPath(), replacement, { upsert: false });
+
+      expect(error).toBeNull();
+    });
+
+    it("blocks cross-user path uploads and updates", async () => {
+      const file = new Blob(["cross-user-image"], { type: "image/png" });
+      const { error: uploadError } = await clientA.storage
+        .from("profile-media")
+        .upload(otherPath(), file, { upsert: false });
+      expect(uploadError).not.toBeNull();
+
+      const { error: seedError } = await admin.storage
+        .from("profile-media")
+        .upload(otherPath(), file, { upsert: true });
+      expect(seedError).toBeNull();
+
+      const { error: updateError } = await clientA.storage
+        .from("profile-media")
+        .update(otherPath(), file, { upsert: false });
+      expect(updateError).not.toBeNull();
+    });
+
+    it("enforces the bucket MIME allowlist", async () => {
+      const svg = new Blob(["<svg></svg>"], { type: "image/svg+xml" });
+      const { error } = await clientA.storage
+        .from("profile-media")
+        .upload(
+          `profiles/${userA.id}/templates/buzz-template/gallery/rejected.svg`,
+          svg,
+        );
+
+      expect(error).not.toBeNull();
+    });
+
+    it("lets the owner delete their own object", async () => {
+      const { data, error } = await clientA.storage
+        .from("profile-media")
+        .remove([ownPath()]);
+
+      expect(error).toBeNull();
+      expect(data.map((object) => object.name)).toContain(ownPath());
     });
   });
 });
