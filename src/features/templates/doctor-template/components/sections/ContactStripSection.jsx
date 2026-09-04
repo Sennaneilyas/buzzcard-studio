@@ -14,7 +14,7 @@ export function ContactStripSection({ profile, isEditMode }) {
       variants={staggerContainer}
       className="bg-[#F8FAFC] px-5 py-8 w-full flex flex-col gap-3"
     >
-      <motion.div variants={fadeInUp}>
+      {(profile.emails?.[0] || isEditMode) && <motion.div variants={fadeInUp}>
         <ContactRow 
           icon={Mail} 
           label="E-mail" 
@@ -24,8 +24,8 @@ export function ContactStripSection({ profile, isEditMode }) {
           isEditMode={isEditMode}
           onChange={(val) => setProfileData({ email: val })}
         />
-      </motion.div>
-      <motion.div variants={fadeInUp}>
+      </motion.div>}
+      {(profile.phones?.[0] || isEditMode) && <motion.div variants={fadeInUp}>
         <ContactRow 
           icon={Phone} 
           label="Téléphone" 
@@ -35,8 +35,8 @@ export function ContactStripSection({ profile, isEditMode }) {
           isEditMode={isEditMode}
           onChange={(val) => setProfileData({ phone: val })}
         />
-      </motion.div>
-      <motion.div variants={fadeInUp}>
+      </motion.div>}
+      {(profile.location || isEditMode) && <motion.div variants={fadeInUp}>
         <ContactRow 
           icon={MapPin} 
           label="Localisation" 
@@ -46,7 +46,7 @@ export function ContactStripSection({ profile, isEditMode }) {
           isEditMode={isEditMode}
           onChange={(val) => setProfileData({ location: val })}
         />
-      </motion.div>
+      </motion.div>}
     </motion.section>
   );
 }

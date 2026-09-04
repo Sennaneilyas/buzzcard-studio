@@ -1,6 +1,8 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Camera, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { Camera } from "lucide-react";
+import { useProfileMedia } from "@/features/editor/media/useProfileMedia";
 
 export default function EditableImage({
   src,
@@ -10,58 +12,105 @@ export default function EditableImage({
   alt = "Image",
   fallbackIcon: FallbackIcon,
   containerClassName,
+  category,
 }) {
   const inputRef = useRef(null);
+  const media = useProfileMedia();
+  const [localPreview, setLocalPreview] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith("image/")) return;
+  useEffect(
+    () => () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    },
+    [localPreview],
+  );
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      onChange(e.target.result);
-    };
-    reader.readAsDataURL(file);
-  };
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file || isUploading) return;
 
-  const handleClick = () => {
-    if (isEditMode && inputRef.current) {
-      inputRef.current.click();
+    const preview = URL.createObjectURL(file);
+    setLocalPreview(preview);
+    setIsUploading(true);
+
+    try {
+      if (!media) throw new Error("Image uploads are unavailable in this preview.");
+      const uploadedUrl = await media.uploadReplacement({
+        file,
+        category,
+        currentValue: src,
+      });
+      onChange(uploadedUrl);
+    } catch (error) {
+      toast.error("Image upload failed", {
+        description: error.message || "Your previous image is still saved.",
+      });
+    } finally {
+      setLocalPreview("");
+      setIsUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
+  const handleClick = () => {
+    if (isEditMode && !isUploading) inputRef.current?.click();
+  };
+
+  const displayedSource = localPreview || src;
+
   return (
-    <div 
+    <div
       className={cn(
-        "relative overflow-hidden w-full h-full", 
-        isEditMode && "cursor-pointer group hover:ring-2 hover:ring-blue-500/50 transition-all",
-        containerClassName
+        "relative h-full w-full overflow-hidden",
+        isEditMode &&
+          "group cursor-pointer transition-all hover:ring-2 hover:ring-blue-500/50",
+        isUploading && "cursor-wait",
+        containerClassName,
       )}
       onClick={handleClick}
     >
-      {src ? (
-        <img src={src} alt={alt} className={cn("w-full h-full object-cover", className)} />
+      {displayedSource ? (
+        <img
+          src={displayedSource}
+          alt={alt}
+          className={cn("h-full w-full object-cover", className)}
+        />
       ) : (
-        <div className={cn("w-full h-full bg-gray-100 flex items-center justify-center text-gray-400", className)}>
-          {FallbackIcon ? <FallbackIcon className="w-1/3 h-1/3 opacity-50" /> : <Camera className="w-1/3 h-1/3 opacity-50" />}
+        <div
+          className={cn(
+            "flex h-full w-full items-center justify-center bg-gray-100 text-gray-400",
+            className,
+          )}
+        >
+          {FallbackIcon ? (
+            <FallbackIcon className="h-1/3 w-1/3 opacity-50" />
+          ) : (
+            <Camera className="h-1/3 w-1/3 opacity-50" />
+          )}
         </div>
       )}
 
       {isEditMode && (
         <>
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <div className="bg-white/20 backdrop-blur-sm p-2 rounded-full">
-              <Camera className="w-5 h-5 text-white" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="rounded-full bg-white/20 p-2 backdrop-blur-sm">
+              <Camera className="h-5 w-5 text-white" />
             </div>
           </div>
           <input
             ref={inputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp"
             className="hidden"
-            onChange={handleFileChange}
+            onChange={(event) => void handleFileChange(event)}
           />
+          {isUploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
+              <span className="sr-only">Uploading image</span>
+            </div>
+          )}
         </>
       )}
     </div>

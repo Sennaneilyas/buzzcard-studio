@@ -12,8 +12,10 @@ import {
   SiYoutube,
 } from "react-icons/si";
 import { FaLinkedin } from "react-icons/fa";
+import { FaWhatsapp } from "react-icons/fa";
 
 export const SOCIAL_PLATFORMS = [
+  { id: "whatsapp", name: "WhatsApp", icon: FaWhatsapp, colorClass: "text-[#25D366]", placeholder: "https://wa.me/212..." },
   { id: "instagram", name: "Instagram", icon: SiInstagram, colorClass: "text-[#E1306C]", placeholder: "https://instagram.com/..." },
   { id: "twitter", name: "X (Twitter)", icon: SiX, colorClass: "text-black", placeholder: "https://x.com/..." },
   { id: "linkedin", name: "LinkedIn", icon: FaLinkedin, colorClass: "text-[#0A66C2]", placeholder: "https://linkedin.com/in/..." },

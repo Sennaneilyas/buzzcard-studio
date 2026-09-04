@@ -13,8 +13,12 @@ const ProductsPage = React.lazy(() => import("@/features/products/ProductsPage")
 const ProductsRoute = React.lazy(() => import("@/features/products/ProductsRoute"));
 const CheckoutPage = React.lazy(() => import("@/features/products/CheckoutPage"));
 const OnboardingPage = React.lazy(() => import("@/features/onboarding/OnboardingPage"));
+const DashboardPage = React.lazy(() => import("@/app/routes/dashboard"));
+const TemplatesPage = React.lazy(() =>
+  import("@/features/templates/catalogue/TemplatesPage"),
+);
 const PublicProfileRoute = React.lazy(() => import("@/app/routes/public-profile"));
-const StudioEditor = React.lazy(() => import("@/features/editor/StudioEditor"));
+const ProfileEditorRoute = React.lazy(() => import("@/features/editor/ProfileEditorRoute"));
 const BuzzTemplatePreview = React.lazy(() =>
   import("@/app/routes/template-preview/BuzzTemplatePreview"),
 );
@@ -58,15 +62,24 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/products/:slug" element={<ProductsRoute />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/templates" element={<TemplatesPage />} />
         <Route path="/profile/:slug" element={<PublicProfileRoute />} />
         <Route
           path="/profile/:slug/edit"
           element={
             <ProtectedRoute>
-              <StudioEditor />
+              <ProfileEditorRoute />
             </ProtectedRoute>
           }
         />

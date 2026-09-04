@@ -8,21 +8,23 @@ import { fadeInUp, staggerContainer } from "../../utils/animations";
 export function LocationSection({ profile }) {
   const mapUrl = `https://maps.google.com/?q=${encodeURIComponent(profile.location || "")}`;
   const rawPhone = profile.phones?.[0] || "";
-  const cleanPhone = rawPhone.replace(/[^0-9+]/g, "");
+  const whatsappUrl = profile.socials?.find(
+    social => social.platform?.toLowerCase() === "whatsapp",
+  )?.href;
 
   const contactPills = [
     {
       icon: Phone,
       label: "Téléphone",
       value: rawPhone || "Non renseigné",
-      href: `tel:${rawPhone}`,
+      href: rawPhone ? `tel:${rawPhone}` : "",
       target: "_self",
     },
     {
       icon: SiWhatsapp,
       label: "WhatsApp",
-      value: rawPhone ? "Discussion directe" : "Non disponible",
-      href: `https://api.whatsapp.com/send?phone=${cleanPhone}`,
+      value: "Discussion directe",
+      href: whatsappUrl,
       target: "_blank",
       iconClass: "text-[#25D366]",
     },
@@ -30,17 +32,17 @@ export function LocationSection({ profile }) {
       icon: Mail,
       label: "Email",
       value: profile.emails?.[0] || "Non renseigné",
-      href: `mailto:${profile.emails?.[0]}`,
+      href: profile.emails?.[0] ? `mailto:${profile.emails[0]}` : "",
       target: "_self",
     },
     {
       icon: MapPin,
       label: "Adresse",
       value: profile.location || "Non renseignée",
-      href: mapUrl,
+      href: profile.location ? mapUrl : "",
       target: "_blank",
     },
-  ];
+  ].filter(item => item.href);
 
   return (
     <SectionWrapper>
@@ -65,7 +67,7 @@ export function LocationSection({ profile }) {
             </p>
           </div>
 
-          <a
+          {profile.location && <a
             href={mapUrl}
             target="_blank"
             rel="noopener noreferrer"
@@ -73,7 +75,7 @@ export function LocationSection({ profile }) {
             className="w-9 h-9 rounded-full bg-[var(--hotel-latte)] hover:bg-[var(--hotel-espresso)] hover:text-white text-[var(--hotel-mocha)] flex items-center justify-center transition-all duration-300 shadow-sm group"
           >
             <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          </a>}
         </div>
 
         {/* 2x2 Grid of Pill-Shaped Cards */}

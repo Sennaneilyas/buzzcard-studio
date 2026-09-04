@@ -17,7 +17,11 @@ function TemplateRegistry({
   templateId,
   profileData = {},
   isEditMode = false,
+  lockProfileIdentity = false,
   onPreviewClick,
+  contextualEditing = false,
+  activeEditTarget = null,
+  onEditTargetSelect,
 }) {
   const TemplateComponent =
     LAZY_TEMPLATES[templateId] || LAZY_TEMPLATES["buzz-template"];
@@ -38,7 +42,11 @@ function TemplateRegistry({
           profile={profileData}
           profileData={profileData}
           isEditMode={isEditMode}
+          lockProfileIdentity={lockProfileIdentity}
           onPreviewClick={onPreviewClick}
+          contextualEditing={contextualEditing}
+          activeEditTarget={activeEditTarget}
+          onEditTargetSelect={onEditTargetSelect}
         />
       </Suspense>
     </div>

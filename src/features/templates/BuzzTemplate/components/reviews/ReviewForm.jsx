@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MessageSquare, Star } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -13,7 +13,7 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { register, handleSubmit: hookFormSubmit, setValue, watch, formState: { errors, isValid } } = useForm({
+  const { control, register, handleSubmit: hookFormSubmit, setValue, formState: { errors, isValid } } = useForm({
     resolver: zodResolver(reviewSchema),
     mode: "onChange",
     defaultValues: {
@@ -22,7 +22,7 @@ export default function ReviewForm({ initialData, onSubmit, onCancel }) {
     }
   });
 
-  const rating = watch("rating");
+  const rating = useWatch({ control, name: "rating" });
   const displayedRating = hoveredRating || rating;
   const isEditing = !!initialData;
 

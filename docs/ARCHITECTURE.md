@@ -28,9 +28,9 @@ After checkout (or upon starting a free trial), the user enters the Profile Wiza
 - **UX Impact:** Stepped forms significantly reduce cognitive overload and drastically improve completion rates compared to single long scrolling pages.
 
 ### D. Subdomain Routing & The Public Profile
-- **Decision:** Once finished, they are instantly redirected to `username.buzzcard.ma`. 
-- **UX Impact:** The public profile renders the chosen template. We inject a **Floating Action Button (FAB)** that is *only* visible to the authenticated owner. Clicking it opens a modal to quickly edit info or swap templates on the fly.
-- **QR Code:** The system automatically generates a QR code pointing to this exact subdomain, available for download in their dashboard or printed on their physical card.
+- **Current decision:** The canonical public route is `/profile/:username`. It performs a published-only Supabase lookup and renders the persisted selected template without editor state.
+- **Owner experience:** Draft preview remains inside protected Studio. Published owners edit in Studio and use the dashboard's View Profile action; the public page itself does not depend on owner-only Zustand state.
+- **Future hosting option:** `username.buzzcard.ma` remains a deferred routing decision and can later resolve to the same public-profile query contract.
 
 ---
 
@@ -47,6 +47,8 @@ To make this complex flow feel instantaneous, we must separate our state into tw
 ### B. Client UI State (Zustand)
 - **Decision:** Use Zustand for transient UI state.
 - **Why it matters:** We need a global state to track `isCheckoutDrawerOpen`, `cartItems`, and `currentWizardStep`. Zustand is lightweight and avoids the massive boilerplate of Redux.
+
+For Studio media, Zustand tracks only the live canonical URLs, active upload count, dirty state, and deferred cleanup references. Image bytes are uploaded directly to the public `profile-media` Supabase bucket and are never persisted in localStorage or embedded as base64 in profile JSON. Avatar is profile-level; cover, gallery, and section images are template-level.
 
 ### C. Advanced Loading UX (Skeletons & Brand Logo)
 - **Decision:** Generic loading spinners will be strictly avoided. Instead, we will implement two primary loading states:

@@ -5,6 +5,7 @@ import { ContactStripSection } from "./components/sections/ContactStripSection";
 import { SectionHeader } from "./components/ui/SectionHeader";
 import { fadeInUp } from "./utils/animations";
 import { DynamicSection } from "@/components/ui/DynamicSection";
+import { configuredSocials, editorContactValues } from "@/features/templates/shared/profileActions";
 
 // Lazy loaded components (Below the fold)
 const OfficeHoursSection = lazy(() => import("./components/sections/OfficeHoursSection").then(m => ({ default: m.OfficeHoursSection })));
@@ -47,7 +48,12 @@ const mockProfile = {
   ]
 };
 
-export default function DoctorTemplate({ profile: rawProfile, profileData, isEditMode }) {
+export default function DoctorTemplate({
+  profile: rawProfile,
+  profileData,
+  isEditMode,
+  lockProfileIdentity = false,
+}) {
   // Merge editor flat data on top of the rich mock, so user edits appear instantly.
   const profile = {
     ...mockProfile,
@@ -64,16 +70,13 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
     badge1: profileData?.badge1 || "Cardiologie",
     badge2: profileData?.badge2 || "Soins Préventifs",
     badge3: profileData?.badge3 || "ECG",
-    emails: profileData?.email ? [profileData.email] : (rawProfile?.emails || mockProfile.emails),
-    phones: profileData?.phone ? [profileData.phone] : (rawProfile?.phones || mockProfile.phones),
+    ...editorContactValues(profileData, rawProfile || mockProfile),
     location: profileData?.location || rawProfile?.location || mockProfile.location,
     avatarUrl: profileData?.avatarUrl || rawProfile?.avatarUrl || mockProfile.avatarUrl,
     bannerUrl: profileData?.bannerUrl || rawProfile?.bannerUrl || mockProfile.bannerUrl,
     gallery: profileData?.gallery?.length ? profileData.gallery : (rawProfile?.gallery || mockProfile.gallery),
     socials: profileData?.socials
-      ? (profileData.socialOrder || Object.keys(profileData.socials))
-          .filter(platform => profileData.socials[platform])
-          .map(platform => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href: profileData.socials[platform] }))
+      ? configuredSocials(profileData.socials, profileData.socialOrder)
       : (rawProfile?.socials || mockProfile.socials),
     profileData: profileData || {} // Pass down raw editor state for arrays like services
   };
@@ -87,7 +90,11 @@ export default function DoctorTemplate({ profile: rawProfile, profileData, isEdi
       >
         <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {/* Above the fold - Loaded synchronously */}
-          <HeroSection profile={profile} isEditMode={isEditMode} />
+          <HeroSection
+            profile={profile}
+            isEditMode={isEditMode}
+            lockProfileIdentity={lockProfileIdentity}
+          />
           <ContactStripSection profile={profile} isEditMode={isEditMode} />
 
           {/* Below the fold - Lazy Loaded chunk by chunk */}

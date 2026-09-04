@@ -6,14 +6,25 @@ import ContactPopover from "../ui/ContactPopover";
 import EditableText from "@/components/ui/EditableText";
 import EditableImage from "@/components/ui/EditableImage";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
+import { PROFILE_MEDIA_CATEGORIES } from "@/features/editor/media/profileMedia";
+import PreviewEditRegion from "@/features/editor/contextual/PreviewEditRegion";
+import { validHttpUrl } from "@/features/templates/shared/profileActions";
 
 /**
  * Identity card: avatar, name, company/profession, contact quick-actions
  * (call / email / website), and the "Enregistrer le contact" vCard button.
  */
-export default function HeroSection({ profile, isEditMode }) {
+export default function HeroSection({
+  profile,
+  isEditMode,
+  lockProfileIdentity = false,
+  contextualEditing = false,
+  activeEditTarget,
+  onEditTargetSelect,
+}) {
   const { phones, emails, isSaved, handleSaveContact } = useSaveContact(profile);
   const setProfileData = useEditorStore((s) => s.setProfileData);
+  const inlineEditing = isEditMode && !contextualEditing;
 
   const contactActions = useMemo(
     () =>
@@ -32,10 +43,10 @@ export default function HeroSection({ profile, isEditMode }) {
           icon: Mail,
           label: "Email",
         },
-        profile.website && {
+        validHttpUrl(profile.website) && {
           id: "website",
           entries: null,
-          href: profile.website,
+          href: validHttpUrl(profile.website),
           icon: Link,
           label: "Site web",
         },
@@ -47,58 +58,97 @@ export default function HeroSection({ profile, isEditMode }) {
     <article
       className={`relative z-50 w-full rounded-[25px] bg-[#f4f5f790] backdrop-blur-md ${GLASS_SHADOW} -mt-[39px] pt-[52px] pb-[18px] flex flex-col items-center gap-[6px]`}
     >
-      <div className="absolute -top-[44px] left-1/2 -translate-x-1/2 w-[90px] h-[90px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-md">
+      <PreviewEditRegion
+        targetId="identity"
+        label="Avatar"
+        isEditMode={contextualEditing && !lockProfileIdentity}
+        isActive={activeEditTarget === "identity"}
+        onSelect={onEditTargetSelect}
+        className="absolute -top-[44px] left-1/2 -translate-x-1/2 w-[90px] h-[90px] rounded-full ring-2 ring-white/80 overflow-hidden bg-neutral-200 shadow-md"
+      >
         <EditableImage
           src={profile.avatarUrl || profile.avatar_url || ""}
           alt={`Avatar de ${profile.fullName ?? ""}`}
-          isEditMode={isEditMode}
+          isEditMode={inlineEditing && !lockProfileIdentity}
+          category={PROFILE_MEDIA_CATEGORIES.AVATAR}
           onChange={(val) => setProfileData({ avatarUrl: val })}
           className="w-full h-full object-cover"
         />
-      </div>
+      </PreviewEditRegion>
 
-      <EditableText
-        as="h1"
-        value={profile.full_name || profile.fullName || ""}
-        onChange={(val) => setProfileData({ name: val })}
-        isEditMode={isEditMode}
-        placeholder="Your Name"
-        className="font-bold text-neutral-950 text-xl text-center leading-normal px-4 [font-family:'Space_Grotesk',sans-serif]"
-      />
+      <PreviewEditRegion
+        targetId="identity"
+        label="Name"
+        isEditMode={contextualEditing && !lockProfileIdentity}
+        isActive={activeEditTarget === "identity"}
+        onSelect={onEditTargetSelect}
+        className="w-full"
+      >
+        <EditableText
+          as="h1"
+          value={profile.full_name || profile.fullName || ""}
+          onChange={(val) => setProfileData({ name: val })}
+          isEditMode={inlineEditing && !lockProfileIdentity}
+          placeholder="Your Name"
+          className="font-bold text-neutral-950 text-xl text-center leading-normal px-4 [font-family:'Space_Grotesk',sans-serif]"
+        />
+      </PreviewEditRegion>
 
-      <EditableText
-        as="p"
-        value={profile.role || profile.profession || profile.company || ""}
-        onChange={(val) => setProfileData({ role: val })}
-        isEditMode={isEditMode}
-        placeholder="Profession & Company"
-        className="text-neutral-950 text-xs text-center italic leading-normal px-4 [font-family:'Georgia',serif]"
-      />
+      <PreviewEditRegion
+        targetId="identity"
+        label="Profession"
+        isEditMode={contextualEditing}
+        isActive={activeEditTarget === "identity"}
+        onSelect={onEditTargetSelect}
+        className="w-full"
+      >
+        <EditableText
+          as="p"
+          value={profile.role || profile.profession || profile.company || ""}
+          onChange={(val) => setProfileData({ role: val })}
+          isEditMode={inlineEditing}
+          placeholder="Profession & Company"
+          className="text-neutral-950 text-xs text-center italic leading-normal px-4 [font-family:'Georgia',serif]"
+        />
+      </PreviewEditRegion>
 
-      {contactActions.length > 0 && (
-        <div className="flex items-center justify-center gap-[15px] mt-3 flex-wrap px-4">
-          {contactActions.map(({ id, entries, href, icon: Icon, label }) =>
-            entries?.length > 1 ? (
-              <ContactPopover
-                key={id}
-                icon={Icon}
-                label={label}
-                entries={entries}
-                prefix={id === "phone" ? "tel:" : "mailto:"}
-              />
+      {(contactActions.length > 0 || contextualEditing) && (
+        <PreviewEditRegion
+          targetId="contact"
+          label="Contact"
+          isEditMode={contextualEditing}
+          isActive={activeEditTarget === "contact"}
+          onSelect={onEditTargetSelect}
+          className="mt-3 min-h-[45px] min-w-[160px]"
+        >
+          <div className="flex items-center justify-center gap-[15px] flex-wrap px-4">
+            {contactActions.length > 0 ? contactActions.map(({ id, entries, href, icon: Icon, label }) =>
+              entries?.length > 1 ? (
+                <ContactPopover
+                  key={id}
+                  icon={Icon}
+                  label={label}
+                  entries={entries}
+                  prefix={id === "phone" ? "tel:" : "mailto:"}
+                />
+              ) : (
+                <a
+                  key={id}
+                  href={isEditMode ? undefined : href}
+                  aria-label={label}
+                  onClick={(e) => { if (isEditMode) e.preventDefault(); }}
+                  className="w-[45px] h-[45px] shrink-0 rounded-full bg-[#f4f5f7] flex items-center justify-center shadow-[inset_1px_1px_3px_rgba(255,255,255,0.8),-1px_-1px_6px_rgba(0,0,0,0.08)] active:scale-95 transition-transform"
+                >
+                  <Icon className="w-5 h-5 text-neutral-950" />
+                </a>
+              )
             ) : (
-              <a
-                key={id}
-                href={isEditMode ? undefined : href}
-                aria-label={label}
-                onClick={(e) => { if (isEditMode) e.preventDefault(); }}
-                className="w-[45px] h-[45px] shrink-0 rounded-full bg-[#f4f5f7] flex items-center justify-center shadow-[inset_1px_1px_3px_rgba(255,255,255,0.8),-1px_-1px_6px_rgba(0,0,0,0.08)] active:scale-95 transition-transform"
-              >
-                <Icon className="w-5 h-5 text-neutral-950" />
-              </a>
-            )
-          )}
-        </div>
+              <span className="flex min-h-[45px] items-center text-xs font-semibold text-neutral-500">
+                Add contact actions
+              </span>
+            )}
+          </div>
+        </PreviewEditRegion>
       )}
 
       <hr className="w-[85%] max-w-[285px] border-0 border-t border-neutral-950/10 mt-3" />

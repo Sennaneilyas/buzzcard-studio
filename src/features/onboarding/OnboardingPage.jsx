@@ -1,313 +1,238 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuthStore, useProfile } from "@/features/auth";
-import { useEditorStore } from "@/features/editor/store/useEditorStore";
-import {
-  Sparkles,
-  UserCircle,
-  Share2,
-  Rocket,
-  Home,
-  Edit3,
-  Zap,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import StepTemplate from "./steps/StepTemplate";
-import StepBasicInfo from "./steps/StepBasicInfo";
-import StepSocials from "./steps/StepSocials";
-import StepLaunch from "./steps/StepLaunch";
-import { useForm, FormProvider } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, Sparkles, UserCircle } from "lucide-react";
 import * as z from "zod";
+import { GlobalLoader } from "@/components/ui/GlobalLoader";
+import { getTemplateById } from "@/config/templates";
+import { useAuthStore, useProfile } from "@/features/auth";
+import {
+  getOnboardingRedirect,
+  getOnboardingSkipDestination,
+  getProfileStudioPath,
+} from "@/features/auth/utils/profileRouting";
+import { cn } from "@/lib/utils";
+import { useCreateDraftProfile } from "./api/useCreateDraftProfile";
+import StepBasicInfo from "./steps/StepBasicInfo";
+import StepTemplate from "./steps/StepTemplate";
 
 const onboardingSchema = z.object({
-  name: z.string().optional(),
-  role: z.string().optional(),
-  email: z.union([z.literal(""), z.string().email("Invalid email format")]).optional(),
-  phone: z.string().optional(),
-  bio: z.string().optional(),
-  socials: z.record(z.union([z.literal(""), z.string().url("Must be a valid URL")])).optional()
+  displayName: z.string().trim().min(1, "Display name is required"),
+  profileLabel: z.string().trim().optional(),
+  avatarUrl: z
+    .union([z.literal(""), z.string().url("Enter a valid image URL")])
+    .optional(),
 });
 
 const ONBOARDING_STEPS = [
+  { id: "identity", label: "Identity", icon: UserCircle },
   { id: "template", label: "Template", icon: Sparkles },
-  { id: "info", label: "Basic Info", icon: UserCircle },
-  { id: "socials", label: "Social Links", icon: Share2 },
-  { id: "launch", label: "Launch", icon: Rocket },
 ];
 
+function getIdentityDefaults(user) {
+  const metadata = user?.user_metadata || {};
+  const fullName =
+    metadata.full_name ||
+    metadata.name ||
+    [metadata.first_name, metadata.last_name].filter(Boolean).join(" ") ||
+    user?.email?.split("@")[0] ||
+    "";
+
+  return {
+    displayName: fullName,
+    profileLabel: "",
+    avatarUrl: metadata.avatar_url || metadata.picture || "",
+  };
+}
+
 export default function OnboardingPage() {
-  const user = useAuthStore((s) => s.user);
-  const { data: profile } = useProfile();
+  const user = useAuthStore((state) => state.user);
+  const profileQuery = useProfile();
   const navigate = useNavigate();
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const [selectedTemplateId, setSelectedTemplateId] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [searchParams] = useSearchParams();
+  const createDraft = useCreateDraftProfile();
+  const [activeStep, setActiveStep] = useState(0);
+  const requestedTemplateId = getTemplateById(searchParams.get("template"))?.id;
+  const [selectedTemplateId, setSelectedTemplateId] = useState(
+    requestedTemplateId || null,
+  );
+
+  const identityDefaults = useMemo(() => getIdentityDefaults(user), [user]);
   const methods = useForm({
     resolver: zodResolver(onboardingSchema),
     mode: "onTouched",
-    defaultValues: {
-      name: "",
-      role: "",
-      email: "",
-      phone: "",
-      bio: "",
-      socials: {}
-    }
+    defaultValues: identityDefaults,
   });
 
-  const { trigger, getValues } = methods;
+  if (profileQuery.isLoading || !profileQuery.isFetched) {
+    return <GlobalLoader className="bg-cloud" />;
+  }
 
-  const rawDisplayName =
-    user?.user_metadata?.full_name ||
-    user?.user_metadata?.name ||
-    profile?.full_name ||
-    (user?.email ? user.email.split("@")[0] : "User");
+  if (profileQuery.isError) {
+    return (
+      <main className="flex min-h-[100dvh] items-center justify-center bg-cloud px-6">
+        <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold text-navy">We could not load your profile</h1>
+          <p className="mt-2 text-sm text-ink/60">
+            {profileQuery.error?.message || "Please check your connection and try again."}
+          </p>
+          <button
+            type="button"
+            onClick={() => profileQuery.refetch()}
+            className="mt-6 rounded-full bg-navy px-6 py-3 text-sm font-bold text-white"
+          >
+            Try again
+          </button>
+        </div>
+      </main>
+    );
+  }
 
-  const displayName = rawDisplayName.split(" ")[0];
+  if (profileQuery.data) {
+    return <Navigate to={getOnboardingRedirect(profileQuery.data)} replace />;
+  }
 
-  const setEditorProfile = useEditorStore((s) => s.setProfileData);
-  const setEditorTemplate = useEditorStore((s) => s.setTemplateId);
-  const setEditorSlug = useEditorStore((s) => s.setSlug);
-
-  const handleNext = async () => {
-    if (activeTabIndex === 1) {
-      const valid = await trigger(["name", "role", "email", "phone", "bio"]);
-      if (!valid) return;
+  const handleContinue = async () => {
+    if (activeStep === 0) {
+      const isValid = await methods.trigger([
+        "displayName",
+        "profileLabel",
+        "avatarUrl",
+      ]);
+      if (isValid) setActiveStep(1);
+      return;
     }
-    if (activeTabIndex === 2) {
-      const valid = await trigger(["socials"]);
-      if (!valid) return;
-    }
 
-    if (activeTabIndex < ONBOARDING_STEPS.length - 1) {
-      setActiveTabIndex(activeTabIndex + 1);
-    } else {
-      const finalData = getValues();
-      setEditorProfile({
-        ...finalData,
-        avatarUrl: "",
-        bannerUrl: "",
+    if (!selectedTemplateId || createDraft.isPending) return;
+
+    try {
+      const values = methods.getValues();
+      const { profile } = await createDraft.mutateAsync({
+        ...values,
+        templateId: selectedTemplateId,
+        existingProfile: profileQuery.data,
       });
-      setEditorTemplate(selectedTemplateId || "buzz-template");
-      setEditorSlug(displayName.toLowerCase());
-      setIsSuccess(true);
+
+      const studioPath = getProfileStudioPath(profile);
+      navigate(studioPath || getOnboardingSkipDestination(), { replace: true });
+    } catch {
+      // The mutation exposes the real Supabase error below; keep the form open.
     }
   };
 
   const handleBack = () => {
-    if (activeTabIndex > 0) {
-      setActiveTabIndex(activeTabIndex - 1);
-    }
+    if (activeStep > 0) setActiveStep((step) => step - 1);
   };
 
+  const handleSkip = () => {
+    navigate(getOnboardingSkipDestination(), { replace: true });
+  };
+
+  const firstName = identityDefaults.displayName.split(" ")[0] || "there";
+
   return (
-    <div 
-      className="min-h-[100dvh] w-full bg-white relative overflow-hidden flex flex-col font-sans"
-    >
-      <div className="w-full h-20 px-6 sm:px-10 flex items-center justify-between shrink-0 z-20">
-        {!isSuccess && (
-          <>
-            {/* Back Button */}
-            <button
-              onClick={handleBack}
-              className={cn(
-                "text-navy font-bold text-sm tracking-wide hover:text-navy/60 transition-colors px-2 py-1 rounded-md",
-                activeTabIndex === 0 && "opacity-0 pointer-events-none",
-              )}
-            >
-              Back
-            </button>
-
-            {/* Centered Segmented Progress Bar */}
-            <div className="flex items-center gap-2 flex-1 max-w-[200px] mx-auto">
-              {ONBOARDING_STEPS.map((step, index) => (
-                <div
-                  key={step.id}
-                  className="h-1.5 flex-1 rounded-full bg-white/40 overflow-hidden shadow-[inset_1px_1px_3px_rgba(163,177,198,0.5)]"
-                >
-                  <motion.div
-                    className="h-full bg-mint shadow-[0_0_8px_rgba(107,151,255,0.6)]"
-                    initial={{ width: index < activeTabIndex ? "100%" : "0%" }}
-                    animate={{ width: index <= activeTabIndex ? "100%" : "0%" }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Skip Button */}
-            <button
-              onClick={handleNext}
-              className={cn(
-                "text-navy/40 font-bold text-sm tracking-wide hover:text-navy transition-colors px-2 py-1 rounded-md",
-                activeTabIndex === ONBOARDING_STEPS.length - 1 &&
-                  "opacity-0 pointer-events-none",
-              )}
-            >
-              Skip
-            </button>
-          </>
-        )}
-      </div>
-
-      {/* ── Main Content Area ── */}
-      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-col z-10 pb-10 justify-center">
-        <AnimatePresence mode="wait">
-          {!isSuccess ? (
-            <motion.div
-              key="onboarding-flow"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
-              className="w-full flex-1 flex flex-col"
-            >
-              {/* Title Section */}
-              <div className="text-center mb-10 shrink-0 pt-4">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-navy tracking-tight">
-                  {activeTabIndex === 0
-                    ? `Welcome, ${displayName}!`
-                    : activeTabIndex === 1
-                      ? "Add your details"
-                      : activeTabIndex === 2
-                        ? "Connect your world"
-                        : "Ready for Launch"}
-                </h1>
-                <p className="text-navy/60 font-medium mt-2 max-w-md mx-auto">
-                  {activeTabIndex === 0
-                    ? "Select a foundation to start building your digital presence."
-                    : activeTabIndex === 1
-                      ? "Complete the fields below to add your basic content."
-                      : activeTabIndex === 2
-                        ? "Add your social media and contact links."
-                        : "Review your choices and publish your public profile."}
-                </p>
-              </div>
-
-              {/* Dynamic Content Container */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTabIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className={cn(
-                    "w-full mx-auto flex-1 flex flex-col",
-                    activeTabIndex === 0 ? "max-w-7xl" : "max-w-2xl",
-                  )}
-                >
-                  {activeTabIndex === 0 ? (
-                    /* Phase 1: Template Gallery */
-                    <div className="flex-1 flex flex-col">
-                      <StepTemplate
-                        selectedId={selectedTemplateId}
-                        onSelect={setSelectedTemplateId}
-                      />
-                    </div>
-                  ) : (
-                    /* Phase 2: Form Cards */
-                    <div className="flex-1 overflow-y-auto px-2 pb-4 custom-scrollbar">
-                      <FormProvider {...methods}>
-                        {activeTabIndex === 1 ? (
-                          <StepBasicInfo />
-                        ) : activeTabIndex === 2 ? (
-                          <StepSocials />
-                        ) : (
-                          <StepLaunch
-                            data={getValues()}
-                            selectedTemplateId={selectedTemplateId}
-                          />
-                        )}
-                      </FormProvider>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Linktree-Style Big Continue Button */}
-              <div className="w-full max-w-2xl mx-auto mt-8 shrink-0 flex justify-center">
-                <button
-                  onClick={handleNext}
-                  disabled={activeTabIndex === 0 && !selectedTemplateId}
-                  className="w-full max-w-[280px] sm:max-w-[320px] h-12 rounded-full bg-[#6B97FF] hover:bg-[#5A85EB] text-white font-bold text-base shadow-[6px_6px_12px_rgba(163,177,198,0.6),-6px_-6px_12px_rgba(255,255,255,0.8),inset_2px_2px_4px_rgba(255,255,255,0.3)] transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
-                >
-                  {activeTabIndex === ONBOARDING_STEPS.length - 1
-                    ? "Publish Profile"
-                    : "Continue"}
-                </button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="success-card"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300, delay: 0.2 }}
-              className="w-full max-w-md mx-auto bg-white rounded-3xl p-8 text-center shadow-xl shadow-black/[0.03] border border-black/[0.04] relative"
-            >
-              {/* Top Badge */}
-              <div className="absolute left-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-cloud px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-navy">
-                <Rocket className="h-3.5 w-3.5 text-mint" />
-                <span>Mission Complete</span>
-              </div>
-
-              {/* Minimal Animated Success Checkmark */}
-              <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", damping: 20, stiffness: 300, delay: 0.3 }}
-                className="mx-auto mb-6 mt-10 flex h-24 w-24 items-center justify-center rounded-full border-[4px] border-mint bg-transparent"
-              >
-                <svg viewBox="0 0 52 52" className="w-12 h-12 text-mint">
-                  <motion.path
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M14 27l8 8 16-16"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
-                  />
-                </svg>
-              </motion.div>
-
-              <h2 className="mb-2 flex items-center justify-center gap-2 text-2xl font-extrabold text-navy">
-                <Zap className="h-6 w-6 text-mint" fill="currentColor" />
-                Profile Created!
-              </h2>
-
-              <p className="text-navy/70 text-sm font-medium mb-8 leading-relaxed px-2">
-                Your foundation is laid out. You can return home, or dive into
-                the Studio Editor to add custom sections, galleries, and
-                advanced styling.
-              </p>
-
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={() =>
-                    navigate(`/profile/${displayName.toLowerCase()}/edit`)
-                  }
-                  className="w-full px-8 py-3.5 rounded-xl bg-ink hover:bg-ink/90 text-white text-[15px] font-bold shadow-md transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Edit3 className="w-5 h-5" />
-                  Go to Studio Editor
-                </button>
-                <button
-                  onClick={() => navigate("/")}
-                  className="w-full px-8 py-3 rounded-xl bg-transparent text-navy/60 hover:text-navy text-[15px] font-bold transition-colors active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Home className="w-5 h-5" />
-                  Go to Home
-                </button>
-              </div>
-            </motion.div>
+    <div className="relative flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-white font-sans">
+      <header className="z-20 flex h-20 w-full shrink-0 items-center justify-between px-6 sm:px-10">
+        <button
+          type="button"
+          onClick={handleBack}
+          className={cn(
+            "rounded-md px-2 py-1 text-sm font-bold tracking-wide text-navy transition-colors hover:text-navy/60",
+            activeStep === 0 && "pointer-events-none opacity-0",
           )}
+        >
+          Back
+        </button>
+
+        <div className="mx-auto flex max-w-[200px] flex-1 items-center gap-2">
+          {ONBOARDING_STEPS.map((step, index) => (
+            <div
+              key={step.id}
+              className="h-1.5 flex-1 overflow-hidden rounded-full bg-navy/10"
+            >
+              <motion.div
+                className="h-full bg-mint"
+                animate={{ width: index <= activeStep ? "100%" : "0%" }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="rounded-md px-2 py-1 text-sm font-bold tracking-wide text-navy/45 transition-colors hover:text-navy"
+        >
+          Skip
+        </button>
+      </header>
+
+      <main className="z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-4 pb-10 sm:px-6">
+        <div className="mb-8 shrink-0 pt-4 text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight text-navy sm:text-4xl">
+            {activeStep === 0
+              ? `Welcome, ${firstName}!`
+              : "Choose your starting template"}
+          </h1>
+          <p className="mx-auto mt-2 max-w-lg text-sm font-medium text-navy/60 sm:text-base">
+            {activeStep === 0
+              ? "Add only the essentials now. Everything else belongs in Studio."
+              : "Preview each design, then create your draft and continue in Studio."}
+          </p>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.25 }}
+            className={cn(
+              "mx-auto flex w-full flex-1 flex-col",
+              activeStep === 0 ? "max-w-2xl" : "max-w-7xl",
+            )}
+          >
+            {activeStep === 0 ? (
+              <FormProvider {...methods}>
+                <StepBasicInfo />
+              </FormProvider>
+            ) : (
+              <StepTemplate
+                selectedId={selectedTemplateId}
+                onSelect={setSelectedTemplateId}
+              />
+            )}
+          </motion.div>
         </AnimatePresence>
+
+        {createDraft.isError && (
+          <p role="alert" className="mt-5 text-center text-sm font-medium text-red-600">
+            {createDraft.error?.message || "The draft profile could not be created."}
+          </p>
+        )}
+
+        <div className="mx-auto mt-8 flex w-full max-w-2xl shrink-0 justify-center">
+          <button
+            type="button"
+            onClick={handleContinue}
+            disabled={
+              createDraft.isPending ||
+              (activeStep === 1 && !selectedTemplateId)
+            }
+            className="flex h-12 w-full max-w-[320px] items-center justify-center gap-2 rounded-full bg-[#6B97FF] text-base font-bold text-white shadow-md transition-all hover:bg-[#5A85EB] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
+          >
+            {createDraft.isPending && <Loader2 className="size-4 animate-spin" />}
+            {activeStep === 0
+              ? "Continue"
+              : createDraft.isPending
+                ? "Creating Draft..."
+                : "Create Draft & Open Studio"}
+          </button>
+        </div>
       </main>
     </div>
   );

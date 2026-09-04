@@ -1,5 +1,5 @@
 import AppRouter from "@/app/AppRouter";
-import { Toaster } from 'sonner';
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
