@@ -21,6 +21,7 @@ import {
   ArrowDownRight,
   BarChart2 as BarChartIcon,
   LineChart as LineChartIcon,
+  Sparkles,
 } from "lucide-react";
 import {
   useAdminStats,
@@ -32,8 +33,14 @@ import TimePeriodSelector from "./components/TimePeriodSelector";
 import RecentOrdersTable from "./components/RecentOrdersTable";
 
 const PIE_COLORS = [
-  "#0f172a", "#3b82f6", "#10b981", "#f59e0b",
-  "#ef4444", "#8b5cf6", "#06b6d4", "#f97316",
+  "#0f172a",
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f97316",
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -49,10 +56,21 @@ function formatCompact(n) {
 }
 
 const formatDate = (dateStr) =>
-  new Date(dateStr).toLocaleDateString("fr-MA", { month: "short", day: "numeric" });
+  new Date(dateStr).toLocaleDateString("fr-MA", {
+    month: "short",
+    day: "numeric",
+  });
 
 // ─── KPI Card ──────────────────────────────────────────────────────────────────
-function KpiCard({ icon: Icon, label, value, prevValue, prefix = "", suffix = "", color }) {
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  prevValue,
+  prefix = "",
+  suffix = "",
+  color,
+}) {
   const change = calcChange(value, prevValue);
   const isPositive = change !== null && parseFloat(change) >= 0;
   const displayValue = prefix + formatCompact(value) + suffix;
@@ -87,7 +105,9 @@ function KpiCard({ icon: Icon, label, value, prevValue, prefix = "", suffix = ""
       </div>
       {prevValue !== undefined && (
         <p className="text-[10px] text-ink/30 mt-1.5">
-          Last period: {prefix}{formatCompact(prevValue)}{suffix}
+          Last period: {prefix}
+          {formatCompact(prevValue)}
+          {suffix}
         </p>
       )}
     </div>
@@ -127,9 +147,9 @@ const CustomTooltip = ({ active, payload }) => {
   return (
     <div className="relative flex flex-col items-center -translate-y-[calc(100%+8px)] pb-2 pointer-events-none z-10">
       <div className="bg-[#EA580C] text-white text-xs font-bold py-1.5 px-2.5 rounded-lg shadow-sm whitespace-nowrap">
-        ${Number(payload[0].value).toLocaleString("en-US")}
+        {Number(payload[0].value).toLocaleString("fr-MA")} MAD
       </div>
-      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#EA580C]"></div>
+      <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#EA580C]" />
     </div>
   );
 };
@@ -144,6 +164,7 @@ const PieTooltip = ({ active, payload }) => {
   );
 };
 
+
 // ─── Interactive SVG Donut (Framer Motion) ────────────────────────────────────
 const springConfig = { type: "spring", stiffness: 300, damping: 20 };
 const getPieCoords = (percent) => {
@@ -154,7 +175,7 @@ const getPieCoords = (percent) => {
 
 function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
   const [hoveredSlice, setHoveredSlice] = useState(null);
-  
+
   if (isLoading) {
     return <ChartSkeleton height={240} />;
   }
@@ -178,25 +199,30 @@ function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
           className="-rotate-90 overflow-visible w-full h-full"
           initial={{ rotate: -180, scale: 0 }}
           animate={{ rotate: -90, scale: 1 }}
-          transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            delay: 0.1,
+          }}
         >
           {data.map((slice) => {
             const slicePercent = slice.value / total;
             const startPercent = cumulativePercent;
             const endPercent = cumulativePercent + slicePercent;
             cumulativePercent = endPercent;
-            
+
             if (slicePercent === 0) return null;
 
             const [startX, startY] = getPieCoords(startPercent);
             const [endX, endY] = getPieCoords(endPercent);
             const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
-            
+
             let pathData;
             if (slicePercent >= 0.999) {
-               pathData = `M 1 0 A 1 1 0 0 1 -1 0 A 1 1 0 0 1 1 0`;
+              pathData = `M 1 0 A 1 1 0 0 1 -1 0 A 1 1 0 0 1 1 0`;
             } else {
-               pathData = [
+              pathData = [
                 `M ${startX} ${startY}`,
                 `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
                 `L 0 0`,
@@ -227,7 +253,7 @@ function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
               />
             );
           })}
-          
+
           <motion.circle
             cx="0"
             cy="0"
@@ -311,10 +337,11 @@ function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
   const [period, setPeriod] = useState("30d");
-  const [chartType, setChartType] = useState("bar");
+  const [chartType, setChartType] = useState("area");
 
   const { data: stats, isLoading: statsLoading } = useAdminStats(period);
-  const { data: ordersTime, isLoading: timeLoading } = useOrdersOverTime(period);
+  const { data: ordersTime, isLoading: timeLoading } =
+    useOrdersOverTime(period);
   const { data: popularity, isLoading: popLoading } = useProductPopularity();
   const { data: orders, isLoading: ordersLoading } = useAdminOrders();
 
@@ -381,13 +408,14 @@ export default function AdminDashboardPage() {
 
       {/* ── Charts Row ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-7">
-
         {/* ── Bar Chart — Revenue Analytics ── */}
         <div className="xl:col-span-2 bg-white rounded-xl p-5 border border-ink/5 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-sm font-bold text-navy">Revenue Analytics</h2>
-              <p className="text-[11px] text-ink/35 mt-0.5">Daily order volume</p>
+              <p className="text-[11px] text-ink/35 mt-0.5">
+                Daily order volume
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center bg-ink/[0.04] p-1 rounded-xl">
@@ -423,145 +451,248 @@ export default function AdminDashboardPage() {
             <>
               <ResponsiveContainer width="100%" height={240}>
                 {chartType === "bar" ? (
-                  <BarChart
-                    data={ordersTime}
-                    margin={{ top: 20, right: 0, left: -16, bottom: 0 }}
-                  >
-                    <defs>
-                      <pattern
-                        id="stripePattern"
-                        patternUnits="userSpaceOnUse"
-                        width="8"
-                        height="8"
-                        patternTransform="rotate(45)"
-                      >
-                        <rect width="8" height="8" fill="#F97316" />
-                        <line x1="0" y1="0" x2="0" y2="8" stroke="#EA580C" strokeWidth="2" />
-                      </pattern>
-                    </defs>
-                    <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(val) => {
-                        if (period === '7d' || period === '3d') {
-                          return new Date(val).toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
+                    <BarChart
+                      data={ordersTime}
+                      margin={{ top: 20, right: 0, left: -16, bottom: 0 }}
+                    >
+                      <defs>
+                        <pattern
+                          id="stripePattern"
+                          patternUnits="userSpaceOnUse"
+                          width="8"
+                          height="8"
+                          patternTransform="rotate(45)"
+                        >
+                          <rect width="8" height="8" fill="#F97316" />
+                          <line
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="8"
+                            stroke="#EA580C"
+                            strokeWidth="2"
+                          />
+                        </pattern>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="4 4"
+                        stroke="#f1f5f9"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(val) => {
+                          if (period === "7d" || period === "3d") {
+                            return new Date(val).toLocaleDateString("en-US", {
+                              weekday: "short",
+                              day: "numeric",
+                            });
+                          }
+                          return new Date(val).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          });
+                        }}
+                        tick={{
+                          fontSize: 11,
+                          fill: "#94a3b8",
+                          fontWeight: 500,
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={xInterval}
+                        dy={10}
+                      />
+                      <YAxis
+                        tickFormatter={(val) =>
+                          val === 0
+                            ? "0k"
+                            : val >= 1000
+                              ? `${(val / 1000).toFixed(0)}k`
+                              : val
                         }
-                        return new Date(val).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                      }}
-                      tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-                      tickLine={false}
-                      axisLine={false}
-                      interval={xInterval}
-                      dy={10}
-                    />
-                    <YAxis
-                      tickFormatter={(val) => val === 0 ? "0k" : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}
-                      tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-                      tickLine={false}
-                      axisLine={false}
-                      allowDecimals={false}
-                      dx={-10}
-                    />
-                    <Tooltip
-                      cursor={<CustomCursor />}
-                      content={<CustomTooltip />}
-                      isAnimationActive={false}
-                    />
-                    <Bar
-                      dataKey="revenue"
-                      fill="url(#stripePattern)"
-                      radius={[100, 100, 100, 100]}
-                      maxBarSize={32}
-                    />
-                  </BarChart>
-                ) : (
-                  <AreaChart
-                    data={ordersTime}
-                    margin={{ top: 20, right: 0, left: -16, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F97316" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#F97316" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="4 4" stroke="#f1f5f9" vertical={false} />
-                    <XAxis
-                      dataKey="date"
-                      tickFormatter={(val) => {
-                        if (period === '7d' || period === '3d') {
-                          return new Date(val).toLocaleDateString("en-US", { weekday: "short", day: "numeric" });
+                        tick={{
+                          fontSize: 11,
+                          fill: "#94a3b8",
+                          fontWeight: 500,
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                        dx={-10}
+                      />
+                      <Tooltip
+                        cursor={<CustomCursor />}
+                        content={<CustomTooltip />}
+                        isAnimationActive={false}
+                      />
+                      <Bar
+                        dataKey="revenue"
+                        fill="url(#stripePattern)"
+                        radius={[100, 100, 100, 100]}
+                        maxBarSize={32}
+                      />
+                    </BarChart>
+                  ) : (
+                    <AreaChart
+                      data={ordersTime}
+                      margin={{ top: 20, right: 0, left: -16, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="colorRevenue"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#F97316"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#F97316"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="4 4"
+                        stroke="#f1f5f9"
+                        vertical={false}
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tickFormatter={(val) => {
+                          if (period === "7d" || period === "3d") {
+                            return new Date(val).toLocaleDateString("en-US", {
+                              weekday: "short",
+                              day: "numeric",
+                            });
+                          }
+                          return new Date(val).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          });
+                        }}
+                        tick={{
+                          fontSize: 11,
+                          fill: "#94a3b8",
+                          fontWeight: 500,
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        interval={xInterval}
+                        dy={10}
+                      />
+                      <YAxis
+                        tickFormatter={(val) =>
+                          val === 0
+                            ? "0k"
+                            : val >= 1000
+                              ? `${(val / 1000).toFixed(0)}k`
+                              : val
                         }
-                        return new Date(val).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                      }}
-                      tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-                      tickLine={false}
-                      axisLine={false}
-                      interval={xInterval}
-                      dy={10}
-                    />
-                    <YAxis
-                      tickFormatter={(val) => val === 0 ? "0k" : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}
-                      tick={{ fontSize: 11, fill: "#94a3b8", fontWeight: 500 }}
-                      tickLine={false}
-                      axisLine={false}
-                      allowDecimals={false}
-                      dx={-10}
-                    />
-                    <Tooltip
-                      cursor={<CustomCursor />}
-                      content={<CustomTooltip />}
-                      isAnimationActive={false}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#EA580C"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorRevenue)"
-                      activeDot={{ r: 6, fill: "#EA580C", stroke: "#fff", strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                )}
-              </ResponsiveContainer>
+                        tick={{
+                          fontSize: 11,
+                          fill: "#94a3b8",
+                          fontWeight: 500,
+                        }}
+                        tickLine={false}
+                        axisLine={false}
+                        allowDecimals={false}
+                        dx={-10}
+                      />
+                      <Tooltip
+                        cursor={<CustomCursor />}
+                        content={<CustomTooltip />}
+                        isAnimationActive={false}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="#EA580C"
+                        strokeWidth={3}
+                        fillOpacity={1}
+                        fill="url(#colorRevenue)"
+                        activeDot={{
+                          r: 6,
+                          fill: "#EA580C",
+                          stroke: "#fff",
+                          strokeWidth: 2,
+                        }}
+                      />
+                    </AreaChart>
+                  )}
+                </ResponsiveContainer>
 
-              {/* Summary strip to profit from bottom white space */}
+              {/* ── Recent Orders (compact, embedded) ── */}
+              <div className="mt-5 pt-5 border-t border-ink/5">
+                <RecentOrdersTable orders={orders ?? []} isLoading={ordersLoading} compact />
+              </div>
+
+              {/* Summary strip */}
               {(() => {
-                const totalRevenue = ordersTime?.reduce((s, d) => s + d.revenue, 0) ?? 0;
+                const totalRevenue =
+                  ordersTime?.reduce((s, d) => s + d.revenue, 0) ?? 0;
                 const avgRevenue = ordersTime?.length
                   ? (totalRevenue / ordersTime.length).toFixed(0)
                   : "0";
                 const peakDay = ordersTime?.reduce(
                   (max, d) => (d.revenue > max.revenue ? d : max),
-                  { revenue: 0, date: "" }
+                  { revenue: 0, date: "" },
                 );
+
                 return (
                   <div className="mt-auto pt-6 pb-2 border-t border-ink/5 grid grid-cols-3 gap-8">
                     <div>
-                      <p className="text-[11px] text-ink/40 font-medium mb-1">Total Revenue</p>
-                      <p className="text-xl font-bold text-navy tabular-nums">
-                        {Number(totalRevenue).toLocaleString("fr-MA")} <span className="text-xs text-ink/40 ml-0.5">MAD</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] text-ink/40 font-medium mb-1">Avg. Daily Revenue</p>
-                      <p className="text-xl font-bold text-navy tabular-nums">
-                        {Number(avgRevenue).toLocaleString("fr-MA")} <span className="text-xs text-ink/40 ml-0.5">MAD</span>
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] text-ink/40 font-medium mb-1">Peak Day</p>
-                      <div className="flex items-baseline gap-2">
-                        <p className="text-xl font-bold text-navy tabular-nums">
-                          {Number(peakDay?.revenue ?? 0).toLocaleString("fr-MA")} <span className="text-xs text-ink/40 ml-0.5">MAD</span>
+                      <p className="text-[11px] text-ink/40 font-medium mb-1">
+                          Total Revenue
                         </p>
-                        <p className="text-[10px] font-medium text-[#EA580C] bg-[#EA580C]/10 px-1.5 py-0.5 rounded">
-                          {peakDay?.date ? new Date(peakDay.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                        <p className="text-xl font-bold text-navy tabular-nums">
+                          {Number(totalRevenue).toLocaleString("fr-MA")}{" "}
+                          <span className="text-xs text-ink/40 ml-0.5">
+                            MAD
+                          </span>
                         </p>
                       </div>
+                      <div>
+                        <p className="text-[11px] text-ink/40 font-medium mb-1">
+                          Avg. Daily Revenue
+                        </p>
+                        <p className="text-xl font-bold text-navy tabular-nums">
+                          {Number(avgRevenue).toLocaleString("fr-MA")}{" "}
+                          <span className="text-xs text-ink/40 ml-0.5">
+                            MAD
+                          </span>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] text-ink/40 font-medium mb-1">
+                          Peak Day
+                        </p>
+                        <div className="flex items-baseline gap-2">
+                          <p className="text-xl font-bold text-navy tabular-nums">
+                            {Number(peakDay?.revenue ?? 0).toLocaleString(
+                              "fr-MA",
+                            )}{" "}
+                            <span className="text-xs text-ink/40 ml-0.5">
+                              MAD
+                            </span>
+                          </p>
+                          <p className="text-[10px] font-medium text-[#EA580C] bg-[#EA580C]/10 px-1.5 py-0.5 rounded">
+                            {peakDay?.date
+                              ? new Date(peakDay.date).toLocaleDateString(
+                                  "en-US",
+                                  { month: "short", day: "numeric" },
+                                )
+                              : "—"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
                 );
               })()}
             </>
@@ -570,38 +701,50 @@ export default function AdminDashboardPage() {
 
         {/* ── Right Column — Gauge + Donut ── */}
         <div className="space-y-5">
-
           {/* Profile Completion Donut */}
           <div className="bg-white rounded-xl p-5 border border-ink/5 shadow-sm">
-            <h3 className="text-sm font-bold text-navy mb-5">Profile Completion</h3>
-            <InteractiveDonut 
+            <h3 className="text-sm font-bold text-navy mb-5">
+              Profile Completion
+            </h3>
+            <InteractiveDonut
               isLoading={statsLoading}
               totalLabel="TOTAL PROFILES"
               data={[
-                { name: "Published", value: stats?.publishedProfiles ?? 0, color: "#10b981" },
-                { name: "Drafts", value: (stats?.totalProfiles ?? 0) - (stats?.publishedProfiles ?? 0), color: "#f1f5f9" }
-              ]} 
+                {
+                  name: "Published",
+                  value: stats?.publishedProfiles ?? 0,
+                  color: "#10b981",
+                },
+                {
+                  name: "Drafts",
+                  value:
+                    (stats?.totalProfiles ?? 0) -
+                    (stats?.publishedProfiles ?? 0),
+                  color: "#f1f5f9",
+                },
+              ]}
             />
           </div>
 
           {/* Product Popularity Donut */}
           <div className="bg-white rounded-xl p-5 border border-ink/5 shadow-sm flex flex-col">
-            <h3 className="text-sm font-bold text-navy mb-5">Product Popularity</h3>
-            <InteractiveDonut 
+            <h3 className="text-sm font-bold text-navy mb-5">
+              Product Popularity
+            </h3>
+            <InteractiveDonut
               isLoading={popLoading}
               totalLabel="TOTAL SOLD"
-              data={popularity?.slice(0, 4).map((item, i) => ({
-                name: item.name,
-                value: item.value,
-                color: PIE_COLORS[i % PIE_COLORS.length]
-              })) || []} 
+              data={
+                popularity?.slice(0, 4).map((item, i) => ({
+                  name: item.name,
+                  value: item.value,
+                  color: PIE_COLORS[i % PIE_COLORS.length],
+                })) || []
+              }
             />
           </div>
         </div>
       </div>
-
-      {/* ── Recent Orders ── */}
-      <RecentOrdersTable orders={orders ?? []} isLoading={ordersLoading} />
     </div>
   );
 }

@@ -45,15 +45,22 @@ function formatDate(dateStr) {
  * Props:
  *  - orders (array): full orders list (will be sliced to 5)
  *  - isLoading (boolean)
+ *  - compact (boolean): tighter padding when embedded inside a card
  */
-export default function RecentOrdersTable({ orders = [], isLoading }) {
+export default function RecentOrdersTable({ orders = [], isLoading, compact = false }) {
   const navigate = useNavigate();
   const recent = orders.slice(0, 5);
 
+  const px       = compact ? "px-4"   : "px-5";
+  const pyHeader = compact ? "py-2.5" : "py-4";
+  const pyTh     = compact ? "py-1.5" : "py-2.5";
+  const pyTd     = compact ? "py-1.5" : "py-3";
+
+
   return (
-    <div className="bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden">
+    <div className={compact ? "overflow-hidden" : "bg-white rounded-2xl border border-ink/5 shadow-sm overflow-hidden"}>
       {/* Header */}
-      <div className="px-5 py-4 flex items-center justify-between border-b border-ink/5">
+      <div className={`${px} ${pyHeader} flex items-center justify-between border-b border-ink/5`}>
         <h3 className="text-sm font-bold text-navy">Recent Orders</h3>
         <button
           onClick={() => navigate("/admin/orders")}
@@ -82,7 +89,7 @@ export default function RecentOrdersTable({ orders = [], isLoading }) {
               {["Customer", "Date", "Status", "Total"].map((h) => (
                 <th
                   key={h}
-                  className="text-left px-5 py-2.5 text-[10px] font-semibold text-ink/35 uppercase tracking-wider"
+                  className={`text-left ${px} ${pyTh} text-[10px] font-semibold text-ink/35 uppercase tracking-wider`}
                 >
                   {h}
                 </th>
@@ -95,18 +102,18 @@ export default function RecentOrdersTable({ orders = [], isLoading }) {
                 key={order.id}
                 className="hover:bg-ink/[0.01] transition-colors"
               >
-                <td className="px-5 py-3">
+                <td className={`${px} ${pyTd}`}>
                   <p className="font-medium text-navy text-xs truncate max-w-[140px]">
                     {order.customer_name || "—"}
                   </p>
                 </td>
-                <td className="px-5 py-3 text-xs text-ink/45">
+                <td className={`${px} ${pyTd} text-xs text-ink/45`}>
                   {formatDate(order.created_at)}
                 </td>
-                <td className="px-5 py-3">
+                <td className={`${px} ${pyTd}`}>
                   <StatusBadge status={order.status} />
                 </td>
-                <td className="px-5 py-3 text-xs font-bold text-navy tabular-nums">
+                <td className={`${px} ${pyTd} text-xs font-bold text-navy tabular-nums`}>
                   {Number(order.total_amount || 0).toLocaleString("fr-MA")} MAD
                 </td>
               </tr>
