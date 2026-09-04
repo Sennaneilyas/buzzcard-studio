@@ -25,7 +25,6 @@ export const TEMPLATES = [
       textPrimary: "#FFFFFF",
       accent: "#FFFFFF",
     },
-    allowedFields: ["avatarUrl", "bannerUrl", "name", "role", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
     allowedSections: [
       { id: "about", label: "About Me" },
       { id: "portfolio", label: "Portfolio" },
@@ -45,7 +44,6 @@ export const TEMPLATES = [
       textPrimary: "#3B2A22",
       accent: "#C9A96E",
     },
-    allowedFields: ["avatarUrl", "bannerUrl", "name", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
     allowedSections: [
       { id: "rooms", label: "Rooms & Suites" },
       { id: "amenities", label: "Amenities" },
@@ -66,7 +64,6 @@ export const TEMPLATES = [
       textPrimary: "#0F172A",
       accent: "#0284C7",
     },
-    allowedFields: ["avatarUrl", "bannerUrl", "name", "role", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
     allowedSections: [
       { id: "services", label: "Medical Services" },
       { id: "insurance", label: "Accepted Insurance" },
@@ -87,7 +84,6 @@ export const TEMPLATES = [
       textPrimary: "#FFFFFF",
       accent: "#E2B764",
     },
-    allowedFields: ["avatarUrl", "bannerUrl", "name", "bio", "email", "phone", "socials", "gallery", "custom_sections"],
     allowedSections: [
       { id: "services", label: "Services & Pricing" },
       { id: "products", label: "Our Products" },
