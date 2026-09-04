@@ -269,7 +269,7 @@ export default function ClassicEditorLayout({
               {hydrationWarning}
             </div>
           )}
-          
+
           {/* PROFILE TAB */}
           {activeTab === "profile" && (
             <div className="space-y-6">
@@ -408,15 +408,15 @@ export default function ClassicEditorLayout({
                   {activePlatforms.length === 0 ? (
                     <p className="text-sm text-gray-400 font-medium">No links added yet.</p>
                   ) : (
-                    <Reorder.Group 
-                      axis="y" 
-                      values={activePlatforms} 
+                    <Reorder.Group
+                      axis="y"
+                      values={activePlatforms}
                       onReorder={(newOrder) => setValue("socialOrder", newOrder.map(p => p.id), { shouldDirty: true })}
                       className="space-y-3"
                     >
                       {activePlatforms.map((platform) => (
-                        <Reorder.Item 
-                          key={platform.id} 
+                        <Reorder.Item
+                          key={platform.id}
                           value={platform}
                           className="flex items-center gap-3 bg-white border border-gray-200 p-2 shadow-sm relative group"
                         >
@@ -439,7 +439,7 @@ export default function ClassicEditorLayout({
                               <p className="text-[10px] text-red-500 font-medium absolute -bottom-4 left-0">{errors.socials[platform.id].message}</p>
                             )}
                           </div>
-                          <button 
+                          <button
                             type="button"
                             onClick={() => {
                               setValue(`socials.${platform.id}`, undefined, { shouldDirty: true });
@@ -547,14 +547,14 @@ export default function ClassicEditorLayout({
           {activeTab === "gallery" && (() => {
             const gallery = currentData.gallery || [];
             const maxImages = 7;
-            
+
             return (
               <div className="space-y-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Photos</h3>
                   <span className="text-xs font-medium text-gray-400">{gallery.length} / {maxImages}</span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   {gallery.map((img, idx) => (
                     <div key={img} className="group relative aspect-square overflow-hidden rounded-xl border border-black/5 bg-gray-100 shadow-sm">
