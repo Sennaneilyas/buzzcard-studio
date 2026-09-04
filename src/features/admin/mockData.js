@@ -33,7 +33,6 @@ export const MOCK_PRODUCT_POPULARITY = [
   { name: "Plaque Avis Google", value: 39 },
   { name: "Carte WhatsApp NFC", value: 27 },
   { name: "Présentoir Instagram NFC", value: 18 },
-  { name: "Carte Bambou", value: 12 },
   { name: "BuzzCards", value: 9 },
 ];
 

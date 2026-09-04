@@ -4,6 +4,7 @@ import {
   fetchOrdersOverTime,
   fetchProductPopularity,
 } from "../api/adminAnalytics";
+import { fetchProductCatalog } from "../../products/api/products";
 import {
   MOCK_STATS,
   MOCK_ORDERS_OVER_TIME,
@@ -46,7 +47,13 @@ export function useProductPopularity() {
   return useQuery({
     queryKey: ["admin", "product-popularity"],
     queryFn: async () => {
-      if (USE_MOCK) return MOCK_PRODUCT_POPULARITY;
+      if (USE_MOCK) {
+        const catalog = await fetchProductCatalog();
+        return catalog.products.map((p, i) => ({
+          name: p.name,
+          value: Math.floor(100 / (i + 1)) + Math.floor(Math.random() * 20) // Fake value decreasing
+        }));
+      }
       return fetchProductPopularity();
     },
     staleTime: 1000 * 60 * 5,

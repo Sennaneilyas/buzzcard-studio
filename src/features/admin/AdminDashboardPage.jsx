@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BarChart,
   Bar,
@@ -7,9 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   AreaChart,
   Area,
 } from "recharts";
@@ -31,7 +29,6 @@ import {
 } from "./hooks/useAdminAnalytics";
 import { useAdminOrders } from "./hooks/useAdminOrders";
 import TimePeriodSelector from "./components/TimePeriodSelector";
-import RadialGauge from "./components/RadialGauge";
 import RecentOrdersTable from "./components/RecentOrdersTable";
 
 const PIE_COLORS = [
@@ -147,30 +144,166 @@ const PieTooltip = ({ active, payload }) => {
   );
 };
 
-// ─── Pie Legend (Screenshot Style) ─────────────────────────────────────────────
-const PIE_LEGEND_MAX = 4; // Show top 4 in the grid to keep it clean like the screenshot
+// ─── Interactive SVG Donut (Framer Motion) ────────────────────────────────────
+const springConfig = { type: "spring", stiffness: 300, damping: 20 };
+const getPieCoords = (percent) => {
+  const x = Math.cos(2 * Math.PI * percent);
+  const y = Math.sin(2 * Math.PI * percent);
+  return [x, y];
+};
 
-function PieLegend({ data }) {
-  const visible = data.slice(0, PIE_LEGEND_MAX);
+function InteractiveDonut({ data, totalLabel = "TOTAL", isLoading }) {
+  const [hoveredSlice, setHoveredSlice] = useState(null);
   
+  if (isLoading) {
+    return <ChartSkeleton height={240} />;
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-48 text-ink/25 text-sm">
+        No data available
+      </div>
+    );
+  }
+
+  const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
+  let cumulativePercent = 0;
+
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-4 w-full">
-      {visible.map((entry, i) => (
-        <div key={entry.name}>
-          <div className="flex items-center gap-1.5 mb-1 min-w-0">
-            <span
-              className="w-2.5 h-2.5 rounded shrink-0"
-              style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-            />
-            <span className="text-[10px] text-ink/50 truncate font-medium">
-              {entry.name}
-            </span>
-          </div>
-          <p className="text-sm font-bold text-navy tabular-nums">
-            {entry.value}
-          </p>
+    <div className="w-full flex flex-col items-center">
+      <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-2">
+        <motion.svg
+          viewBox="-1.2 -1.2 2.4 2.4"
+          className="-rotate-90 overflow-visible w-full h-full"
+          initial={{ rotate: -180, scale: 0 }}
+          animate={{ rotate: -90, scale: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+        >
+          {data.map((slice) => {
+            const slicePercent = slice.value / total;
+            const startPercent = cumulativePercent;
+            const endPercent = cumulativePercent + slicePercent;
+            cumulativePercent = endPercent;
+            
+            if (slicePercent === 0) return null;
+
+            const [startX, startY] = getPieCoords(startPercent);
+            const [endX, endY] = getPieCoords(endPercent);
+            const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
+            
+            let pathData;
+            if (slicePercent >= 0.999) {
+               pathData = `M 1 0 A 1 1 0 0 1 -1 0 A 1 1 0 0 1 1 0`;
+            } else {
+               pathData = [
+                `M ${startX} ${startY}`,
+                `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                `L 0 0`,
+              ].join(" ");
+            }
+
+            const isHovered = hoveredSlice === slice.name;
+            const isDimmed = hoveredSlice !== null && !isHovered;
+
+            return (
+              <motion.path
+                key={slice.name}
+                d={pathData}
+                fill={slice.color}
+                stroke="white"
+                strokeWidth="0.04"
+                strokeLinejoin="round"
+                animate={{
+                  translateX: isHovered ? (startX + endX) * 0.05 : 0,
+                  translateY: isHovered ? (startY + endY) * 0.05 : 0,
+                  scale: isHovered ? 1.05 : 1,
+                  opacity: isDimmed ? 0.3 : 1,
+                }}
+                transition={springConfig}
+                onMouseEnter={() => setHoveredSlice(slice.name)}
+                onMouseLeave={() => setHoveredSlice(null)}
+                className="cursor-pointer"
+              />
+            );
+          })}
+          
+          <motion.circle
+            cx="0"
+            cy="0"
+            r="0.78"
+            fill="white"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, ...springConfig }}
+          />
+        </motion.svg>
+
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <AnimatePresence mode="popLayout">
+            {hoveredSlice ? (
+              <motion.div
+                key="hover-content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="flex flex-col items-center text-center px-4"
+              >
+                <span className="text-3xl font-black text-navy leading-none tabular-nums">
+                  {data.find((d) => d.name === hoveredSlice)?.value}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink/50 mt-1 truncate max-w-[120px]">
+                  {hoveredSlice}
+                </span>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="default-content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="flex flex-col items-center"
+              >
+                <span className="text-3xl font-black text-navy leading-none tabular-nums">
+                  {total}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-ink/40 mt-1">
+                  {totalLabel}
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      ))}
+      </div>
+
+      <div className="w-full mt-auto grid grid-cols-2 gap-3 border-t border-ink/5 pt-4">
+        {data.map((item) => (
+          <motion.div
+            key={item.name}
+            onMouseEnter={() => setHoveredSlice(item.name)}
+            onMouseLeave={() => setHoveredSlice(null)}
+            animate={{
+              opacity: hoveredSlice && hoveredSlice !== item.name ? 0.4 : 1,
+            }}
+            className="flex flex-col p-2 rounded-lg hover:bg-ink/[0.02] cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <div
+                className="w-2.5 h-2.5 rounded-sm shrink-0"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-[10px] font-semibold text-ink/50 truncate uppercase tracking-wide">
+                {item.name}
+              </span>
+            </div>
+            <span className="text-sm font-bold text-navy tabular-nums">
+              {item.value}
+            </span>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -438,71 +571,31 @@ export default function AdminDashboardPage() {
         {/* ── Right Column — Gauge + Donut ── */}
         <div className="space-y-5">
 
-          {/* Profile Completion Gauge */}
-          <RadialGauge
-            value={stats?.publishedProfiles ?? 0}
-            max={stats?.totalProfiles ?? 1}
-            label="published"
-            title="Profile Completion"
-          />
+          {/* Profile Completion Donut */}
+          <div className="bg-white rounded-xl p-5 border border-ink/5 shadow-sm">
+            <h3 className="text-sm font-bold text-navy mb-5">Profile Completion</h3>
+            <InteractiveDonut 
+              isLoading={statsLoading}
+              totalLabel="TOTAL PROFILES"
+              data={[
+                { name: "Published", value: stats?.publishedProfiles ?? 0, color: "#10b981" },
+                { name: "Drafts", value: (stats?.totalProfiles ?? 0) - (stats?.publishedProfiles ?? 0), color: "#f1f5f9" }
+              ]} 
+            />
+          </div>
 
           {/* Product Popularity Donut */}
-          <div className="bg-white rounded-xl p-5 border border-ink/5 shadow-sm">
+          <div className="bg-white rounded-xl p-5 border border-ink/5 shadow-sm flex flex-col">
             <h3 className="text-sm font-bold text-navy mb-5">Product Popularity</h3>
-
-            {popLoading ? (
-              <ChartSkeleton height={140} />
-            ) : popularity?.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-ink/25 text-sm">
-                No orders yet
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row items-center gap-6">
-                
-                {/* Donut with Center Text */}
-                <div className="relative w-36 h-36 shrink-0">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={popularity}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={70}
-                        paddingAngle={4}
-                        cornerRadius={10}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {popularity?.map((_, i) => (
-                          <Cell
-                            key={i}
-                            fill={PIE_COLORS[i % PIE_COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<PieTooltip />} cursor={false} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                  
-                  {/* Center Text */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-xl font-bold text-navy tabular-nums leading-tight">
-                      {popularity?.reduce((sum, item) => sum + item.value, 0) || 0}
-                    </span>
-                    <span className="text-[9px] text-ink/40 font-medium uppercase tracking-wider mt-0.5">
-                      Total Sold
-                    </span>
-                  </div>
-                </div>
-
-                {/* Grid Legend */}
-                <div className="flex-1 w-full border-t sm:border-t-0 sm:border-l border-ink/5 pt-4 sm:pt-0 sm:pl-6">
-                  <PieLegend data={popularity} />
-                </div>
-                
-              </div>
-            )}
+            <InteractiveDonut 
+              isLoading={popLoading}
+              totalLabel="TOTAL SOLD"
+              data={popularity?.slice(0, 4).map((item, i) => ({
+                name: item.name,
+                value: item.value,
+                color: PIE_COLORS[i % PIE_COLORS.length]
+              })) || []} 
+            />
           </div>
         </div>
       </div>
