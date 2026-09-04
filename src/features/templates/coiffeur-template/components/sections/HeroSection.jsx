@@ -2,8 +2,13 @@ import { motion } from "framer-motion";
 import EditableImage from "@/components/ui/EditableImage";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
+import { PROFILE_MEDIA_CATEGORIES } from "@/features/editor/media/profileMedia";
 
-export function HeroSection({ profile, isEditMode }) {
+export function HeroSection({
+  profile,
+  isEditMode,
+  lockProfileIdentity = false,
+}) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
 
   return (
@@ -20,6 +25,7 @@ export function HeroSection({ profile, isEditMode }) {
             src={profile.bannerUrl}
             alt="Salon Banner"
             isEditMode={isEditMode}
+            category={PROFILE_MEDIA_CATEGORIES.COVER}
             onChange={(val) => setProfileData({ bannerUrl: val })}
             className="w-full h-full object-cover"
           />
@@ -39,7 +45,8 @@ export function HeroSection({ profile, isEditMode }) {
             <EditableImage
               src={profile.avatarUrl}
               alt={profile.fullName}
-              isEditMode={isEditMode}
+              isEditMode={isEditMode && !lockProfileIdentity}
+              category={PROFILE_MEDIA_CATEGORIES.AVATAR}
               onChange={(val) => setProfileData({ avatarUrl: val })}
               className="w-full h-full rounded-full object-cover border border-[var(--primary-color, #C5A880)]/30"
             />
@@ -49,7 +56,7 @@ export function HeroSection({ profile, isEditMode }) {
             as="h1"
             value={profile.fullName || ""}
             onChange={(val) => setProfileData({ name: val })}
-            isEditMode={isEditMode}
+            isEditMode={isEditMode && !lockProfileIdentity}
             placeholder="Your Name"
             className="font-times text-[28px] text-[#1A1A1A] leading-tight mb-1"
           />
@@ -75,4 +82,3 @@ export function HeroSection({ profile, isEditMode }) {
     </section>
   );
 }
-

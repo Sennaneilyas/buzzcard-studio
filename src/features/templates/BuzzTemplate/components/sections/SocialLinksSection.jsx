@@ -1,20 +1,34 @@
 import React from "react";
-import { Link as FallbackLink } from "lucide-react";
+import { Link as FallbackLink, Plus } from "lucide-react";
 import { GLASS_SHADOW, GLASS_BORDER, SOCIAL_ICONS } from "../../utils/constants";
+import PreviewEditRegion from "@/features/editor/contextual/PreviewEditRegion";
 
 /**
  * Grid of up to 6 social platform links, each with its vector icon.
  */
-function SocialLinksSection({ socials, isEditMode }) {
-  if (!socials?.length) return null;
+function SocialLinksSection({
+  socials,
+  isEditMode,
+  contextualEditing = false,
+  activeEditTarget,
+  onEditTargetSelect,
+}) {
+  if (!socials?.length && !contextualEditing) return null;
 
   return (
-    <nav
+    <PreviewEditRegion
+      as="nav"
+      targetId="socials"
+      label="Social links"
+      isEditMode={contextualEditing}
+      isActive={activeEditTarget === "socials"}
+      onSelect={onEditTargetSelect}
       className={`relative z-0 w-full rounded-[25px] bg-[#ffffff90] backdrop-blur-md ${GLASS_SHADOW} ${GLASS_BORDER} px-[14px] py-[16px]`}
       aria-label="Liens sociaux"
     >
-      <ul className="relative z-[2] flex flex-wrap justify-center gap-y-[18px] gap-x-[4%] list-none m-0 p-0">
-        {socials.slice(0, 6).map((social) => {
+      {socials?.length ? (
+        <ul className="relative z-[2] flex flex-wrap justify-center gap-y-[18px] gap-x-[4%] list-none m-0 p-0">
+          {socials.slice(0, 6).map((social) => {
           const config = SOCIAL_ICONS[social.platform?.toLowerCase()];
           const Icon = config?.icon || FallbackLink;
           const iconColor = config?.color || "#111827";
@@ -46,9 +60,15 @@ function SocialLinksSection({ socials, isEditMode }) {
               </a>
             </li>
           );
-        })}
-      </ul>
-    </nav>
+          })}
+        </ul>
+      ) : (
+        <div className="flex min-h-24 items-center justify-center border-2 border-dashed border-neutral-300 bg-white/30 text-neutral-700 transition-colors hover:border-neutral-500 hover:bg-white/50">
+          <Plus className="size-7" aria-hidden="true" />
+          <span className="sr-only">Add your first social link</span>
+        </div>
+      )}
+    </PreviewEditRegion>
   );
 }
 

@@ -5,6 +5,7 @@ import { InteractiveHoverButton } from "../ui/InteractiveHoverButton";
 import EditableImage from "@/components/ui/EditableImage";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
+import { PROFILE_MEDIA_CATEGORIES } from "@/features/editor/media/profileMedia";
 
 function AnimatedCounter({ from = 0, to, duration = 1, delay = 0, suffix = "" }) {
   const [count, setCount] = useState(from);
@@ -24,7 +25,11 @@ function AnimatedCounter({ from = 0, to, duration = 1, delay = 0, suffix = "" })
   return <>{formatted}{suffix}</>;
 }
 
-export function HeroSection({ profile, isEditMode }) {
+export function HeroSection({
+  profile,
+  isEditMode,
+  lockProfileIdentity = false,
+}) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
   const [activeTab, setActiveTab] = useState("about");
 
@@ -55,6 +60,7 @@ export function HeroSection({ profile, isEditMode }) {
           src={profile.bannerUrl || ""}
           alt="Banner"
           isEditMode={isEditMode}
+          category={PROFILE_MEDIA_CATEGORIES.COVER}
           onChange={(val) => setProfileData({ bannerUrl: val })}
           className="absolute inset-0 w-full h-full object-cover"
           containerClassName="absolute inset-0"
@@ -78,7 +84,8 @@ export function HeroSection({ profile, isEditMode }) {
               <EditableImage
                 src={profile.avatarUrl || ""}
                 alt={profile.fullName}
-                isEditMode={isEditMode}
+                isEditMode={isEditMode && !lockProfileIdentity}
+                category={PROFILE_MEDIA_CATEGORIES.AVATAR}
                 onChange={(val) => setProfileData({ avatarUrl: val })}
                 className="w-full h-full object-cover"
               />
@@ -111,7 +118,7 @@ export function HeroSection({ profile, isEditMode }) {
               as="h1"
               value={profile.fullName || ""}
               onChange={(val) => setProfileData({ name: val })}
-              isEditMode={isEditMode}
+              isEditMode={isEditMode && !lockProfileIdentity}
               placeholder="Doctor Name"
               className="font-poppins font-bold text-[22px] text-white leading-tight"
             />

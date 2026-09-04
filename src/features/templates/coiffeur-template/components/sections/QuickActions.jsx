@@ -12,24 +12,24 @@ export function QuickActions({ profile }) {
     {
       icon: <FaInstagram className="w-5 h-5" />,
       label: "Instagram",
-      href: getSocialUrl("Instagram") || "https://instagram.com/",
+      href: getSocialUrl("Instagram"),
     },
     {
       icon: <FaTiktok className="w-5 h-5" />,
       label: "TikTok",
-      href: getSocialUrl("TikTok") || "https://tiktok.com/",
+      href: getSocialUrl("TikTok"),
     },
     {
       icon: <FaMapLocationDot className="w-5 h-5" />,
       label: "Itinéraire",
-      href: `https://maps.google.com/?q=${encodeURIComponent(profile.location)}`,
+      href: profile.location ? `https://maps.google.com/?q=${encodeURIComponent(profile.location)}` : "",
     },
     {
       icon: <FaEnvelope className="w-5 h-5" />,
       label: "E-mail",
-      href: `mailto:${profile.emails?.[0]}`,
+      href: profile.emails?.[0] ? `mailto:${profile.emails[0]}` : "",
     }
-  ];
+  ].filter(action => action.href);
 
   return (
     <section className="px-6 py-8 bg-transparent">

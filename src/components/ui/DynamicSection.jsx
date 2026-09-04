@@ -5,10 +5,11 @@ import { motion } from "framer-motion";
  * to display user-created custom sections from the editor.
  * Renders: title, description text, and an optional image.
  */
-export function DynamicSection({ section, theme = "light" }) {
+export function DynamicSection({ section, theme = "glass" }) {
   if (!section.title && !section.description && !section.image) return null;
 
   const isDark = theme === "dark";
+  const isGlass = theme === "glass";
 
   return (
     <section className="px-5 py-6">
@@ -17,12 +18,12 @@ export function DynamicSection({ section, theme = "light" }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
         transition={{ duration: 0.5 }}
-        className="w-full flex flex-col"
+        className={`w-full flex flex-col ${isGlass ? "rounded-[25px] border border-white/60 bg-white/55 p-5 text-black shadow-[0_8px_30px_rgba(15,23,42,0.08)] backdrop-blur-md" : ""}`}
       >
         {section.title && (
           <h2
             className={`text-lg font-bold mb-2 ${
-              isDark ? "text-white" : "text-gray-900"
+              isDark ? "text-white" : isGlass ? "text-black" : "text-gray-900"
             }`}
           >
             {section.title}
@@ -32,7 +33,7 @@ export function DynamicSection({ section, theme = "light" }) {
         {section.description && (
           <p
             className={`text-[13px] leading-relaxed mb-4 ${
-              isDark ? "text-white/70" : "text-gray-600"
+              isDark ? "text-white/70" : isGlass ? "text-black" : "text-gray-600"
             }`}
           >
             {section.description}

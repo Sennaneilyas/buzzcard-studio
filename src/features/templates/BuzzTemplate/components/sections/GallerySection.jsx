@@ -3,24 +3,38 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import { useGalleryCarousel } from "../../hooks/useGalleryCarousel";
 import GalleryArrow from "../ui/GalleryArrow";
+import PreviewEditRegion from "@/features/editor/contextual/PreviewEditRegion";
 
 /**
  * Swipeable stacked-photo gallery (max 5 images) with prev/next arrows
  * and dot indicators.
  */
-function GallerySection({ gallery, shouldReduceMotion }) {
+function GallerySection({
+  gallery,
+  shouldReduceMotion,
+  contextualEditing = false,
+  activeEditTarget,
+  onEditTargetSelect,
+}) {
   const images = useMemo(() => gallery?.slice(0, 5) ?? [], [gallery]);
   const { active, setActive, handleNext, handlePrev, handleDragEnd } =
     useGalleryCarousel(images.length);
 
-  if (!images.length) return null;
+  if (!images.length && !contextualEditing) return null;
 
   return (
-    <section
-      className="relative w-full h-[290px]"
+    <PreviewEditRegion
+      as="section"
+      targetId="gallery"
+      label="Gallery"
+      isEditMode={contextualEditing}
+      isActive={activeEditTarget === "gallery"}
+      onSelect={onEditTargetSelect}
+      className={`relative w-full ${images.length ? "h-[290px]" : "min-h-24"}`}
       aria-label="Galerie de photos"
     >
-      <div className="absolute inset-x-0 top-0 flex items-center justify-center">
+      {images.length ? <>
+        <div className="absolute inset-x-0 top-0 flex items-center justify-center">
         <div className="relative w-[65vw] h-[230px] max-w-[260px]">
           <AnimatePresence mode="popLayout">
             {images.map((src, index) => (
@@ -63,26 +77,31 @@ function GallerySection({ gallery, shouldReduceMotion }) {
             ))}
           </AnimatePresence>
         </div>
-      </div>
+        </div>
 
-      <GalleryArrow direction="prev" onClick={handlePrev} />
-      <GalleryArrow direction="next" onClick={handleNext} />
+        <GalleryArrow direction="prev" onClick={handlePrev} />
+        <GalleryArrow direction="next" onClick={handleNext} />
 
       {/* Dots with more vertical spacing */}
-      <div className="absolute bottom-[12px] left-1/2 -translate-x-1/2 flex gap-[6px] z-20">
-        {images.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={() => setActive(i)}
-            aria-label={`Voir l'image ${i + 1}`}
-            aria-current={i === active ? "true" : undefined}
-            className={`w-[6px] h-[6px] rounded-full transition-colors ${i === active ? "bg-neutral-950" : "bg-neutral-950/30"
-              }`}
-          />
-        ))}
-      </div>
-    </section>
+        <div className="absolute bottom-[12px] left-1/2 -translate-x-1/2 flex gap-[6px] z-20">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={`Voir l'image ${i + 1}`}
+              aria-current={i === active ? "true" : undefined}
+              className={`w-[6px] h-[6px] rounded-full transition-colors ${i === active ? "bg-neutral-950" : "bg-neutral-950/30"
+                }`}
+            />
+          ))}
+        </div>
+      </> : (
+        <div className="flex min-h-24 items-center justify-center rounded-[18px] border border-dashed border-neutral-300 bg-white/60 text-xs font-semibold text-neutral-500">
+          Add gallery photos
+        </div>
+      )}
+    </PreviewEditRegion>
   );
 }
 

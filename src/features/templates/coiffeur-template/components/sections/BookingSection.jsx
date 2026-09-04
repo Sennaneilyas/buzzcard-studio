@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Check, ChevronLeft, ChevronRight, User, Phone, ChevronDown } from "lucide-react";
 import { SectionHeader } from "../ui/SectionHeader";
 import { fadeInUp } from "../../utils/animations";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -27,13 +27,13 @@ export function BookingSection({ profile }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isValid } } = useForm({
+  const { control, register, handleSubmit, setValue, reset, formState: { errors, isValid } } = useForm({
     resolver: zodResolver(bookingSchema),
     mode: "onChange",
     defaultValues: { name: "", phone: "", service: "" }
   });
 
-  const formData = watch();
+  const formData = useWatch({ control });
 
   const nextStep = () => { setDirection(1); setStep(s => s + 1); };
   const prevStep = () => { setDirection(-1); setStep(s => s - 1); };

@@ -4,6 +4,7 @@ import { HeroSection } from "./components/sections/HeroSection";
 import { QuickActions } from "./components/sections/QuickActions";
 import { CoiffeurBackground } from "./components/ui/CoiffeurBackground";
 import DynamicSection from "@/components/ui/DynamicSection";
+import { configuredSocials, editorContactValues } from "@/features/templates/shared/profileActions";
 
 // Lazy loaded components (Below the fold)
 const ServicesSection = lazy(() => import("./components/sections/ServicesSection").then(m => ({ default: m.ServicesSection })));
@@ -98,7 +99,12 @@ const mockProfile = {
   ],
 };
 
-export default function CoiffeurTemplate({ profile: rawProfile, profileData, isEditMode }) {
+export default function CoiffeurTemplate({
+  profile: rawProfile,
+  profileData,
+  isEditMode,
+  lockProfileIdentity = false,
+}) {
   // Merge editor flat data on top of the rich mock, so user edits appear instantly.
   const profile = {
     ...mockProfile,
@@ -107,16 +113,13 @@ export default function CoiffeurTemplate({ profile: rawProfile, profileData, isE
     fullName: profileData?.name || rawProfile?.fullName || mockProfile.fullName,
     title: profileData?.role || rawProfile?.title || mockProfile.title,
     about: profileData?.bio || rawProfile?.about || mockProfile.about,
-    phones: profileData?.phone ? [profileData.phone] : (rawProfile?.phones || mockProfile.phones),
-    emails: profileData?.email ? [profileData.email] : (rawProfile?.emails || mockProfile.emails),
+    ...editorContactValues(profileData, rawProfile || mockProfile),
     location: profileData?.location || rawProfile?.location || mockProfile.location,
     avatarUrl: profileData?.avatarUrl || rawProfile?.avatarUrl || mockProfile.avatarUrl,
     bannerUrl: profileData?.bannerUrl || rawProfile?.bannerUrl || mockProfile.bannerUrl,
     gallery: profileData?.gallery?.length ? profileData.gallery : (rawProfile?.gallery || mockProfile.gallery),
     socials: profileData?.socials
-      ? (profileData.socialOrder || Object.keys(profileData.socials))
-          .filter(platform => profileData.socials[platform])
-          .map(platform => ({ platform: platform.charAt(0).toUpperCase() + platform.slice(1), href: profileData.socials[platform] }))
+      ? configuredSocials(profileData.socials, profileData.socialOrder)
       : (rawProfile?.socials || mockProfile.socials),
     services: rawProfile?.services || mockProfile.services,
     hours: rawProfile?.hours || mockProfile.hours,
@@ -132,7 +135,11 @@ export default function CoiffeurTemplate({ profile: rawProfile, profileData, isE
       >
         <CoiffeurBackground className="h-full min-h-0">
           <main className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <HeroSection profile={profile} isEditMode={isEditMode} />
+            <HeroSection
+              profile={profile}
+              isEditMode={isEditMode}
+              lockProfileIdentity={lockProfileIdentity}
+            />
             <QuickActions profile={profile} />
 
             <Suspense fallback={<SectionFallback />}>

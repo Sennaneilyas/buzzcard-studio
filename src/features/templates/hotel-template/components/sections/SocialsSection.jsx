@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { SiInstagram, SiTripadvisor, SiFacebook, SiGooglemaps, SiAirbnb, SiBookingdotcom } from "react-icons/si";
+import { SiInstagram, SiTripadvisor, SiFacebook, SiGooglemaps, SiAirbnb, SiBookingdotcom, SiWhatsapp } from "react-icons/si";
 import { SectionWrapper } from "../ui/SectionWrapper";
 import { fadeInUp } from "../../utils/animations";
 
@@ -10,6 +10,7 @@ const iconMap = {
   GoogleMaps: <SiGooglemaps className="w-[22px] h-[22px]" />,
   Airbnb: <SiAirbnb className="w-[22px] h-[22px]" />,
   Booking: <SiBookingdotcom className="w-[20px] h-[20px]" />,
+  Whatsapp: <SiWhatsapp className="w-[22px] h-[22px]" />,
 };
 
 const colorMap = {

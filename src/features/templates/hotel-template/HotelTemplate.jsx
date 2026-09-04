@@ -5,6 +5,7 @@ import { HeroSection } from "./components/sections/HeroSection";
 import { mockHotelProfile } from "./utils/constants";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
+import { configuredSocials, editorContactValues } from "@/features/templates/shared/profileActions";
 import "./hotel-template.css";
 
 // Lazy loaded sections (below the fold)
@@ -74,7 +75,13 @@ const normalizeSocialPlatform = (platform = "") => {
   return HOTEL_SOCIAL_LABELS[key] || platform;
 };
 
-export default function HotelTemplate({ profile: rawProfile, profileData, isEditMode, onPreviewClick }) {
+export default function HotelTemplate({
+  profile: rawProfile,
+  profileData,
+  isEditMode,
+  lockProfileIdentity = false,
+  onPreviewClick,
+}) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
   const scrollContainerRef = useRef(null);
   // In Edit Mode, the Editor sends a flat `profileData` from Zustand.
@@ -88,12 +95,7 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
     // Map editor flat-field names → hotel template field names
     name: (profileData?.name || rawProfile?.name || mockHotelProfile.name),
     about: (profileData?.bio || rawProfile?.about || mockHotelProfile.about),
-    phones: profileData?.phone
-      ? [profileData.phone]
-      : (rawProfile?.phones || mockHotelProfile.phones),
-    emails: profileData?.email
-      ? [profileData.email]
-      : (rawProfile?.emails || mockHotelProfile.emails),
+    ...editorContactValues(profileData, rawProfile || mockHotelProfile),
     location: profileData?.location || rawProfile?.location || mockHotelProfile.location,
     website: profileData?.website || rawProfile?.website || mockHotelProfile.website,
     avatarUrl: (profileData?.avatarUrl || rawProfile?.avatarUrl || mockHotelProfile.avatarUrl),
@@ -102,12 +104,10 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
     tagline: (profileData?.role || rawProfile?.tagline || mockHotelProfile.tagline),
     // Socials: if editor has socials object, map it into the hotel's socials array format
     socials: profileData?.socials
-      ? (profileData.socialOrder || Object.keys(profileData.socials))
-          .filter(platform => profileData.socials[platform])
-          .map(platform => ({
-            platform: normalizeSocialPlatform(platform),
-            href: profileData.socials[platform],
-          }))
+      ? configuredSocials(profileData.socials, profileData.socialOrder).map(social => ({
+          ...social,
+          platform: normalizeSocialPlatform(social.platform),
+        }))
       : (rawProfile?.socials || mockHotelProfile.socials),
     // Keep hotel-specific fields from mock
     rooms: rawProfile?.rooms || mockHotelProfile.rooms,
@@ -133,6 +133,7 @@ export default function HotelTemplate({ profile: rawProfile, profileData, isEdit
               <HeroSection
                 profile={profile}
                 isEditMode={isEditMode}
+                lockProfileIdentity={lockProfileIdentity}
                 scrollContainerRef={scrollContainerRef}
               />
             </div>

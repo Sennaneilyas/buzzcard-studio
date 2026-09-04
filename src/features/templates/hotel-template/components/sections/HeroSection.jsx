@@ -3,8 +3,14 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import EditableImage from "@/components/ui/EditableImage";
 import EditableText from "@/components/ui/EditableText";
 import { useEditorStore } from "@/features/editor/store/useEditorStore";
+import { PROFILE_MEDIA_CATEGORIES } from "@/features/editor/media/profileMedia";
 
-export function HeroSection({ profile, isEditMode, scrollContainerRef }) {
+export function HeroSection({
+  profile,
+  isEditMode,
+  lockProfileIdentity = false,
+  scrollContainerRef,
+}) {
   const setProfileData = useEditorStore((s) => s.setProfileData);
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -30,6 +36,7 @@ export function HeroSection({ profile, isEditMode, scrollContainerRef }) {
           src={profile.bannerUrl || ""}
           alt={profile.name}
           isEditMode={isEditMode}
+          category={PROFILE_MEDIA_CATEGORIES.COVER}
           onChange={(val) => setProfileData({ bannerUrl: val })}
           containerClassName="absolute inset-0 h-full w-full"
         />
@@ -61,7 +68,8 @@ export function HeroSection({ profile, isEditMode, scrollContainerRef }) {
               <EditableImage
                 src={profile.avatarUrl || ""}
                 alt={`${profile.name} Logo`}
-                isEditMode={isEditMode}
+                isEditMode={isEditMode && !lockProfileIdentity}
+                category={PROFILE_MEDIA_CATEGORIES.AVATAR}
                 onChange={(val) => setProfileData({ avatarUrl: val })}
                 className="w-full h-full object-cover"
               />
@@ -97,7 +105,7 @@ export function HeroSection({ profile, isEditMode, scrollContainerRef }) {
           as="h1"
           value={profile.name || ""}
           onChange={(val) => setProfileData({ name: val })}
-          isEditMode={isEditMode}
+          isEditMode={isEditMode && !lockProfileIdentity}
           placeholder="Hotel Name"
           className="w-full px-4 text-center font-hotel-display font-semibold leading-tight text-[var(--hotel-ivory)]"
           style={{

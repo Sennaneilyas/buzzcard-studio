@@ -108,14 +108,14 @@ export function BottomAction({ profile, isEditMode = false }) {
       >
         <div className="bg-[var(--hotel-espresso)]/95 backdrop-blur-md rounded-full p-1.5 shadow-[0_10px_30px_rgba(59,42,34,0.5)] border border-[var(--hotel-mocha)]/30 flex items-center justify-between gap-3 pointer-events-auto w-full">
         {/* Book Now CTA */}
-        <motion.a
+        {profile.phones?.[0] && <motion.a
           whileTap={{ scale: 0.96 }}
           href={`tel:${profile.phones?.[0]}`}
           className="flex-1 h-[46px] bg-white/10 hover:bg-white/20 text-[var(--hotel-latte)] rounded-full flex items-center justify-center gap-2 font-bold text-[14px] shadow-sm transition-all font-hotel-body"
         >
           <Phone className="w-4 h-4" strokeWidth={2.2} />
           <span>Réserver</span>
-        </motion.a>
+        </motion.a>}
 
           {/* Native sharing on mobile; existing menu remains the desktop fallback. */}
           <div className="shrink-0 flex justify-center items-center relative -mt-6">
