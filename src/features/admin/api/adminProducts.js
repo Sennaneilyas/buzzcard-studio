@@ -124,3 +124,26 @@ export async function saveCategoryPositions(updates) {
   const failed = results.find((r) => r.error);
   if (failed) throw failed.error;
 }
+
+/**
+ * Updates a product's badge text (e.g. "Best Seller", "Promo", or null to clear).
+ */
+export async function updateProductBadge(productId, badge) {
+  const { error } = await supabase
+    .from("products")
+    .update({ badge: badge || null })
+    .eq("id", productId);
+  if (error) throw error;
+}
+
+/**
+ * Updates a product's stock count.
+ */
+export async function updateProductStock(productId, stock) {
+  const { error } = await supabase
+    .from("products")
+    .update({ stock })
+    .eq("id", productId);
+  if (error) throw error;
+}
+

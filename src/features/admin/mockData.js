@@ -8,6 +8,10 @@ export const MOCK_STATS = {
   publishedProfiles: 87,
   totalOrders: 213,
   totalRevenue: 94750,
+  // Previous period comparison (for % change badges)
+  prevOrders: 189,
+  prevRevenue: 82400,
+  prevProfiles: 132,
 };
 
 // 30-day trend — generates realistic-looking daily order data
@@ -15,9 +19,11 @@ const today = new Date();
 export const MOCK_ORDERS_OVER_TIME = Array.from({ length: 30 }, (_, i) => {
   const d = new Date(today);
   d.setDate(d.getDate() - (29 - i));
+  const orders = Math.floor(Math.random() * 12) + 1;
   return {
     date: d.toISOString().slice(0, 10),
-    orders: Math.floor(Math.random() * 12) + 1,
+    orders,
+    revenue: orders * (Math.floor(Math.random() * 200) + 150),
   };
 });
 

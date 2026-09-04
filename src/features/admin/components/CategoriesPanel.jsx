@@ -158,6 +158,7 @@ export default function CategoriesPanel({ selectedSlug, onSelect, products = [] 
   const handleDrop = (targetId) => {
     setDragOverId(null);
     if (!dragItem.current || dragItem.current === targetId) return;
+    if (displayedCategories.length <= 1) return; // Nothing to reorder
 
     const cats = [...displayedCategories];
     const fromIdx = cats.findIndex((c) => c.id === dragItem.current);

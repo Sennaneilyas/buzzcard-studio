@@ -10,26 +10,33 @@ import {
   MOCK_PRODUCT_POPULARITY,
 } from "../mockData";
 
-// Set to false once your Supabase data is connected and populated.
+// Set to false once your Supabase RPCs are deployed.
 const USE_MOCK = true;
 
-export function useAdminStats() {
+/**
+ * @param {string} period - "3d" | "7d" | "30d" | "365d"
+ */
+export function useAdminStats(period = "30d") {
   return useQuery({
-    queryKey: ["admin", "stats"],
+    queryKey: ["admin", "stats", period],
     queryFn: async () => {
       if (USE_MOCK) return MOCK_STATS;
-      return fetchAdminStats();
+      return fetchAdminStats(period);
     },
     staleTime: 1000 * 60 * 2,
   });
 }
 
-export function useOrdersOverTime() {
+/**
+ * @param {string} period - "3d" | "7d" | "30d" | "365d"
+ */
+export function useOrdersOverTime(period = "30d") {
   return useQuery({
-    queryKey: ["admin", "orders-over-time"],
+    queryKey: ["admin", "orders-over-time", period],
     queryFn: async () => {
-      if (USE_MOCK) return MOCK_ORDERS_OVER_TIME;
-      return fetchOrdersOverTime();
+      const days = parseInt(period, 10) || 30;
+      if (USE_MOCK) return MOCK_ORDERS_OVER_TIME.slice(-days);
+      return fetchOrdersOverTime(period);
     },
     staleTime: 1000 * 60 * 5,
   });

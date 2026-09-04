@@ -38,19 +38,14 @@ export default function AdminLayout() {
 
         {/* Logo */}
         <div className="px-5 pt-6 pb-5 border-b border-black/[0.05]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center shrink-0">
-              <img
-                src="/justlogo.png"
-                alt="BuzzCard"
-                className="w-5 h-5 object-contain brightness-0 invert"
-              />
-            </div>
-            <div className="leading-tight">
-              <p className="text-[14px] font-bold text-black tracking-tight">BuzzCard</p>
-              <p className="text-[10px] font-medium text-black/30 uppercase tracking-widest">Admin</p>
-            </div>
-          </div>
+          <img
+            src="/logoHB.svg"
+            alt="BuzzCard"
+            className="h-6 w-auto object-contain"
+          />
+          <p className="mt-1.5 text-[10px] font-medium text-black/25 uppercase tracking-widest">
+            Admin
+          </p>
         </div>
 
         {/* Navigation */}

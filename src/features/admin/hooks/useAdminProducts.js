@@ -6,6 +6,8 @@ import {
   toggleProductActive,
   toggleCategoryActive,
   saveCategoryPositions,
+  updateProductBadge,
+  updateProductStock,
 } from "../api/adminProducts";
 import { MOCK_PRODUCTS, MOCK_CATEGORIES } from "../mockData";
 
@@ -125,6 +127,64 @@ export function useSaveCategoryPositions() {
     onSettled: () => {
       if (!USE_MOCK) {
         queryClient.invalidateQueries({ queryKey: ["admin", "categories"] });
+        queryClient.invalidateQueries({ queryKey: ["product-catalog"] });
+      }
+    },
+  });
+}
+
+export function useUpdateProductBadge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, badge }) => {
+      if (USE_MOCK) return Promise.resolve();
+      return updateProductBadge(productId, badge);
+    },
+    onMutate: async ({ productId, badge }) => {
+      await queryClient.cancelQueries({ queryKey: ["admin", "products"] });
+      const prev = queryClient.getQueryData(["admin", "products"]);
+      queryClient.setQueryData(["admin", "products"], (old) =>
+        old?.map((p) => (p.id === productId ? { ...p, badge } : p))
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      queryClient.setQueryData(["admin", "products"], ctx.prev);
+    },
+    onSettled: () => {
+      if (!USE_MOCK) {
+        queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
+        queryClient.invalidateQueries({ queryKey: ["product-catalog"] });
+      }
+    },
+  });
+}
+
+export function useUpdateProductStock() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ productId, stockCount }) => {
+      if (USE_MOCK) return Promise.resolve();
+      return updateProductStock(productId, stockCount);
+    },
+    onMutate: async ({ productId, stockCount }) => {
+      await queryClient.cancelQueries({ queryKey: ["admin", "products"] });
+      const prev = queryClient.getQueryData(["admin", "products"]);
+      queryClient.setQueryData(["admin", "products"], (old) =>
+        old?.map((p) =>
+          p.id === productId
+            ? { ...p, stockCount, stock: stockCount > 0 ? "in_stock" : "out_of_stock" }
+            : p
+        )
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      queryClient.setQueryData(["admin", "products"], ctx.prev);
+    },
+    onSettled: () => {
+      if (!USE_MOCK) {
+        queryClient.invalidateQueries({ queryKey: ["admin", "products"] });
         queryClient.invalidateQueries({ queryKey: ["product-catalog"] });
       }
     },
