@@ -39,19 +39,19 @@ Use this document when the product owner provides access to a Meta for Developer
 7. Add these redirect URLs (replace the production domain when it is known):
 
    ```text
-   http://localhost:5173/onboarding
-   https://<production-domain>/onboarding
+   http://localhost:5173/auth
+   https://<production-domain>/auth
    ```
 
-The frontend sends users to `/onboarding` after OAuth, so those values must be on Supabase's redirect allow list.
+The provider returns to `/auth` with a safe `returnTo` query. Signup then defaults to `/onboarding`; returning login defaults to `/dashboard`.
 
 ## End-to-end verification
 
 1. Use a Facebook account with a confirmed email address and an assigned Meta tester role.
 2. Open the app at `http://localhost:5173/auth`.
 3. Select **Facebook** and approve the permissions request.
-4. Confirm that the browser returns to `/onboarding` with an authenticated Supabase session.
-5. In Supabase, confirm that a matching row was created in `profiles` by the signup trigger.
+4. Confirm that signup reaches `/onboarding`, while returning login reaches `/dashboard`, with an authenticated Supabase session.
+5. In Supabase, confirm that the auth user exists and no `profiles` row was created automatically.
 6. Confirm `auth.users.raw_user_meta_data` contains the expected name and avatar information when Facebook supplies it.
 7. Repeat with an existing BuzzCard account using the same verified email to confirm identity linking behaves safely.
 

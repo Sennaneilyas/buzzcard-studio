@@ -1,101 +1,107 @@
-import { User, Briefcase, Mail, Phone, FileText } from "lucide-react";
+import { Image as ImageIcon, Tag, User } from "lucide-react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
-import { useFormContext } from "react-hook-form";
 
 export default function StepBasicInfo() {
-  const { register, formState: { errors } } = useFormContext();
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useFormContext();
+  const avatarUrl = useWatch({ control, name: "avatarUrl" });
 
-  const inputClass = "w-full pl-11 pr-4 py-3 bg-white text-sm text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-gray-900 focus:outline-none transition-colors";
-  const errorClass = "border-red-300 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 text-red-900 placeholder:text-red-300";
-  const iconClass = "h-4 w-4 text-gray-400";
-  const labelClass = "block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1";
+  const inputClass =
+    "w-full rounded-xl border border-gray-200 bg-white py-3 pl-11 pr-4 text-sm text-gray-900 placeholder-gray-400 transition-colors focus:border-gray-900 focus:outline-none";
+  const errorClass =
+    "border-red-300 text-red-900 placeholder:text-red-300 focus:border-red-500";
+  const labelClass =
+    "mb-2 ml-1 block text-xs font-bold uppercase tracking-wider text-gray-500";
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Full Name */}
+    <div className="rounded-3xl border border-black/[0.05] bg-white p-5 shadow-xl shadow-black/[0.04] sm:p-8">
+      <div className="mb-7 flex items-center gap-4">
+        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cloud text-navy">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Avatar preview"
+              className="size-full object-cover"
+            />
+          ) : (
+            <User className="size-7" />
+          )}
+        </div>
         <div>
-          <label className={labelClass}>Full Name</label>
+          <h2 className="text-lg font-bold text-navy">Your profile identity</h2>
+          <p className="mt-1 text-sm leading-relaxed text-ink/55">
+            Keep it simple. Profile content and sections are added later in Studio.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+          <label className={labelClass} htmlFor="onboarding-display-name">
+            Display name
+          </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <User className={iconClass} />
-            </div>
+            <User className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
             <input
+              id="onboarding-display-name"
               type="text"
-              placeholder="e.g. Vanessa Joe"
-              className={cn(inputClass, errors.name && errorClass)}
-              {...register("name")}
+              autoComplete="name"
+              placeholder="e.g. Salma El Amrani"
+              className={cn(inputClass, errors.displayName && errorClass)}
+              {...register("displayName")}
             />
           </div>
-          {errors.name && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.name.message}</p>}
+          {errors.displayName && (
+            <p className="ml-1 mt-1 text-xs font-medium text-red-500">
+              {errors.displayName.message}
+            </p>
+          )}
         </div>
 
-        {/* Role / Job Title */}
         <div>
-          <label className={labelClass}>Job Title or Role</label>
+          <label className={labelClass} htmlFor="onboarding-profile-label">
+            Profile label <span className="normal-case tracking-normal">(optional)</span>
+          </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Briefcase className={iconClass} />
-            </div>
+            <Tag className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
             <input
+              id="onboarding-profile-label"
               type="text"
-              placeholder="e.g. Creative Director"
-              className={cn(inputClass, errors.role && errorClass)}
-              {...register("role")}
+              placeholder="e.g. Personal card"
+              className={inputClass}
+              {...register("profileLabel")}
             />
           </div>
-          {errors.role && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.role.message}</p>}
         </div>
 
-        {/* Email */}
-        <div>
-          <label className={labelClass}>Contact Email</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Mail className={iconClass} />
-            </div>
-            <input
-              type="email"
-              placeholder="hello@example.com"
-              className={cn(inputClass, errors.email && errorClass)}
-              {...register("email")}
-            />
-          </div>
-          {errors.email && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.email.message}</p>}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className={labelClass}>Phone Number</label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Phone className={iconClass} />
-            </div>
-            <input
-              type="tel"
-              placeholder="+212 6 00 00 00 00"
-              className={cn(inputClass, errors.phone && errorClass)}
-              {...register("phone")}
-            />
-          </div>
-          {errors.phone && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.phone.message}</p>}
-        </div>
-
-        {/* Bio */}
         <div className="md:col-span-2">
-          <label className={labelClass}>Short Bio</label>
+          <label className={labelClass} htmlFor="onboarding-avatar-url">
+            Avatar image URL <span className="normal-case tracking-normal">(optional)</span>
+          </label>
           <div className="relative">
-            <div className="absolute top-3 left-0 pl-4 flex items-start pointer-events-none">
-              <FileText className={iconClass} />
-            </div>
-            <textarea
-              placeholder="Write a brief intro about yourself..."
-              rows={4}
-              className={cn(inputClass, "pl-11 resize-none", errors.bio && errorClass)}
-              {...register("bio")}
+            <ImageIcon className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+            <input
+              id="onboarding-avatar-url"
+              type="url"
+              inputMode="url"
+              placeholder="https://example.com/avatar.jpg"
+              className={cn(inputClass, errors.avatarUrl && errorClass)}
+              {...register("avatarUrl")}
             />
           </div>
-          {errors.bio && <p className="text-[10px] text-red-500 font-medium ml-1 mt-1">{errors.bio.message}</p>}
+          {errors.avatarUrl ? (
+            <p className="ml-1 mt-1 text-xs font-medium text-red-500">
+              {errors.avatarUrl.message}
+            </p>
+          ) : (
+            <p className="ml-1 mt-2 text-xs text-ink/45">
+              Provider avatars are prefilled when available. File uploads arrive with Storage in a later milestone.
+            </p>
+          )}
         </div>
       </div>
     </div>

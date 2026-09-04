@@ -32,8 +32,8 @@ The Supabase built-in email service is only intended for demos and early testing
 7. Add the exact post-authentication redirect URLs used by the app:
 
    ```text
-   http://localhost:5173/onboarding
-   https://<production-domain>/onboarding
+   http://localhost:5173/auth
+   https://<production-domain>/auth
    http://localhost:5173/auth/reset-password
    https://<production-domain>/auth/reset-password
    ```
@@ -45,7 +45,7 @@ The Supabase built-in email service is only intended for demos and early testing
 ## Application behavior to preserve
 
 - The client uses `supabase.auth.signInWithOtp()` for Magic Link delivery.
-- The redirect target must be an allow-listed `/onboarding` URL.
+- The provider callback must use the allow-listed `/auth` URL. The client then applies the safe onboarding/dashboard destination.
 - Signup with Magic Link must require acceptance of Terms and Privacy Policy.
 - Passwordless signup must also require first and last name, then save
   `first_name`, `last_name`, and `full_name` in the new user's metadata.
@@ -58,8 +58,8 @@ The Supabase built-in email service is only intended for demos and early testing
 1. Open the app at `http://localhost:5173/auth`.
 2. Request a Magic Link using a non-team email address.
 3. Confirm the message arrives from the verified BuzzCard sender domain.
-4. Click the link and verify the browser returns to `/onboarding` with a valid session.
-5. Confirm that a new user receives a `profiles` row through the existing `handle_new_user()` trigger.
+4. Click the link and verify signup reaches `/onboarding` with a valid session; verify returning login reaches `/dashboard`.
+5. Confirm that the auth user exists and no `profiles` row is created until template setup begins.
 6. Test an existing account to verify it signs in without creating a duplicate user.
 7. Request a second link immediately and verify the UI and Supabase limit prevent unintended email bursts.
 

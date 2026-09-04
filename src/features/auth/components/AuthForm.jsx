@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuthStore } from "../store/useAuthStore";
 import { getSafeReturnTo } from "../utils/returnTo";
+import { getDefaultAuthDestination } from "../utils/profileRouting";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -56,8 +57,15 @@ export default function AuthForm() {
   const navigate = useNavigate();
   const isSignup = searchParams.get("mode") !== "login";
   const requestedReturnTo = searchParams.get("returnTo");
-  const returnTo = getSafeReturnTo(requestedReturnTo);
-  const authRedirectUrl = `${window.location.origin}/auth?returnTo=${encodeURIComponent(returnTo)}`;
+  const returnTo = getSafeReturnTo(
+    requestedReturnTo,
+    getDefaultAuthDestination(isSignup),
+  );
+  const authRedirectParams = new URLSearchParams({
+    mode: isSignup ? "signup" : "login",
+    returnTo,
+  });
+  const authRedirectUrl = `${window.location.origin}/auth?${authRedirectParams.toString()}`;
 
   const currentSchema = isSignup
     ? (authMethod === "magic-link" ? magicLinkSignupSchema : signupSchema)
