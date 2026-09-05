@@ -12,7 +12,8 @@ export function useAdminOrders() {
       if (USE_MOCK) return MOCK_ORDERS;
       return fetchAllOrders();
     },
-    staleTime: 1000 * 60 * 1,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 60, // Keep in memory for 1 hour
   });
 }
 

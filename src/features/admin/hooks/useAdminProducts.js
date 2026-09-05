@@ -21,7 +21,8 @@ export function useAdminProducts() {
       if (USE_MOCK) return MOCK_PRODUCTS;
       return fetchAdminProducts();
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 }
 
@@ -32,7 +33,8 @@ export function useAdminCategories() {
       if (USE_MOCK) return MOCK_CATEGORIES;
       return fetchAdminCategories();
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 30, // 30 minutes
+    gcTime: 1000 * 60 * 60, // 1 hour
   });
 }
 
